@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}HopeBridge - Every Donation Gives Hope{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <p class="eyebrow">Together, we can</p>
+                <h1>Every Donation <span>Gives Hope</span></h1>
+                <p class="hero-copy">Help cancer patients get the treatment they need. Your support can save lives and bring smiles to families.</p>
+                <div class="d-flex flex-wrap gap-3">
+                    <a class="btn btn-primary btn-lg" href="{{ url_for('campaign_list') }}">Donate Now</a>
+                    <a class="btn btn-outline-primary btn-lg" href="{{ url_for('register') }}">Start a Campaign</a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="hero-photo-wrap">
+                    <div class="heart heart-one"></div>
+                    <div class="heart heart-two"></div>
+                    <img class="hero-photo" src="https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=900&q=80" alt="Smiling child holding teddy bear">
+                </div>
+            </div>
+        </div>
+        <div class="stats-ribbon">
+            <div><i class="bi bi-person-hearts"></i><strong>1,250+</strong><span>Patients Helped</span></div>
+            <div><i class="bi bi-people"></i><strong>250+</strong><span>Active Campaigns</span></div>
+            <div><i class="bi bi-heart"></i><strong>18,750+</strong><span>Donors Worldwide</span></div>
+            <div><i class="bi bi-piggy-bank"></i><strong>$2.5M+</strong><span>Raised for Treatment</span></div>
+        </div>
+    </div>
+</section>
+
+<section class="section-pad" id="campaigns">
+    <div class="container">
+        <div class="section-heading">
+            <div>
+                <h2>Featured Campaigns</h2>
+                <p>Support verified cancer patients and help them fight back.</p>
+            </div>
+            <a href="{{ url_for('campaign_list') }}">View All Campaigns <i class="bi bi-arrow-right"></i></a>
+        </div>
+        <div class="row g-4">
+            {% for campaign in campaigns %}
+            <div class="col-md-6 col-lg-4">
+                {% include "partials/campaign_card.html" %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="section-pad pt-0" id="how">
+    <div class="container">
+        <h2 class="text-center mb-4">Why <span class="text-primary">Donate With Us?</span></h2>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3"><div class="feature-box"><i class="bi bi-shield-check"></i><h5>Verified Campaigns</h5><p>All campaigns are verified before being published.</p></div></div>
+            <div class="col-md-6 col-lg-3"><div class="feature-box"><i class="bi bi-lock"></i><h5>Secure Donations</h5><p>Your donations are safe with our secure system.</p></div></div>
+            <div class="col-md-6 col-lg-3"><div class="feature-box"><i class="bi bi-eye"></i><h5>Transparent Process</h5><p>Track your donation and see the impact in real time.</p></div></div>
+            <div class="col-md-6 col-lg-3"><div class="feature-box"><i class="bi bi-heart"></i><h5>Make An Impact</h5><p>Your support brings hope and saves lives.</p></div></div>
+        </div>
+    </div>
+</section>
+{% endblock %}

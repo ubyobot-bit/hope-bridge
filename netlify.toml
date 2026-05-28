@@ -1,0 +1,38 @@
+[build]
+  command = "python3 build_static.py"
+  publish = "netlify-site"
+
+[[redirects]]
+  from = "/campaigns"
+  to = "/campaigns/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/campaign/1"
+  to = "/campaign/1/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/campaign/2"
+  to = "/campaign/2/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/campaign/3"
+  to = "/campaign/3/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/login"
+  to = "/login/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/register"
+  to = "/register/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/dashboard"
+  to = "/dashboard/index.html"
+  status = 200

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - HopeBridge{% endblock %}
+
+{% block shell %}
+<main class="dashboard-shell">
+    <aside class="sidebar">
+        <a class="brand-mark text-white" href="{{ url_for('home') }}"><span class="brand-icon light"><i class="bi bi-flower1"></i></span>HopeBridge</a>
+        <nav>
+            <a class="active" href="#"><i class="bi bi-speedometer2"></i>Dashboard</a>
+            <a href="#"><i class="bi bi-cash-stack"></i>My Donations</a>
+            <a href="#"><i class="bi bi-folder"></i>My Campaigns</a>
+            <a href="{{ url_for('register') }}"><i class="bi bi-plus-circle"></i>Start Campaign</a>
+            <a href="#"><i class="bi bi-chat-dots"></i>Messages</a>
+            <a href="#"><i class="bi bi-person"></i>Profile</a>
+            <a href="#"><i class="bi bi-gear"></i>Settings</a>
+            <a href="{{ url_for('home') }}"><i class="bi bi-box-arrow-left"></i>Logout</a>
+        </nav>
+    </aside>
+    <section class="dashboard-main">
+        <header class="dashboard-header">
+            <h1>Dashboard</h1>
+            <span>Welcome, John Doe</span>
+        </header>
+        <div class="metric-grid">
+            <div class="metric"><i class="bi bi-piggy-bank"></i><strong>$550</strong><span>Total Donations</span></div>
+            <div class="metric"><i class="bi bi-box-arrow-up-right"></i><strong>3</strong><span>Campaigns Supported</span></div>
+            <div class="metric"><i class="bi bi-heart-fill"></i><strong>$5,200</strong><span>Total Raised</span></div>
+            <div class="metric"><i class="bi bi-heart"></i><strong>12</strong><span>Donations Received</span></div>
+        </div>
+        <div class="row g-4 mt-1">
+            <div class="col-lg-6">
+                <div class="panel-card">
+                    <h3>Recent Donations</h3>
+                    {% for donation in donations %}
+                    <div class="dash-list">
+                        <div class="avatar">{{ donation.name[0] }}</div>
+                        <div><strong>{{ donation.campaign }}</strong><span>{{ donation.date }}</span></div>
+                        <b>{{ donation.amount | money }}</b>
+                    </div>
+                    {% endfor %}
+                    <a href="#">View All</a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="panel-card">
+                    <h3>My Campaigns</h3>
+                    {% for campaign in campaigns %}
+                    {% set percent = (campaign.raised / campaign.goal * 100) | round | int %}
+                    <div class="campaign-progress">
+                        <div class="d-flex justify-content-between"><strong>{{ campaign.name }}</strong><span>{{ percent }}%</span></div>
+                        <small>{{ campaign.raised | money }} raised of {{ campaign.goal | money }}</small>
+                        <div class="progress slim-progress"><div class="progress-bar" style="width: {{ percent }}%"></div></div>
+                    </div>
+                    {% endfor %}
+                    <a class="btn btn-outline-primary mt-3" href="{{ url_for('campaign_list') }}">View All Campaigns</a>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+{% endblock %}

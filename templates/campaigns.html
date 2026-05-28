@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Campaigns - HopeBridge{% endblock %}
+
+{% block content %}
+<section class="page-top">
+    <div class="container">
+        <p class="eyebrow">Verified care campaigns</p>
+        <h1>Choose a patient to support</h1>
+        <p>Every campaign below is reviewed for clarity, need, and organizer details.</p>
+    </div>
+</section>
+<section class="section-pad">
+    <div class="container">
+        <div class="row g-4">
+            {% for campaign in campaigns %}
+            <div class="col-md-6 col-lg-4">
+                {% include "partials/campaign_card.html" %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}{{ campaign.title }} - HopeBridge{% endblock %}
+
+{% block content %}
+{% set percent = (campaign.raised / campaign.goal * 100) | round | int %}
+<section class="detail-page">
+    <div class="container">
+        <div class="breadcrumb-line">Home <i class="bi bi-chevron-right"></i> Campaigns <i class="bi bi-chevron-right"></i> {{ campaign.title }}</div>
+        <div class="row g-4 align-items-start">
+            <div class="col-lg-8">
+                <div class="detail-card">
+                    <img class="detail-image" src="{{ campaign.image }}" alt="{{ campaign.title }}">
+                    <div class="detail-content">
+                        <div class="d-flex flex-wrap justify-content-between gap-3">
+                            <h1>{{ campaign.title }}</h1>
+                            <span class="pill">{{ campaign.category }}</span>
+                        </div>
+                        <p>{{ campaign.story }}</p>
+                        <div class="info-grid">
+                            <div><small>Organizer</small><strong>{{ campaign.organizer }}</strong></div>
+                            <div><small>Location</small><strong>{{ campaign.location }}</strong></div>
+                            <div><small>Category</small><strong>Medical</strong></div>
+                            <div><small>Verified</small><strong>Yes</strong></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="story-block">
+                    <h4>Story</h4>
+                    <p>{{ campaign.story }} Donations will be used for treatment, hospital visits, medicine, nutrition, and family support during the recovery period.</p>
+                    <h4>Recent Donations</h4>
+                    <div class="row g-3">
+                        {% for donation in donations %}
+                        <div class="col-md-4">
+                            <div class="donation-mini">
+                                <strong>{{ donation.name }}</strong>
+                                <span>{{ donation.date }}</span>
+                                <b>{{ donation.amount | money }}</b>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <aside class="donation-panel sticky-lg-top">
+                    <h3>{{ campaign.raised | money }} <span>raised of {{ campaign.goal | money }} goal</span></h3>
+                    <div class="progress mb-2"><div class="progress-bar" style="width: {{ percent }}%"></div></div>
+                    <div class="text-end text-success fw-bold">{{ percent }}%</div>
+                    <div class="donation-counts">
+                        <div><strong>45</strong><span>Donors</span></div>
+                        <div><strong>12</strong><span>Days Left</span></div>
+                    </div>
+                    <form method="post">
+                        <h5>Donate Now</h5>
+                        <div class="amount-grid">
+                            {% for amount in [25, 50, 100, 250, 500] %}
+                            <label><input type="radio" name="amount" value="{{ amount }}" {% if loop.first %}checked{% endif %}>${{ amount }}</label>
+                            {% endfor %}
+                            <label><input type="radio" name="amount" value="Other">Other</label>
+                        </div>
+                        <button class="btn btn-primary w-100 mt-3">Donate Now</button>
+                    </form>
+                    <p class="or-line">Or donate using</p>
+                    <div class="pay-icons">
+                        <i class="bi bi-credit-card"></i><i class="bi bi-paypal"></i><i class="bi bi-bank"></i><i class="bi bi-wallet2"></i>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
