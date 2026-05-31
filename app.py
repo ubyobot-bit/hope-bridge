@@ -148,7 +148,8 @@ def register():
         db.session.add(user)
         db.session.commit()
 
-        login_user(user)
+        remember = request.form.get("remember") == "on"
+        login_user(user, remember=remember)
         flash("Your account has been created.", "success")
         return redirect(url_for("dashboard"))
 
