@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from urllib.parse import quote_plus
 
-from flask import Flask, flash, redirect, render_template, request, url_for
+from flask import Flask, abort, flash, redirect, render_template, request, url_for
 from flask_login import (
     LoginManager,
     UserMixin,
@@ -49,6 +49,7 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(255), nullable=True)
     reset_token = db.Column(db.String(120), unique=True, nullable=True)
     reset_token_expires = db.Column(db.DateTime, nullable=True)
+    is_admin = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     campaigns = db.relationship("Campaign", backref="owner", lazy=True)
@@ -332,57 +333,150 @@ ABOUT_VALUES = [
     ("Fast Support", "Our payment options and partner workflows help urgent care move without unnecessary delay."),
 ]
 
-PROJECT_IMAGE_POOL = [
-    "https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1538108149393-fbbd81895907?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1587854692152-cbe660dbde88?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=900&q=80",
+PROJECT_COMPLETION_DETAILS = [
+    ("Radiology Access Fund", "$24,850", "CT and ultrasound scans were paid for 38 patients before treatment decisions were delayed."),
+    ("Emergency Surgery Bridge", "$33,420", "Urgent surgical deposits were released within 48 hours for families in crisis."),
+    ("Patient Nutrition Support", "$11,960", "Protein meals and recovery groceries reached patients completing chemotherapy cycles."),
+    ("Rural Screening Outreach", "$19,730", "Volunteer clinicians completed community screenings and referred high-risk residents for care."),
+    ("Caregiver Housing Relief", "$14,280", "Short-stay accommodation kept caregivers close to loved ones during specialist appointments."),
+    ("Medication Access Desk", "$26,640", "Verified prescriptions were filled for patients who had exhausted their insurance limits."),
+    ("Children's Recovery Fund", "$38,900", "Pediatric patients received lab support, ward supplies, and family travel assistance."),
+    ("Transport To Treatment", "$10,450", "Reliable hospital rides were arranged for patients living outside major city centers."),
+    ("Chemotherapy Subsidy Drive", "$45,250", "Treatment sessions were subsidized through clinic partners and documented donor reporting."),
+    ("Diagnostic Test Sponsorship", "$21,875", "Biopsy, bloodwork, and imaging fees were covered for newly referred patients."),
+    ("Family Care Grant", "$16,300", "Small household grants helped families stay stable while primary earners received care."),
+    ("Post-Surgery Recovery Aid", "$23,780", "Follow-up visits, dressing supplies, and recovery medication were funded in full."),
+    ("Mothers' Oncology Relief", "$29,600", "Mothers in active treatment received transport, childcare, and pharmacy support."),
+    ("Young Survivors Program", "$18,240", "Counselling and follow-up care supported young adults returning to school and work."),
+    ("Hospital Equipment Boost", "$52,700", "Partner wards received infusion chairs, monitors, and sanitation materials."),
+    ("Community Awareness Week", "$8,950", "Nurses delivered early-warning education in markets, schools, and faith communities."),
+    ("Treatment Deposit Reserve", "$31,410", "Rapid-response deposits prevented appointment cancellations for verified campaigns."),
+    ("Home Care Essentials", "$13,520", "Recovery beds, hygiene kits, and wound-care supplies were delivered to homes."),
+    ("Patient Navigation Fund", "$12,680", "Case workers helped families complete hospital paperwork and schedule appointments."),
+    ("Oncology Pharmacy Relief", "$34,760", "High-cost medication vouchers were redeemed by verified patients across partner pharmacies."),
+    ("Lagos Screening Weekend", "$20,340", "Weekend screening booths reached workers who could not attend weekday hospital clinics."),
+    ("Abuja Caregiver Shuttle", "$9,420", "A shared transport schedule reduced missed appointments for families outside Abuja."),
+    ("Port Harcourt Lab Aid", "$17,880", "Lab fees were cleared for patients awaiting treatment-plan confirmation."),
+    ("Kano Pediatric Support", "$28,650", "Children received nutrition support, blood tests, and family counselling services."),
+    ("Ibadan Recovery Meals", "$12,240", "Dietitian-approved meals were supplied to patients with appetite loss during care."),
+    ("Enugu Oncology Fund", "$30,150", "Verified hospital bills were settled directly with the treating facility."),
+    ("Benin Patient Transport", "$10,780", "Long-distance travel grants helped patients keep specialist appointments."),
+    ("Calabar Medicine Bank", "$22,930", "Essential medicines were purchased in bulk and distributed through clinic partners."),
+    ("Jos Early Detection Day", "$15,870", "Community health workers screened residents and documented urgent referrals."),
+    ("Uyo Family Support", "$14,990", "Rent, groceries, and school support stabilized families during intensive treatment."),
+    ("Akure Diagnostic Bridge", "$19,410", "Diagnostic bottlenecks were cleared for patients awaiting final oncology review."),
+    ("Owerri Treatment Grants", "$25,560", "Small treatment grants helped families complete cycles already underway."),
+    ("Ilorin Care Kits", "$9,680", "Comfort kits, hygiene supplies, and post-care instructions reached recovering patients."),
+    ("Asaba Pharmacy Fund", "$16,740", "Prescription gaps were closed for patients beginning second-line medication."),
+    ("Makurdi Screening Bus", "$27,820", "A mobile team brought screening, education, and referrals to underserved communities."),
+    ("Sokoto Patient Lodging", "$13,310", "Families traveling for care received clean lodging near partner hospitals."),
+    ("Warri Follow-Up Fund", "$18,960", "Post-treatment review costs were funded so patients could complete clinical monitoring."),
+    ("Gombe Ward Supplies", "$32,480", "Partner wards received gloves, disinfectant, bedding, and patient comfort items."),
+    ("Abeokuta Survivorship Circle", "$11,540", "Survivors received counselling, nutrition coaching, and peer-support sessions."),
+    ("Maiduguri Relief Grants", "$24,690", "Treatment and family support grants reached patients affected by displacement."),
+    ("Minna Imaging Support", "$20,810", "MRI and CT scan appointments were funded for patients awaiting diagnosis."),
+    ("Nnewi Surgical Aid", "$37,430", "Operating-room deposits and post-operative medications were covered for urgent cases."),
+    ("Kaduna Family Bridge", "$15,620", "Families received emergency food, transport, and communication support during admissions."),
+    ("Ado-Ekiti Medicine Drive", "$18,520", "Pharmacy vouchers helped patients continue prescribed medication without interruption."),
+    ("Yenagoa Screening Desk", "$12,870", "Local volunteers registered residents for screening and follow-up calls."),
+    ("Osogbo Chemotherapy Aid", "$29,780", "Treatment-cycle costs were paid directly to the hospital for verified patients."),
+    ("Birnin Kebbi Care Travel", "$10,240", "Rural patients received travel stipends and appointment reminders."),
+    ("Jalingo Patient Relief", "$17,360", "Emergency support covered consultation fees, tests, and immediate prescriptions."),
+    ("Dutse Recovery Fund", "$21,940", "Patients leaving surgery received home supplies and post-care check-in support."),
+    ("Awka Oncology Access", "$26,180", "Donor funds cleared treatment deposits and specialist review fees."),
+    ("Bauchi Nutrition Basket", "$13,870", "Monthly nutrition baskets supported patients struggling with treatment-related weakness."),
+    ("Lafia Diagnostics Fund", "$19,980", "Imaging and pathology invoices were settled for low-income families."),
+    ("Lokoja Transport Circle", "$9,990", "Coordinated rides helped patients attend radiotherapy and follow-up appointments."),
+    ("Umuaia Pharmacy Support", "$16,220", "Medication top-ups kept patients on schedule through treatment milestones."),
+    ("Damaturu Care Grant", "$23,470", "Emergency grants helped families manage care costs during referral transfers."),
+    ("Oshogbo Home Recovery", "$12,650", "Wound-care materials and home visits were funded after discharge."),
+    ("Zaria Pediatric Relief", "$35,210", "Children received laboratory tests, nutritional support, and caregiver travel help."),
+    ("Ikorodu Screening Clinic", "$18,780", "Pop-up screening served waterfront communities and escalated urgent cases."),
+    ("Surulere Patient Desk", "$20,560", "Navigation support helped patients move from diagnosis to confirmed treatment plans."),
+    ("Wuse Oncology Relief", "$27,140", "Verified families received final support needed to complete active treatment."),
 ]
 
-PROJECT_THEMES = [
-    "Radiology Access Fund", "Emergency Surgery Bridge", "Patient Nutrition Support", "Rural Screening Outreach",
-    "Caregiver Housing Relief", "Medication Relief Pool", "Children's Treatment Fund", "Transport To Treatment",
-    "Chemotherapy Subsidy Drive", "Diagnostic Test Sponsorship", "Family Care Grant", "Post-Surgery Recovery Aid",
+TESTIMONIAL_DETAILS = [
+    ("Amina Yusuf", "My sister's scan was paid the same week we applied, and the hospital confirmed every step."),
+    ("Daniel Reed", "The donation updates were clear enough for me to understand exactly how my support was used."),
+    ("Maria Lopez", "HopeBridge helped my family cover transport when treatment was already draining our savings."),
+    ("Chinedu Okafor", "The campaign review felt respectful, and the support arrived before our next appointment."),
+    ("Grace Miller", "I donated to a campaign and received confirmation without chasing anyone for information."),
+    ("Fatima Bello", "The team explained the payment options patiently and helped us upload our proof correctly."),
+    ("Samuel Carter", "Seeing verified stories and real progress gave me confidence to keep supporting patients."),
+    ("Nora Williams", "My mother's medicine was funded when we had no idea how to continue the prescription."),
+    ("Ibrahim Musa", "The dashboard made it simple to follow donations and campaign progress from my phone."),
+    ("Elena Rossi", "HopeBridge brought structure to a frightening season and treated our family with dignity."),
+    ("Victor Chen", "I liked that donors could choose crypto, bank transfer, or gift cards without confusion."),
+    ("Maya Johnson", "The support message connected me quickly to someone who understood the payment process."),
+    ("Tunde Adebayo", "Our campaign was reviewed carefully, and the approval notes helped us improve the story."),
+    ("Rachel Morgan", "I supported a screening project and later saw the number of residents who benefited."),
+    ("Omar Hassan", "The platform made medical fundraising feel safer than the informal pages I had seen before."),
+    ("Nkechi Eze", "My son's lab tests were completed because donors stepped in through HopeBridge."),
+    ("Patrick Wilson", "The confirmation page helped me keep payment details visible while my crypto transfer processed."),
+    ("Zainab Ali", "I appreciated that the representative stayed available until my gift card proof was submitted."),
+    ("Emily Brooks", "The completed project reports made me feel part of a genuine chain of care."),
+    ("Abdul Kareem", "HopeBridge gave our family a calm way to ask for help without feeling exposed."),
+    ("Sophia Clark", "Every email was clear, and the reset-password flow saved me when I changed phones."),
+    ("David Mensah", "I could start a campaign, upload my own image, and track support from one dashboard."),
+    ("Lina Petrova", "The stories are handled with care, and the payment records are easy to follow."),
+    ("Kelechi Nwosu", "A donor covered my aunt's medication, and the receipt showed the exact reference."),
+    ("Isabella Grant", "The partner section gave our company confidence to support a verified medical fund."),
+    ("Haruna Sani", "We received transport support for three appointments that would otherwise have been missed."),
+    ("Camila Torres", "The site worked smoothly on my phone, especially the donation and receipt pages."),
+    ("Noah Bennett", "I liked seeing completed projects because it proved the platform was not just promises."),
+    ("Aisha Lawal", "The representative helped me choose the correct network before sending USDT."),
+    ("Benjamin Scott", "The campaign cards were easy to compare, and the donation process was quick."),
+    ("Priya Nair", "HopeBridge helped my colleague's family pay a treatment deposit at the right moment."),
+    ("Musa Abdullahi", "The support team checked our documents and kept us updated until approval."),
+    ("Hannah Evans", "I was able to give privately and still see the impact of my donation."),
+    ("Kwame Boateng", "The process respected both the donor and the patient, which matters a lot."),
+    ("Olivia Martin", "The testimonial and project pages helped me understand the community behind the platform."),
+    ("Sade Thompson", "My family uploaded proof once, and the status page made the next step obvious."),
+    ("George Miller", "I returned to donate again because the first experience was transparent and simple."),
+    ("Amara Collins", "The platform helped our church group support a verified patient without messy spreadsheets."),
+    ("Yusuf Ibrahim", "HopeBridge reduced the stress of explaining our needs repeatedly to different people."),
+    ("Clara Hughes", "The profile tools made it easy to keep my account details correct."),
+    ("Peter Okoye", "The bank-transfer instructions were direct, and the receipt kept the account details visible."),
+    ("Nadia Karim", "I trusted the campaign more because the patient story and goal were clearly presented."),
+    ("Ethan Price", "The representative chat gave me fast answers before I completed a larger donation."),
+    ("Blessing Uche", "Our campaign received support from people we had never met, and everything was tracked."),
+    ("Miriam Stein", "The site looks polished, but what mattered most was the clarity after donation."),
+    ("Adeola Martins", "We used the dashboard to see new donations and prepare updates for supporters."),
+    ("Lucas White", "HopeBridge showed that medical giving can be both personal and organized."),
+    ("Theresa King", "I donated with USDC and appreciated the visible confirmation guidance."),
+    ("Josephine Park", "The completed-project captions made each outcome feel concrete and believable."),
+    ("Bashir Bello", "The team helped us correct our campaign details before publishing."),
+    ("Catherine Young", "I shared a campaign link with friends because the page answered their questions quickly."),
+    ("Malik Thompson", "The payment page did not disappear after submission, which made me feel calmer."),
+    ("Ngozi Nnamdi", "Our family used the funds for medicine and transport exactly as described."),
+    ("Dylan Cooper", "The platform made a difficult donation decision feel secure and well documented."),
+    ("Ruth Adeyemi", "HopeBridge kept our story human while still checking the details carefully."),
+    ("Marcus Green", "The administrator updates will make this even better for larger charity teams."),
+    ("Halima Usman", "I could tell the system was built around patients, not just payment collection."),
+    ("Sarah Blake", "The support response was warm, practical, and clear from the first message."),
+    ("Collins Obi", "The verified campaign badge helped donors trust that our need was genuine."),
+    ("Mei Lin", "I appreciate seeing many completed projects with different outcomes and real captions."),
 ]
 
-TESTIMONIAL_NAMES = [
-    "Amina Yusuf", "Daniel Reed", "Maria Lopez", "Chinedu Okafor", "Grace Miller", "Fatima Bello",
-    "Samuel Carter", "Nora Williams", "Ibrahim Musa", "Elena Rossi", "Victor Chen", "Maya Johnson",
+COMPLETED_PROJECTS = [
+    {
+        "title": title,
+        "amount": amount,
+        "summary": summary,
+        "image": f"https://loremflickr.com/900/650/medical,hospital,care?lock={1200 + index}",
+    }
+    for index, (title, amount, summary) in enumerate(PROJECT_COMPLETION_DETAILS)
 ]
 
-TESTIMONIAL_IMAGES = [
-    "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=600&q=80",
-    "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80",
-    "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=600&q=80",
-    "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=600&q=80",
-    "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=600&q=80",
-    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80",
+TESTIMONIALS = [
+    {
+        "name": name,
+        "quote": quote,
+        "image": f"https://loremflickr.com/180/180/portrait,person?lock={2200 + index}",
+    }
+    for index, (name, quote) in enumerate(TESTIMONIAL_DETAILS)
 ]
-
-while len(COMPLETED_PROJECTS) < 60:
-    index = len(COMPLETED_PROJECTS)
-    COMPLETED_PROJECTS.append(
-        {
-            "title": f"{PROJECT_THEMES[index % len(PROJECT_THEMES)]} {index + 1}",
-            "amount": f"${(8400 + index * 1350):,}",
-            "summary": "A verified medical support project completed with transparent donor funding and partner oversight.",
-            "image": PROJECT_IMAGE_POOL[index % len(PROJECT_IMAGE_POOL)],
-        }
-    )
-
-while len(TESTIMONIALS) < 60:
-    index = len(TESTIMONIALS)
-    TESTIMONIALS.append(
-        {
-            "name": TESTIMONIAL_NAMES[index % len(TESTIMONIAL_NAMES)],
-            "quote": "HopeBridge made giving feel personal, secure, and meaningful. The updates helped me trust the impact.",
-            "image": TESTIMONIAL_IMAGES[index % len(TESTIMONIAL_IMAGES)],
-        }
-    )
 
 
 def format_money(value):
@@ -400,12 +494,41 @@ def clean_phone(phone):
     return (phone or "").strip() or None
 
 
+def admin_emails():
+    configured = os.environ.get("ADMIN_EMAILS", "")
+    return {normalize_email(email) for email in configured.split(",") if normalize_email(email)}
+
+
+def is_admin_user(user=None):
+    user = user or current_user
+    if not getattr(user, "is_authenticated", False):
+        return False
+    return bool(getattr(user, "is_admin", False) or normalize_email(user.email) in admin_emails())
+
+
+def admin_required(view_func):
+    def wrapped(*args, **kwargs):
+        if not current_user.is_authenticated:
+            return redirect(url_for("login"))
+        if not is_admin_user():
+            abort(403)
+        return view_func(*args, **kwargs)
+
+    wrapped.__name__ = view_func.__name__
+    return wrapped
+
+
 def generate_reference(prefix="HB"):
     return f"{prefix}-{secrets.token_hex(5).upper()}"
 
 
 def external_url_for(endpoint, **values):
     return url_for(endpoint, _external=True, **values)
+
+
+@app.context_processor
+def inject_template_globals():
+    return {"is_admin_context": is_admin_user()}
 
 
 def get_campaigns():
@@ -489,6 +612,7 @@ def ensure_schema():
         "auth_provider": "VARCHAR(30) DEFAULT 'email'",
         "reset_token": "VARCHAR(120)",
         "reset_token_expires": "TIMESTAMP",
+        "is_admin": "BOOLEAN DEFAULT FALSE",
         "created_at": "TIMESTAMP",
     }
     for name, definition in additions.items():
@@ -812,6 +936,111 @@ def settings():
         flash("Password changed.", "success")
         return redirect(url_for("settings"))
     return render_template("settings.html")
+
+
+@app.route("/admin")
+@login_required
+@admin_required
+def admin_dashboard():
+    metrics = {
+        "users": User.query.count(),
+        "campaigns": Campaign.query.count(),
+        "pending_campaigns": Campaign.query.filter_by(verified=False).count(),
+        "donations": Donation.query.count(),
+        "pending_donations": Donation.query.filter_by(status="pending").count(),
+        "confirmed_total": db.session.query(func.coalesce(func.sum(Donation.amount), 0)).filter(Donation.status == "confirmed").scalar() or 0,
+    }
+    recent_campaigns = Campaign.query.order_by(Campaign.created_at.desc()).limit(5).all()
+    recent_donations = Donation.query.order_by(Donation.created_at.desc()).limit(5).all()
+    return render_template(
+        "admin_dashboard.html",
+        metrics=metrics,
+        campaigns=recent_campaigns,
+        donations=recent_donations,
+    )
+
+
+@app.route("/admin/campaigns")
+@login_required
+@admin_required
+def admin_campaigns():
+    campaigns = Campaign.query.order_by(Campaign.created_at.desc()).all()
+    return render_template("admin_campaigns.html", campaigns=campaigns)
+
+
+@app.route("/admin/campaign/<int:campaign_id>/verify", methods=["POST"])
+@login_required
+@admin_required
+def admin_verify_campaign(campaign_id):
+    campaign = db.session.get(Campaign, campaign_id)
+    if campaign is None:
+        abort(404)
+    campaign.verified = request.form.get("verified") == "true"
+    db.session.commit()
+    flash(f"{campaign.title} verification updated.", "success")
+    return redirect(request.referrer or url_for("admin_campaigns"))
+
+
+@app.route("/admin/campaign/<int:campaign_id>/complete", methods=["POST"])
+@login_required
+@admin_required
+def admin_complete_campaign(campaign_id):
+    campaign = db.session.get(Campaign, campaign_id)
+    if campaign is None:
+        abort(404)
+    campaign.completed = request.form.get("completed") == "true"
+    db.session.commit()
+    flash(f"{campaign.title} completion status updated.", "success")
+    return redirect(request.referrer or url_for("admin_campaigns"))
+
+
+@app.route("/admin/donations")
+@login_required
+@admin_required
+def admin_donations():
+    donations = Donation.query.order_by(Donation.created_at.desc()).all()
+    return render_template("admin_donations.html", donations=donations)
+
+
+@app.route("/admin/donation/<int:donation_id>/status", methods=["POST"])
+@login_required
+@admin_required
+def admin_update_donation_status(donation_id):
+    donation = db.session.get(Donation, donation_id)
+    if donation is None:
+        abort(404)
+    status = request.form.get("status")
+    if status not in ("pending", "confirmed", "rejected"):
+        flash("Choose a valid donation status.", "danger")
+        return redirect(request.referrer or url_for("admin_donations"))
+    donation.status = status
+    db.session.commit()
+    flash(f"Donation {donation.reference} marked as {status}.", "success")
+    return redirect(request.referrer or url_for("admin_donations"))
+
+
+@app.route("/admin/users")
+@login_required
+@admin_required
+def admin_users():
+    users = User.query.order_by(User.created_at.desc()).all()
+    return render_template("admin_users.html", users=users)
+
+
+@app.route("/admin/user/<int:user_id>/toggle-admin", methods=["POST"])
+@login_required
+@admin_required
+def admin_toggle_user(user_id):
+    user = db.session.get(User, user_id)
+    if user is None:
+        abort(404)
+    if user.id == current_user.id:
+        flash("You cannot remove admin access from your own account here.", "danger")
+        return redirect(url_for("admin_users"))
+    user.is_admin = not user.is_admin
+    db.session.commit()
+    flash(f"{user.full_name}'s admin access was updated.", "success")
+    return redirect(url_for("admin_users"))
 
 
 with app.app_context():

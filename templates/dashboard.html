@@ -14,6 +14,9 @@
             <a href="#"><i class="bi bi-chat-dots"></i>Messages</a>
             <a href="{{ url_for('profile') }}"><i class="bi bi-person"></i>Profile</a>
             <a href="{{ url_for('settings') }}"><i class="bi bi-gear"></i>Settings</a>
+            {% if is_admin_context %}
+            <a href="{{ url_for('admin_dashboard') }}"><i class="bi bi-shield-check"></i>Admin</a>
+            {% endif %}
             <a href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-left"></i>Logout</a>
         </nav>
     </aside>

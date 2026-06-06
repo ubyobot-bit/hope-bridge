@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard - HopeBridge{% endblock %}
+
+{% block content %}
+<section class="section-pad admin-page">
+    <div class="container">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">Admin Control</p>
+                <h1>Admin Dashboard</h1>
+                <p>Review campaigns, confirm donations, and monitor HopeBridge activity.</p>
+            </div>
+            <div class="admin-actions">
+                <a class="btn btn-outline-primary" href="{{ url_for('admin_campaigns') }}"><i class="bi bi-folder-check"></i> Campaigns</a>
+                <a class="btn btn-outline-primary" href="{{ url_for('admin_donations') }}"><i class="bi bi-receipt"></i> Donations</a>
+                <a class="btn btn-primary" href="{{ url_for('admin_users') }}"><i class="bi bi-people"></i> Users</a>
+            </div>
+        </div>
+        <div class="metric-grid admin-metrics">
+            <div class="metric"><i class="bi bi-people"></i><strong>{{ metrics.users }}</strong><span>Users</span></div>
+            <div class="metric"><i class="bi bi-megaphone"></i><strong>{{ metrics.campaigns }}</strong><span>Campaigns</span></div>
+            <div class="metric"><i class="bi bi-hourglass-split"></i><strong>{{ metrics.pending_campaigns }}</strong><span>Pending Campaigns</span></div>
+            <div class="metric"><i class="bi bi-cash-stack"></i><strong>{{ metrics.pending_donations }}</strong><span>Pending Donations</span></div>
+            <div class="metric"><i class="bi bi-check-circle"></i><strong>{{ metrics.confirmed_total | money }}</strong><span>Confirmed Donations</span></div>
+        </div>
+        <div class="row g-4 mt-1">
+            <div class="col-lg-6">
+                <div class="panel-card">
+                    <h3>Recent Campaigns</h3>
+                    {% for campaign in campaigns %}
+                    <div class="admin-list-row">
+                        <div>
+                            <strong>{{ campaign.title }}</strong>
+                            <span>{{ campaign.patient }} • {{ campaign.location }}</span>
+                        </div>
+                        <span class="status-pill {{ 'confirmed' if campaign.verified else 'pending' }}">{{ 'Verified' if campaign.verified else 'Pending' }}</span>
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No campaigns yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="panel-card">
+                    <h3>Recent Donations</h3>
+                    {% for donation in donations %}
+                    <div class="admin-list-row">
+                        <div>
+                            <strong>{{ donation.reference }}</strong>
+                            <span>{{ donation.campaign.title }} • {{ donation.payment_method | title }}</span>
+                        </div>
+                        <b>{{ donation.amount | money }}</b>
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No donations yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

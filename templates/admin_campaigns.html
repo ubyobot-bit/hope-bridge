@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Manage Campaigns - HopeBridge{% endblock %}
+
+{% block content %}
+<section class="section-pad admin-page">
+    <div class="container">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">Admin Control</p>
+                <h1>Manage Campaigns</h1>
+                <p>Verify submitted campaigns and mark funded campaigns as completed.</p>
+            </div>
+            <a class="btn btn-outline-primary" href="{{ url_for('admin_dashboard') }}"><i class="bi bi-speedometer2"></i> Admin Home</a>
+        </div>
+        <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Campaign</th>
+                        <th>Patient</th>
+                        <th>Goal</th>
+                        <th>Raised</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for campaign in campaigns %}
+                    <tr>
+                        <td><strong>{{ campaign.title }}</strong><span>{{ campaign.category }} • {{ campaign.location }}</span></td>
+                        <td>{{ campaign.patient }}</td>
+                        <td>{{ campaign.goal | money }}</td>
+                        <td>{{ campaign.raised | money }}</td>
+                        <td>
+                            <span class="status-pill {{ 'confirmed' if campaign.verified else 'pending' }}">{{ 'Verified' if campaign.verified else 'Pending' }}</span>
+                            <span class="status-pill {{ 'confirmed' if campaign.completed else 'pending' }}">{{ 'Completed' if campaign.completed else 'Active' }}</span>
+                        </td>
+                        <td>
+                            <form method="post" action="{{ url_for('admin_verify_campaign', campaign_id=campaign.id) }}">
+                                <input type="hidden" name="verified" value="{{ 'false' if campaign.verified else 'true' }}">
+                                <button class="btn btn-sm btn-outline-primary" type="submit">{{ 'Unverify' if campaign.verified else 'Verify' }}</button>
+                            </form>
+                            <form method="post" action="{{ url_for('admin_complete_campaign', campaign_id=campaign.id) }}">
+                                <input type="hidden" name="completed" value="{{ 'false' if campaign.completed else 'true' }}">
+                                <button class="btn btn-sm btn-primary" type="submit">{{ 'Reopen' if campaign.completed else 'Complete' }}</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="6">No campaigns yet.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

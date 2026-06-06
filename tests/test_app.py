@@ -6,7 +6,7 @@ from io import BytesIO
 os.environ["DATABASE_URL"] = "sqlite:///:memory:"
 os.environ["SECRET_KEY"] = "test-secret"
 
-from app import Campaign, User, app, db, seed_campaigns
+from app import COMPLETED_PROJECTS, TESTIMONIALS, Campaign, Donation, User, app, db, seed_campaigns
 
 
 class HopeBridgeTestCase(unittest.TestCase):
@@ -165,13 +165,25 @@ class HopeBridgeTestCase(unittest.TestCase):
         self.assertIn(b"View All Testimonials", home.data)
         self.assertIn(b"support@hopebridge.org", home.data)
         self.assertIn(b"HopeBridge Support", home.data)
+        self.assertIn(b"Chat with representative", home.data)
+        self.assertIn(b"wa.me/2348000000000", home.data)
         projects = self.client.get("/projects")
         self.assertIn(b"Previous Completed Projects", projects.data)
-        self.assertIn(b"Emergency Treatment Bridge", projects.data)
+        self.assertIn(b"Emergency Surgery Bridge", projects.data)
         self.assertGreaterEqual(projects.data.count(b"project-card"), 60)
         testimonials = self.client.get("/testimonials")
         self.assertIn(b"Testimonials", testimonials.data)
         self.assertGreaterEqual(testimonials.data.count(b"testimonial-card"), 60)
+
+    def test_project_and_testimonial_content_is_unique(self):
+        self.assertEqual(len(COMPLETED_PROJECTS), 60)
+        self.assertEqual(len(TESTIMONIALS), 60)
+        self.assertEqual(len({project["title"] for project in COMPLETED_PROJECTS}), 60)
+        self.assertEqual(len({project["summary"] for project in COMPLETED_PROJECTS}), 60)
+        self.assertEqual(len({project["image"] for project in COMPLETED_PROJECTS}), 60)
+        self.assertEqual(len({testimonial["name"] for testimonial in TESTIMONIALS}), 60)
+        self.assertEqual(len({testimonial["quote"] for testimonial in TESTIMONIALS}), 60)
+        self.assertEqual(len({testimonial["image"] for testimonial in TESTIMONIALS}), 60)
 
     def test_about_page(self):
         response = self.client.get("/about")
@@ -199,6 +211,59 @@ class HopeBridgeTestCase(unittest.TestCase):
             follow_redirects=True,
         )
         self.assertIn(b"One email can only be bonded", duplicate.data)
+
+    def test_admin_backend_permissions_and_actions(self):
+        self.register()
+        forbidden = self.client.get("/admin")
+        self.assertEqual(forbidden.status_code, 403)
+
+        with app.app_context():
+            user = User.query.filter_by(email="user@example.com").first()
+            user.is_admin = True
+            campaign = Campaign.query.first()
+            donation = Donation(
+                donor_id=user.id,
+                campaign_id=campaign.id,
+                amount=250,
+                payment_method="bank",
+                reference="HB-ADMINTEST",
+            )
+            db.session.add(donation)
+            db.session.commit()
+            campaign_id = campaign.id
+            donation_id = donation.id
+
+        dashboard = self.client.get("/admin")
+        self.assertEqual(dashboard.status_code, 200)
+        self.assertIn(b"Admin Dashboard", dashboard.data)
+
+        verified = self.client.post(
+            f"/admin/campaign/{campaign_id}/verify",
+            data={"verified": "true"},
+            follow_redirects=True,
+        )
+        self.assertIn(b"verification updated", verified.data)
+
+        completed = self.client.post(
+            f"/admin/campaign/{campaign_id}/complete",
+            data={"completed": "true"},
+            follow_redirects=True,
+        )
+        self.assertIn(b"completion status updated", completed.data)
+
+        confirmed = self.client.post(
+            f"/admin/donation/{donation_id}/status",
+            data={"status": "confirmed"},
+            follow_redirects=True,
+        )
+        self.assertIn(b"marked as confirmed", confirmed.data)
+
+        with app.app_context():
+            campaign = db.session.get(Campaign, campaign_id)
+            donation = db.session.get(Donation, donation_id)
+            self.assertTrue(campaign.verified)
+            self.assertTrue(campaign.completed)
+            self.assertEqual(donation.status, "confirmed")
 
 
 if __name__ == "__main__":

@@ -1403,6 +1403,116 @@ a {
     border-radius: 8px;
 }
 
+.chat-body a.primary-chat {
+    color: #fff;
+    background: linear-gradient(135deg, #22a06b, #0f7a4b);
+    border-color: transparent;
+    font-weight: 800;
+}
+
+.admin-page {
+    padding-top: 132px;
+}
+
+.admin-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.admin-metrics {
+    grid-template-columns: repeat(5, 1fr);
+}
+
+.admin-list-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+}
+
+.admin-list-row:last-child {
+    border-bottom: 0;
+}
+
+.admin-list-row span,
+.admin-table span {
+    display: block;
+    color: var(--muted);
+    font-size: .86rem;
+}
+
+.admin-table-wrap {
+    overflow-x: auto;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+}
+
+.admin-table {
+    width: 100%;
+    min-width: 880px;
+    border-collapse: collapse;
+}
+
+.admin-table th,
+.admin-table td {
+    padding: 16px;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--line);
+}
+
+.admin-table th {
+    color: var(--muted);
+    font-size: .78rem;
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    background: #faf9ff;
+}
+
+.admin-table td:last-child {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.admin-inline-form {
+    display: flex;
+    gap: 8px;
+    min-width: 230px;
+}
+
+.status-pill {
+    display: inline-flex !important;
+    width: fit-content;
+    margin: 2px 0;
+    padding: 6px 10px;
+    color: #5b5575 !important;
+    background: #f1ecff;
+    border-radius: 999px;
+    font-size: .76rem !important;
+    font-weight: 900;
+}
+
+.status-pill.confirmed {
+    color: #087443 !important;
+    background: #dff8ea;
+}
+
+.status-pill.rejected {
+    color: #9b1c31 !important;
+    background: #ffe4e9;
+}
+
+.status-pill.pending {
+    color: #8a5c00 !important;
+    background: #fff2cc;
+}
+
 .crypto-confirm-grid {
     display: grid;
     grid-template-columns: 240px 1fr;
@@ -1459,6 +1569,10 @@ a {
     .about-process {
         grid-template-columns: 1fr;
     }
+
+    .admin-metrics {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 @media (max-width: 767px) {
@@ -1476,6 +1590,14 @@ a {
     }
 
     .about-metrics {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-page {
+        padding-top: 112px;
+    }
+
+    .admin-metrics {
         grid-template-columns: 1fr;
     }
 }
