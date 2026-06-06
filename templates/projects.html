@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Completed Projects - HopeBridge{% endblock %}
+
+{% block content %}
+<section class="page-top">
+    <div class="container">
+        <p class="eyebrow">Completed impact</p>
+        <h1>Previous Completed Projects</h1>
+        <p>Browse completed medical support projects funded through HopeBridge partners and donors.</p>
+    </div>
+</section>
+<section class="section-pad">
+    <div class="container">
+        <div class="row g-4">
+            {% for project in projects %}
+            <div class="col-md-6 col-lg-4">
+                <div class="project-card h-100">
+                    <img src="{{ project.image }}" alt="{{ project.title }}">
+                    <div>
+                        <span class="project-status"><i class="bi bi-check-circle"></i> Completed</span>
+                        <h5>{{ project.title }}</h5>
+                        <strong class="d-block text-primary mb-2">{{ project.amount }} raised</strong>
+                        <p>{{ project.summary }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

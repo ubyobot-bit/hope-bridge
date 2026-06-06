@@ -2,7 +2,7 @@ import os
 import secrets
 from datetime import datetime, timedelta
 from pathlib import Path
-from urllib.parse import urlparse, urlunparse
+from urllib.parse import quote_plus
 
 from flask import Flask, flash, redirect, render_template, request, url_for
 from flask_login import (
@@ -195,21 +195,99 @@ SEED_CAMPAIGNS = [
 ]
 
 COMPLETED_PROJECTS = [
-    ("Children's Oncology Ward", "$42,000", "Treatment beds, monitors, and nutrition support delivered."),
-    ("Sarah's Surgery Fund", "$18,500", "Surgery and post-care support fully covered."),
-    ("Mobile Screening Drive", "$27,300", "Free cancer screening reached 900+ residents."),
-    ("Recovery Transport Aid", "$9,800", "Hospital transport covered for 64 families."),
-    ("Medication Relief Pool", "$31,200", "Critical medicine support completed for verified patients."),
-    ("Family Care Grants", "$15,700", "Living expense grants delivered to caregivers."),
+    {
+        "title": "Children's Oncology Ward",
+        "amount": "$42,000",
+        "summary": "Treatment beds, monitors, and nutrition support delivered.",
+        "image": "https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&w=900&q=80",
+    },
+    {
+        "title": "Sarah's Surgery Fund",
+        "amount": "$18,500",
+        "summary": "Surgery and post-care support fully covered.",
+        "image": "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=900&q=80",
+    },
+    {
+        "title": "Mobile Screening Drive",
+        "amount": "$27,300",
+        "summary": "Free cancer screening reached 900+ residents.",
+        "image": "https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&w=900&q=80",
+    },
+    {
+        "title": "Recovery Transport Aid",
+        "amount": "$9,800",
+        "summary": "Hospital transport covered for 64 families.",
+        "image": "https://images.unsplash.com/photo-1538108149393-fbbd81895907?auto=format&fit=crop&w=900&q=80",
+    },
+    {
+        "title": "Medication Relief Pool",
+        "amount": "$31,200",
+        "summary": "Critical medicine support completed for verified patients.",
+        "image": "https://images.unsplash.com/photo-1587854692152-cbe660dbde88?auto=format&fit=crop&w=900&q=80",
+    },
+    {
+        "title": "Family Care Grants",
+        "amount": "$15,700",
+        "summary": "Living expense grants delivered to caregivers.",
+        "image": "https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=900&q=80",
+    },
+    {
+        "title": "Rural Chemotherapy Access",
+        "amount": "$36,900",
+        "summary": "Partner clinics received support for low-cost chemotherapy sessions.",
+        "image": "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=900&q=80",
+    },
+    {
+        "title": "Nutrition Packs For Patients",
+        "amount": "$12,400",
+        "summary": "High-protein nutrition packs delivered during treatment cycles.",
+        "image": "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=900&q=80",
+    },
+    {
+        "title": "Diagnostics Subsidy Fund",
+        "amount": "$22,600",
+        "summary": "MRI, CT scan, and biopsy costs subsidized for verified patients.",
+        "image": "https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=900&q=80",
+    },
+    {
+        "title": "Caregiver Housing Support",
+        "amount": "$17,950",
+        "summary": "Temporary housing provided for families traveling for specialist care.",
+        "image": "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=900&q=80",
+    },
+    {
+        "title": "Childhood Cancer Education",
+        "amount": "$8,750",
+        "summary": "Awareness materials and early-warning education delivered to schools.",
+        "image": "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=900&q=80",
+    },
+    {
+        "title": "Emergency Treatment Bridge",
+        "amount": "$29,100",
+        "summary": "Urgent treatment deposits paid while families completed documentation.",
+        "image": "https://images.unsplash.com/photo-1504439468489-c8920d796a29?auto=format&fit=crop&w=900&q=80",
+    },
 ]
 
 TESTIMONIALS = [
-    ("Amina Yusuf", "HopeBridge made it possible for my sister to continue treatment without delay."),
-    ("Daniel Reed", "I could see where my donation went, and the updates made everything feel transparent."),
-    ("Maria Lopez", "The support helped my family breathe again during a very difficult season."),
+    {
+        "name": "Amina Yusuf",
+        "quote": "HopeBridge made it possible for my sister to continue treatment without delay.",
+        "image": "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=600&q=80",
+    },
+    {
+        "name": "Daniel Reed",
+        "quote": "I could see where my donation went, and the updates made everything feel transparent.",
+        "image": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80",
+    },
+    {
+        "name": "Maria Lopez",
+        "quote": "The support helped my family breathe again during a very difficult season.",
+        "image": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=600&q=80",
+    },
 ]
 
-PARTNERS = ["CareTrust Clinics", "Global Oncology Aid", "MediRelief Network", "HopePay"]
+PARTNERS = ["WHO", "USAID", "UNICEF", "Doctors Without Borders", "International Medical Corps", "GlobalGiving"]
 
 
 def format_money(value):
@@ -245,6 +323,13 @@ def select_crypto_address(asset, network):
         return None
     count = Donation.query.filter_by(payment_method="crypto", payment_asset=asset, payment_network=network).count()
     return addresses[count % len(addresses)]
+
+
+def crypto_qr_url(donation):
+    if donation.payment_method != "crypto" or not donation.payment_address:
+        return None
+    payload = f"{donation.payment_asset}:{donation.payment_address}?network={donation.payment_network}&amount={donation.amount}"
+    return f"https://api.qrserver.com/v1/create-qr-code/?size=220x220&data={quote_plus(payload)}"
 
 
 def save_upload(file_storage):
@@ -322,10 +407,15 @@ def home():
     return render_template(
         "index.html",
         campaigns=get_campaigns()[:3],
-        completed_projects=COMPLETED_PROJECTS,
+        completed_projects=COMPLETED_PROJECTS[:6],
         testimonials=TESTIMONIALS,
         partners=PARTNERS,
     )
+
+
+@app.route("/projects")
+def completed_projects():
+    return render_template("projects.html", projects=COMPLETED_PROJECTS)
 
 
 @app.route("/campaigns")
@@ -434,7 +524,12 @@ def donate(campaign_id):
 @app.route("/donation/<reference>")
 def donation_receipt(reference):
     donation = Donation.query.filter_by(reference=reference).first_or_404()
-    return render_template("donation_receipt.html", donation=donation)
+    return render_template(
+        "donation_receipt.html",
+        donation=donation,
+        qr_url=crypto_qr_url(donation),
+        estimated_confirmation="about 20 minutes",
+    )
 
 
 @app.route("/register", methods=["GET", "POST"])

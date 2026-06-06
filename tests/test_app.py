@@ -126,7 +126,8 @@ class HopeBridgeTestCase(unittest.TestCase):
             data={"amount": "125", "payment_method": "bank"},
             follow_redirects=True,
         )
-        self.assertIn(b"Payment record created", receipt.data)
+        self.assertIn(b"Processing payment", receipt.data)
+        self.assertIn(b"Processing / Confirming", receipt.data)
         self.assertIn(b"HopeBridge Standard Bank", receipt.data)
 
     def test_crypto_address_rotation(self):
@@ -146,9 +147,20 @@ class HopeBridgeTestCase(unittest.TestCase):
             )
             match = re.search(rb"THopeUsdtTrc\d+", response.data)
             self.assertIsNotNone(match)
+            self.assertIn(b"Processing / Confirming", response.data)
+            self.assertIn(b"create-qr-code", response.data)
             addresses.append(match.group(0))
         self.assertEqual(addresses[0], addresses[3])
         self.assertEqual(len(set(addresses[:3])), 3)
+
+    def test_home_and_projects_sections(self):
+        home = self.client.get("/")
+        self.assertIn(b"Completed Projects", home.data)
+        self.assertIn(b"Testimonials", home.data)
+        self.assertIn(b"WHO", home.data)
+        projects = self.client.get("/projects")
+        self.assertIn(b"Previous Completed Projects", projects.data)
+        self.assertIn(b"Emergency Treatment Bridge", projects.data)
 
     def test_social_email_bonding_fallback(self):
         response = self.client.post(

@@ -5,10 +5,12 @@ A complete cancer-patient donation website built with Python, Flask, HTML, CSS, 
 ## Pages And Features
 
 - Home page
+- Completed projects page
 - Campaign listing
 - Campaign details
 - Campaign creation
 - Donation checkout and receipt
+- Crypto QR scan code receipt with processing/confirming state
 - Email registration and login
 - Forgot password and reset password
 - Google/Facebook bonding fallback
@@ -57,7 +59,7 @@ Until real provider credentials are added, the Google/Facebook pages use a testi
 
 ## Payment Setup Notes
 
-Replace the sample crypto addresses in `app.py` inside `CRYPTO_ADDRESS_BOOK` with your real BTC, ETH, USDC, and USDT addresses. The app rotates between the three addresses listed for each asset/network.
+Replace the sample crypto addresses in `app.py` inside `CRYPTO_ADDRESS_BOOK` with your real BTC, ETH, USDC, and USDT addresses. The app rotates between the three addresses listed for each asset/network and shows a QR scan code on the processing/confirming receipt page.
 
 Bank transfer currently uses a sample account in `BANK_ACCOUNT`. Gift cards currently support Amazon, Apple, and Steam.
 

@@ -5,19 +5,28 @@
 <section class="page-top">
     <div class="container">
         <div class="panel-card receipt-card">
-            <p class="eyebrow">Payment record created</p>
+            <p class="eyebrow">Processing payment</p>
             <h1>{{ donation.reference }}</h1>
-            <p>Your donation is pending review. Use the instructions below to complete payment.</p>
+            <p>Your payment is processing and confirming. Keep this page open so you can still see the wallet or transfer details. Estimated confirmation time: <strong>{{ estimated_confirmation }}</strong>.</p>
             <div class="info-grid mt-4">
                 <div><small>Campaign</small><strong>{{ donation.campaign.title }}</strong></div>
                 <div><small>Amount</small><strong>{{ donation.amount | money }}</strong></div>
                 <div><small>Method</small><strong>{{ donation.payment_method | title }}</strong></div>
-                <div><small>Status</small><strong>{{ donation.status | title }}</strong></div>
+                <div><small>Status</small><strong>Processing / Confirming</strong></div>
             </div>
             {% if donation.payment_method == "crypto" %}
             <div class="payment-instructions">
                 <h3>Send {{ donation.payment_asset }} on {{ donation.payment_network }}</h3>
-                <code>{{ donation.payment_address }}</code>
+                <div class="crypto-confirm-grid">
+                    {% if qr_url %}
+                    <img class="qr-code" src="{{ qr_url }}" alt="Scan QR code for {{ donation.payment_asset }} wallet">
+                    {% endif %}
+                    <div>
+                        <p>Scan the code or copy the wallet address below. Use only the selected network.</p>
+                        <code>{{ donation.payment_address }}</code>
+                        <small class="d-block mt-2 text-muted">Network: {{ donation.payment_network }} • Asset: {{ donation.payment_asset }}</small>
+                    </div>
+                </div>
             </div>
             {% elif donation.payment_method == "giftcard" %}
             <div class="payment-instructions">
@@ -30,7 +39,14 @@
                 <p>{{ donation.bank_name }} • {{ donation.bank_account_name }} • {{ donation.bank_account_number }}</p>
             </div>
             {% endif %}
-            <a class="btn btn-primary" href="{{ url_for('dashboard') if current_user.is_authenticated else url_for('home') }}">Continue</a>
+            <div class="confirming-box">
+                <i class="bi bi-hourglass-split"></i>
+                <div>
+                    <strong>Confirming payment</strong>
+                    <span>We will keep this record pending until the payment proof or blockchain confirmation is reviewed.</span>
+                </div>
+            </div>
+            <a class="btn btn-outline-primary" href="{{ url_for('dashboard') if current_user.is_authenticated else url_for('home') }}">Leave this page</a>
         </div>
     </div>
 </section>
