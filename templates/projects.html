@@ -13,10 +13,12 @@
     <div class="container">
         <div class="row g-4">
             {% for project in projects %}
-            <div class="col-md-6 col-lg-4">
+            <div class="col-sm-6 col-lg-4 col-xl-3">
                 <div class="project-card h-100">
-                    <img src="{{ project.image }}" alt="{{ project.title }}">
-                    <div>
+                    <div class="project-thumb">
+                        <img src="{{ project.image }}" alt="{{ project.title }}">
+                    </div>
+                    <div class="project-body">
                         <span class="project-status"><i class="bi bi-check-circle"></i> Completed</span>
                         <h5>{{ project.title }}</h5>
                         <strong class="d-block text-primary mb-2">{{ project.amount }} raised</strong>
