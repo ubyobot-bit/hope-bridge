@@ -50,6 +50,29 @@
     </div>
 </section>
 
+<section class="section-pad pt-0" id="completed">
+    <div class="container">
+        <div class="section-heading">
+            <div>
+                <h2>Completed Projects</h2>
+                <p>Recent campaigns and support programs funded through HopeBridge.</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            {% for title, amount, summary in completed_projects %}
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-box text-start">
+                    <i class="bi bi-check-circle"></i>
+                    <h5>{{ title }}</h5>
+                    <strong class="d-block text-primary mb-2">{{ amount }} raised</strong>
+                    <p>{{ summary }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
 <section class="section-pad pt-0" id="how">
     <div class="container">
         <h2 class="text-center mb-4">Why <span class="text-primary">Donate With Us?</span></h2>
@@ -58,6 +81,44 @@
             <div class="col-md-6 col-lg-3"><div class="feature-box"><i class="bi bi-lock"></i><h5>Secure Donations</h5><p>Your donations are safe with our secure system.</p></div></div>
             <div class="col-md-6 col-lg-3"><div class="feature-box"><i class="bi bi-eye"></i><h5>Transparent Process</h5><p>Track your donation and see the impact in real time.</p></div></div>
             <div class="col-md-6 col-lg-3"><div class="feature-box"><i class="bi bi-heart"></i><h5>Make An Impact</h5><p>Your support brings hope and saves lives.</p></div></div>
+        </div>
+    </div>
+</section>
+
+<section class="section-pad pt-0" id="about">
+    <div class="container">
+        <div class="section-heading">
+            <div>
+                <h2>Testimonials</h2>
+                <p>What donors, patients, and families say about HopeBridge.</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            {% for name, quote in testimonials %}
+            <div class="col-md-4">
+                <div class="panel-card h-100">
+                    <i class="bi bi-chat-quote text-primary fs-3"></i>
+                    <p class="mt-3">{{ quote }}</p>
+                    <strong>{{ name }}</strong>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="section-pad pt-0" id="contact">
+    <div class="container">
+        <div class="panel-card partner-strip">
+            <div>
+                <h2>Partners</h2>
+                <p>Trusted care, payment, and support partners helping verified patients receive treatment faster.</p>
+            </div>
+            <div class="partner-list">
+                {% for partner in partners %}
+                <span>{{ partner }}</span>
+                {% endfor %}
+            </div>
         </div>
     </div>
 </section>

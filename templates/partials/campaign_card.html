@@ -1,4 +1,4 @@
-{% set percent = (campaign.raised / campaign.goal * 100) | round | int %}
+{% set percent = campaign.progress %}
 <article class="campaign-card">
     <div class="campaign-image">
         <img src="{{ campaign.image }}" alt="{{ campaign.title }}">

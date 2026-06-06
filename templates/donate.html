@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Donate - HopeBridge{% endblock %}
+
+{% block content %}
+<section class="page-top">
+    <div class="container">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">Complete your donation</p>
+                <h1>{{ campaign.title }}</h1>
+                <p>Select crypto, gift card, or bank transfer. Donations are recorded as pending until reviewed.</p>
+            </div>
+        </div>
+        <form class="panel-card payment-form" method="post" enctype="multipart/form-data">
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <label>Amount in USD</label>
+                    <input class="form-control" type="number" name="amount" value="{{ request.args.get('amount', 25) }}" min="1" required>
+                </div>
+                <div class="col-lg-8">
+                    <label>Payment Method</label>
+                    <div class="method-tabs">
+                        <label><input type="radio" name="payment_method" value="crypto" checked> Crypto</label>
+                        <label><input type="radio" name="payment_method" value="giftcard"> Gift Card</label>
+                        <label><input type="radio" name="payment_method" value="bank"> Bank Account</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="payment-section" data-method="crypto">
+                <h3>Crypto Payment</h3>
+                <p>Choose asset and network. The system rotates between three addresses after every payment record.</p>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label>Asset</label>
+                        <select class="form-select" name="asset" id="assetSelect">
+                            {% for asset in crypto_book.keys() %}
+                            <option value="{{ asset }}">{{ asset }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label>Network</label>
+                        <select class="form-select" name="network" id="networkSelect">
+                            <option>BTC</option><option>ERC20</option><option>BEP20</option><option>TRC20</option><option>POLYGON</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="payment-section d-none" data-method="giftcard">
+                <h3>Gift Card</h3>
+                <p>Supported cards: Amazon, Apple, and Steam. Buy a card, enter the code, and upload a clear proof image.</p>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label>Gift Card Type</label>
+                        <select class="form-select" name="giftcard_type">
+                            {% for giftcard in giftcards %}
+                            <option>{{ giftcard }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label>Gift Card Code</label>
+                        <input class="form-control" name="giftcard_code" placeholder="Enter code or claim number">
+                    </div>
+                    <div class="col-md-12">
+                        <label>Upload Proof</label>
+                        <input class="form-control" type="file" name="giftcard_proof" accept="image/*,.pdf">
+                    </div>
+                </div>
+            </div>
+
+            <div class="payment-section d-none" data-method="bank">
+                <h3>Bank Account</h3>
+                <div class="bank-box">
+                    <strong>{{ bank_account.bank_name }}</strong>
+                    <span>{{ bank_account.account_name }}</span>
+                    <b>{{ bank_account.account_number }}</b>
+                </div>
+                <label>Upload Transfer Proof</label>
+                <input class="form-control" type="file" name="bank_proof" accept="image/*,.pdf">
+            </div>
+
+            <button class="btn btn-primary mt-4">Create Payment Record</button>
+        </form>
+    </div>
+</section>
+{% endblock %}

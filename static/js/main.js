@@ -14,3 +14,11 @@ document.querySelectorAll(".amount-grid label").forEach((label) => {
     label.classList.add("selected");
   });
 });
+
+document.querySelectorAll('input[name="payment_method"]').forEach((input) => {
+  input.addEventListener("change", () => {
+    document.querySelectorAll(".payment-section").forEach((section) => {
+      section.classList.toggle("d-none", section.dataset.method !== input.value);
+    });
+  });
+});

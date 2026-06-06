@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Settings - HopeBridge{% endblock %}
+
+{% block content %}
+<section class="page-top">
+    <div class="container">
+        <div class="panel-card form-card">
+            <h1>Settings</h1>
+            <p>Change your password. Social accounts can set an email password here too.</p>
+            <form method="post">
+                {% if current_user.password_hash %}
+                <label>Current Password</label>
+                <input class="form-control" type="password" name="current_password" required>
+                {% endif %}
+                <label>New Password</label>
+                <input class="form-control" type="password" name="password" required>
+                <label>Confirm New Password</label>
+                <input class="form-control" type="password" name="confirm" required>
+                <button class="btn btn-primary mt-4">Change Password</button>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

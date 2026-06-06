@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Donation Receipt - HopeBridge{% endblock %}
+
+{% block content %}
+<section class="page-top">
+    <div class="container">
+        <div class="panel-card receipt-card">
+            <p class="eyebrow">Payment record created</p>
+            <h1>{{ donation.reference }}</h1>
+            <p>Your donation is pending review. Use the instructions below to complete payment.</p>
+            <div class="info-grid mt-4">
+                <div><small>Campaign</small><strong>{{ donation.campaign.title }}</strong></div>
+                <div><small>Amount</small><strong>{{ donation.amount | money }}</strong></div>
+                <div><small>Method</small><strong>{{ donation.payment_method | title }}</strong></div>
+                <div><small>Status</small><strong>{{ donation.status | title }}</strong></div>
+            </div>
+            {% if donation.payment_method == "crypto" %}
+            <div class="payment-instructions">
+                <h3>Send {{ donation.payment_asset }} on {{ donation.payment_network }}</h3>
+                <code>{{ donation.payment_address }}</code>
+            </div>
+            {% elif donation.payment_method == "giftcard" %}
+            <div class="payment-instructions">
+                <h3>Gift Card Submitted</h3>
+                <p>{{ donation.giftcard_type }} code received. The team will verify your upload and update the donation.</p>
+            </div>
+            {% else %}
+            <div class="payment-instructions">
+                <h3>Bank Transfer</h3>
+                <p>{{ donation.bank_name }} • {{ donation.bank_account_name }} • {{ donation.bank_account_number }}</p>
+            </div>
+            {% endif %}
+            <a class="btn btn-primary" href="{{ url_for('dashboard') if current_user.is_authenticated else url_for('home') }}">Continue</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

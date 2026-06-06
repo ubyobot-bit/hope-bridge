@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Profile - HopeBridge{% endblock %}
+
+{% block content %}
+<section class="page-top">
+    <div class="container">
+        <div class="panel-card form-card">
+            <h1>Profile</h1>
+            <form method="post">
+                <div class="row g-3">
+                    <div class="col-md-6"><label>Full Name</label><input class="form-control" name="name" value="{{ current_user.full_name }}" required></div>
+                    <div class="col-md-6"><label>Email</label><input class="form-control" type="email" name="email" value="{{ current_user.email }}" required></div>
+                    <div class="col-md-6"><label>Phone</label><input class="form-control" name="phone" value="{{ current_user.phone or '' }}"></div>
+                    <div class="col-md-6"><label>City</label><input class="form-control" name="city" value="{{ current_user.city or '' }}"></div>
+                    <div class="col-md-6"><label>Country</label><input class="form-control" name="country" value="{{ current_user.country or '' }}"></div>
+                    <div class="col-12"><label>Bio</label><textarea class="form-control" name="bio" rows="4">{{ current_user.bio or '' }}</textarea></div>
+                </div>
+                <button class="btn btn-primary mt-4">Save Profile</button>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

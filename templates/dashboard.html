@@ -10,10 +10,10 @@
             <a class="active" href="#"><i class="bi bi-speedometer2"></i>Dashboard</a>
             <a href="#"><i class="bi bi-cash-stack"></i>My Donations</a>
             <a href="#"><i class="bi bi-folder"></i>My Campaigns</a>
-            <a href="{{ url_for('register') }}"><i class="bi bi-plus-circle"></i>Start Campaign</a>
+            <a href="{{ url_for('create_campaign') }}"><i class="bi bi-plus-circle"></i>Start Campaign</a>
             <a href="#"><i class="bi bi-chat-dots"></i>Messages</a>
-            <a href="#"><i class="bi bi-person"></i>Profile</a>
-            <a href="#"><i class="bi bi-gear"></i>Settings</a>
+            <a href="{{ url_for('profile') }}"><i class="bi bi-person"></i>Profile</a>
+            <a href="{{ url_for('settings') }}"><i class="bi bi-gear"></i>Settings</a>
             <a href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-left"></i>Logout</a>
         </nav>
     </aside>
@@ -32,21 +32,24 @@
             <div class="col-lg-6">
                 <div class="panel-card">
                     <h3>Recent Donations</h3>
+                    {% if donations %}
                     {% for donation in donations %}
                     <div class="dash-list">
-                        <div class="avatar">{{ donation.name[0] }}</div>
-                        <div><strong>{{ donation.campaign }}</strong><span>{{ donation.date }}</span></div>
+                        <div class="avatar">{{ donation.payment_method[0] | upper }}</div>
+                        <div><strong>{{ donation.campaign.title }}</strong><span>{{ donation.created_at.strftime('%b %d, %Y') }} • {{ donation.status }}</span></div>
                         <b>{{ donation.amount | money }}</b>
                     </div>
+                    {% endfor %}
                     {% else %}
                     <p class="text-muted">No donations yet.</p>
-                    {% endfor %}
+                    {% endif %}
                     <a href="#">View All</a>
                 </div>
             </div>
             <div class="col-lg-6">
                 <div class="panel-card">
                     <h3>My Campaigns</h3>
+                    {% if campaigns %}
                     {% for campaign in campaigns %}
                     {% set percent = (campaign.raised / campaign.goal * 100) | round | int %}
                     <div class="campaign-progress">
@@ -54,9 +57,10 @@
                         <small>{{ campaign.raised | money }} raised of {{ campaign.goal | money }}</small>
                         <div class="progress slim-progress"><div class="progress-bar" style="width: {{ percent }}%"></div></div>
                     </div>
+                    {% endfor %}
                     {% else %}
                     <p class="text-muted">No campaigns yet.</p>
-                    {% endfor %}
+                    {% endif %}
                     <a class="btn btn-outline-primary mt-3" href="{{ url_for('campaign_list') }}">View All Campaigns</a>
                 </div>
             </div>

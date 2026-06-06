@@ -2,14 +2,18 @@
 
 A complete cancer-patient donation website built with Python, Flask, HTML, CSS, JavaScript, and Bootstrap.
 
-## Pages
+## Pages And Features
 
 - Home page
 - Campaign listing
-- Campaign details and donation form
-- Login page
-- Registration page
-- User dashboard
+- Campaign details
+- Campaign creation
+- Donation checkout and receipt
+- Email registration and login
+- Forgot password and reset password
+- Google/Facebook bonding fallback
+- Profile and settings pages
+- User dashboard with database totals
 
 ## Run The Project
 
@@ -24,15 +28,44 @@ Open this URL in your browser:
 http://127.0.0.1:5000
 ```
 
-## Deploy Static Version To Netlify
+## Deploy On Render
 
-Netlify does not run a normal Flask server. To deploy this project on Netlify, build the static version first:
+Use these settings:
 
-```bash
-python3 build_static.py
+```text
+Build Command: pip install -r requirements.txt
+Start Command: gunicorn app:app
 ```
 
-Then upload the generated `netlify-site` folder to Netlify.
+Required Render environment variables:
+
+```text
+DATABASE_URL=your Render internal PostgreSQL URL
+SECRET_KEY=your long private secret
+```
+
+Optional for real Google/Facebook OAuth:
+
+```text
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
+FACEBOOK_CLIENT_ID=...
+FACEBOOK_CLIENT_SECRET=...
+```
+
+Until real provider credentials are added, the Google/Facebook pages use a testing fallback that bonds one verified email to one account.
+
+## Payment Setup Notes
+
+Replace the sample crypto addresses in `app.py` inside `CRYPTO_ADDRESS_BOOK` with your real BTC, ETH, USDC, and USDT addresses. The app rotates between the three addresses listed for each asset/network.
+
+Bank transfer currently uses a sample account in `BANK_ACCOUNT`. Gift cards currently support Amazon, Apple, and Steam.
+
+## Run Tests
+
+```bash
+python3 -m unittest discover -s tests -v
+```
 
 ## Project Structure
 
@@ -41,6 +74,7 @@ app.py
 requirements.txt
 build_static.py
 netlify.toml
+tests/
 templates/
 static/
 ```

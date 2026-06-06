@@ -2,7 +2,7 @@
 {% block title %}{{ campaign.title }} - HopeBridge{% endblock %}
 
 {% block content %}
-{% set percent = (campaign.raised / campaign.goal * 100) | round | int %}
+{% set percent = campaign.progress %}
 <section class="detail-page">
     <div class="container">
         <div class="breadcrumb-line">Home <i class="bi bi-chevron-right"></i> Campaigns <i class="bi bi-chevron-right"></i> {{ campaign.title }}</div>
@@ -50,7 +50,7 @@
                         <div><strong>45</strong><span>Donors</span></div>
                         <div><strong>12</strong><span>Days Left</span></div>
                     </div>
-                    <form method="post">
+                    <form action="{{ url_for('donate', campaign_id=campaign.id) }}" method="get">
                         <h5>Donate Now</h5>
                         <div class="amount-grid">
                             {% for amount in [25, 50, 100, 250, 500] %}
