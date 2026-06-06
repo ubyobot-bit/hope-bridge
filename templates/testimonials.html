@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Testimonials - HopeBridge{% endblock %}
+
+{% block content %}
+<section class="page-top">
+    <div class="container">
+        <p class="eyebrow">Community voices</p>
+        <h1>Testimonials</h1>
+        <p>Sixty voices from donors, families, care teams, and campaign organizers who experienced HopeBridge support.</p>
+    </div>
+</section>
+<section class="section-pad">
+    <div class="container">
+        <div class="row g-4">
+            {% for testimonial in testimonials %}
+            <div class="col-md-6 col-lg-4">
+                <div class="testimonial-card h-100">
+                    <img class="testimonial-avatar" src="{{ testimonial.image }}" alt="{{ testimonial.name }}">
+                    <div class="testimonial-body">
+                        <i class="bi bi-chat-quote text-primary fs-4"></i>
+                        <p class="mt-2">{{ testimonial.quote }}</p>
+                        <strong>{{ testimonial.name }}</strong>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

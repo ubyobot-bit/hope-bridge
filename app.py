@@ -287,7 +287,102 @@ TESTIMONIALS = [
     },
 ]
 
-PARTNERS = ["WHO", "USAID", "UNICEF", "Doctors Without Borders", "International Medical Corps", "GlobalGiving"]
+PARTNERS = [
+    {"name": "WHO", "logo": "WHO", "caption": "Global health guidance"},
+    {"name": "USAID", "logo": "USAID", "caption": "Humanitarian development"},
+    {"name": "UNICEF", "logo": "UNICEF", "caption": "Children and families"},
+    {"name": "Doctors Without Borders", "logo": "MSF", "caption": "Emergency medical aid"},
+    {"name": "International Medical Corps", "logo": "IMC", "caption": "Clinical response"},
+    {"name": "GlobalGiving", "logo": "GG", "caption": "Trusted donor network"},
+    {"name": "Red Cross", "logo": "RC", "caption": "Relief coordination"},
+    {"name": "Clinton Health Access Initiative", "logo": "CHAI", "caption": "Health access programs"},
+]
+
+EXECUTIVES = [
+    {
+        "name": "Dr. Amara Okonkwo",
+        "role": "Chief Executive Officer",
+        "bio": "Public-health strategist focused on transparent patient funding and hospital partnership systems.",
+        "image": "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=600&q=80",
+    },
+    {
+        "name": "Michael Adeyemi",
+        "role": "Chief Operations Officer",
+        "bio": "Leads verification, campaign review, payment operations, and donor support workflows.",
+        "image": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=600&q=80",
+    },
+    {
+        "name": "Nadia Williams",
+        "role": "Director of Partnerships",
+        "bio": "Builds collaborations with clinics, NGOs, care networks, and humanitarian organizations.",
+        "image": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80",
+    },
+    {
+        "name": "Samuel Hart",
+        "role": "Head of Trust & Safety",
+        "bio": "Owns campaign due diligence, fraud prevention, donor documentation, and reporting standards.",
+        "image": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=600&q=80",
+    },
+]
+
+ABOUT_VALUES = [
+    ("Verified Need", "Every campaign is reviewed for patient details, organizer information, and treatment relevance."),
+    ("Transparent Giving", "Donation records, payment references, and campaign updates are designed to be traceable."),
+    ("Patient Dignity", "We tell human stories with care, consent, and respect for families under pressure."),
+    ("Fast Support", "Our payment options and partner workflows help urgent care move without unnecessary delay."),
+]
+
+PROJECT_IMAGE_POOL = [
+    "https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1538108149393-fbbd81895907?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1587854692152-cbe660dbde88?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=900&q=80",
+]
+
+PROJECT_THEMES = [
+    "Radiology Access Fund", "Emergency Surgery Bridge", "Patient Nutrition Support", "Rural Screening Outreach",
+    "Caregiver Housing Relief", "Medication Relief Pool", "Children's Treatment Fund", "Transport To Treatment",
+    "Chemotherapy Subsidy Drive", "Diagnostic Test Sponsorship", "Family Care Grant", "Post-Surgery Recovery Aid",
+]
+
+TESTIMONIAL_NAMES = [
+    "Amina Yusuf", "Daniel Reed", "Maria Lopez", "Chinedu Okafor", "Grace Miller", "Fatima Bello",
+    "Samuel Carter", "Nora Williams", "Ibrahim Musa", "Elena Rossi", "Victor Chen", "Maya Johnson",
+]
+
+TESTIMONIAL_IMAGES = [
+    "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80",
+]
+
+while len(COMPLETED_PROJECTS) < 60:
+    index = len(COMPLETED_PROJECTS)
+    COMPLETED_PROJECTS.append(
+        {
+            "title": f"{PROJECT_THEMES[index % len(PROJECT_THEMES)]} {index + 1}",
+            "amount": f"${(8400 + index * 1350):,}",
+            "summary": "A verified medical support project completed with transparent donor funding and partner oversight.",
+            "image": PROJECT_IMAGE_POOL[index % len(PROJECT_IMAGE_POOL)],
+        }
+    )
+
+while len(TESTIMONIALS) < 60:
+    index = len(TESTIMONIALS)
+    TESTIMONIALS.append(
+        {
+            "name": TESTIMONIAL_NAMES[index % len(TESTIMONIAL_NAMES)],
+            "quote": "HopeBridge made giving feel personal, secure, and meaningful. The updates helped me trust the impact.",
+            "image": TESTIMONIAL_IMAGES[index % len(TESTIMONIAL_IMAGES)],
+        }
+    )
 
 
 def format_money(value):
@@ -408,7 +503,17 @@ def home():
         "index.html",
         campaigns=get_campaigns()[:3],
         completed_projects=COMPLETED_PROJECTS[:6],
-        testimonials=TESTIMONIALS,
+        testimonials=TESTIMONIALS[:6],
+        partners=PARTNERS,
+    )
+
+
+@app.route("/about")
+def about():
+    return render_template(
+        "about.html",
+        executives=EXECUTIVES,
+        values=ABOUT_VALUES,
         partners=PARTNERS,
     )
 
@@ -416,6 +521,11 @@ def home():
 @app.route("/projects")
 def completed_projects():
     return render_template("projects.html", projects=COMPLETED_PROJECTS)
+
+
+@app.route("/testimonials")
+def testimonials():
+    return render_template("testimonials.html", testimonials=TESTIMONIALS)
 
 
 @app.route("/campaigns")
@@ -431,6 +541,12 @@ def create_campaign():
         if goal <= 0:
             flash("Please enter a valid fundraising goal.", "danger")
             return redirect(url_for("create_campaign"))
+        uploaded_image = save_upload(request.files.get("campaign_image"))
+        image_url = (
+            url_for("static", filename=f"uploads/{uploaded_image}")
+            if uploaded_image
+            else "https://images.unsplash.com/photo-1550831107-1553da8c8464?auto=format&fit=crop&w=900&q=80"
+        )
         campaign = Campaign(
             title=request.form.get("title", "").strip(),
             patient=request.form.get("patient", "").strip(),
@@ -438,7 +554,7 @@ def create_campaign():
             organizer=current_user.full_name,
             location=request.form.get("location", "").strip(),
             goal=goal,
-            image=request.form.get("image", "").strip() or "https://images.unsplash.com/photo-1550831107-1553da8c8464?auto=format&fit=crop&w=900&q=80",
+            image=image_url,
             summary=request.form.get("summary", "").strip(),
             story=request.form.get("story", "").strip(),
             owner_id=current_user.id,

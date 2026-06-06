@@ -22,3 +22,11 @@ document.querySelectorAll('input[name="payment_method"]').forEach((input) => {
     });
   });
 });
+
+const supportChat = document.querySelector("#supportChat");
+document.querySelector(".chat-toggle")?.addEventListener("click", () => {
+  supportChat?.classList.add("open");
+});
+document.querySelector(".chat-close")?.addEventListener("click", () => {
+  supportChat?.classList.remove("open");
+});

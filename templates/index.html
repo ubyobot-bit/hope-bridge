@@ -98,10 +98,11 @@
                 <h2>Testimonials</h2>
                 <p>What donors, patients, and families say about HopeBridge.</p>
             </div>
+            <a href="{{ url_for('testimonials') }}">View All Testimonials <i class="bi bi-arrow-right"></i></a>
         </div>
         <div class="row g-4">
             {% for testimonial in testimonials %}
-            <div class="col-md-4">
+            <div class="col-md-6 col-lg-4">
                 <div class="testimonial-card h-100">
                     <img class="testimonial-avatar" src="{{ testimonial.image }}" alt="{{ testimonial.name }}">
                     <div class="testimonial-body">
@@ -125,7 +126,11 @@
             </div>
             <div class="partner-list">
                 {% for partner in partners %}
-                <span>{{ partner }}</span>
+                <div class="partner-logo-card">
+                    <span>{{ partner.logo }}</span>
+                    <strong>{{ partner.name }}</strong>
+                    <small>{{ partner.caption }}</small>
+                </div>
                 {% endfor %}
             </div>
         </div>

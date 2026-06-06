@@ -7,14 +7,14 @@
         <div class="panel-card form-card">
             <h1>Start a Campaign</h1>
             <p>Submit the patient and treatment details. Campaigns start unverified until reviewed.</p>
-            <form method="post">
+            <form method="post" enctype="multipart/form-data">
                 <div class="row g-3">
                     <div class="col-md-6"><label>Campaign Title</label><input class="form-control" name="title" required></div>
                     <div class="col-md-6"><label>Patient Name</label><input class="form-control" name="patient" required></div>
                     <div class="col-md-6"><label>Category</label><input class="form-control" name="category" value="Medical" required></div>
                     <div class="col-md-6"><label>Location</label><input class="form-control" name="location" required></div>
                     <div class="col-md-6"><label>Goal Amount USD</label><input class="form-control" type="number" name="goal" min="1" required></div>
-                    <div class="col-md-6"><label>Image URL</label><input class="form-control" name="image"></div>
+                    <div class="col-md-6"><label>Campaign Image</label><input class="form-control" type="file" name="campaign_image" accept="image/*"></div>
                     <div class="col-12"><label>Short Summary</label><textarea class="form-control" name="summary" rows="2" required></textarea></div>
                     <div class="col-12"><label>Full Story</label><textarea class="form-control" name="story" rows="5" required></textarea></div>
                 </div>

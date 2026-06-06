@@ -1,6 +1,7 @@
 import os
 import re
 import unittest
+from io import BytesIO
 
 os.environ["DATABASE_URL"] = "sqlite:///:memory:"
 os.environ["SECRET_KEY"] = "test-secret"
@@ -112,7 +113,9 @@ class HopeBridgeTestCase(unittest.TestCase):
                 "goal": "3000",
                 "summary": "Treatment support",
                 "story": "Jane needs treatment support.",
+                "campaign_image": (BytesIO(b"fake image bytes"), "campaign.jpg"),
             },
+            content_type="multipart/form-data",
             follow_redirects=True,
         )
         self.assertIn(b"Campaign created", created.data)
@@ -120,6 +123,7 @@ class HopeBridgeTestCase(unittest.TestCase):
         with app.app_context():
             campaign = Campaign.query.filter_by(title="New Treatment Fund").first()
             campaign_id = campaign.id
+            self.assertIn("/static/uploads/", campaign.image)
 
         receipt = self.client.post(
             f"/campaign/{campaign_id}/donate",
@@ -158,9 +162,23 @@ class HopeBridgeTestCase(unittest.TestCase):
         self.assertIn(b"Completed Projects", home.data)
         self.assertIn(b"Testimonials", home.data)
         self.assertIn(b"WHO", home.data)
+        self.assertIn(b"View All Testimonials", home.data)
+        self.assertIn(b"support@hopebridge.org", home.data)
+        self.assertIn(b"HopeBridge Support", home.data)
         projects = self.client.get("/projects")
         self.assertIn(b"Previous Completed Projects", projects.data)
         self.assertIn(b"Emergency Treatment Bridge", projects.data)
+        self.assertGreaterEqual(projects.data.count(b"project-card"), 60)
+        testimonials = self.client.get("/testimonials")
+        self.assertIn(b"Testimonials", testimonials.data)
+        self.assertGreaterEqual(testimonials.data.count(b"testimonial-card"), 60)
+
+    def test_about_page(self):
+        response = self.client.get("/about")
+        self.assertIn(b"About HopeBridge", response.data)
+        self.assertIn(b"Executive Team", response.data)
+        self.assertIn(b"Dr. Amara Okonkwo", response.data)
+        self.assertIn(b"Trusted Partners", response.data)
 
     def test_social_email_bonding_fallback(self):
         response = self.client.post(

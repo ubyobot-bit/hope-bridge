@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% block title %}About Us - HopeBridge{% endblock %}
+
+{% block content %}
+<section class="about-hero">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <p class="eyebrow">About HopeBridge</p>
+                <h1>We help verified patients reach treatment through transparent giving.</h1>
+                <p>HopeBridge brings donors, families, hospitals, and humanitarian partners into one trusted medical support workflow. Our mission is to make urgent care funding clearer, faster, and more accountable.</p>
+                <div class="d-flex flex-wrap gap-3">
+                    <a class="btn btn-primary btn-lg" href="{{ url_for('campaign_list') }}">Support a Campaign</a>
+                    <a class="btn btn-outline-primary btn-lg" href="{{ url_for('create_campaign') }}">Start a Campaign</a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="about-hero-image">
+                    <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1100&q=80" alt="Medical team supporting patient care">
+                </div>
+            </div>
+        </div>
+        <div class="about-metrics">
+            <div><strong>18,750+</strong><span>Donors Worldwide</span></div>
+            <div><strong>250+</strong><span>Verified Campaigns</span></div>
+            <div><strong>60</strong><span>Completed Projects</span></div>
+            <div><strong>$2.5M+</strong><span>Raised for Treatment</span></div>
+        </div>
+    </div>
+</section>
+
+<section class="section-pad">
+    <div class="container">
+        <div class="about-story-grid">
+            <div>
+                <p class="eyebrow">Our Story</p>
+                <h2>Built for families who cannot wait.</h2>
+            </div>
+            <div>
+                <p>Medical emergencies rarely arrive when families are financially ready. HopeBridge was created to reduce the confusion around urgent treatment fundraising by combining campaign verification, flexible payment options, donor records, and partner oversight.</p>
+                <p>Our platform supports public campaigns, direct donor giving, crypto and bank payment records, gift card submissions, and a dashboard where families can track support with dignity and clarity.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section-pad pt-0">
+    <div class="container">
+        <div class="section-heading">
+            <div>
+                <h2>What Guides Us</h2>
+                <p>Four operating principles shape how HopeBridge handles people, payments, and patient stories.</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            {% for title, description in values %}
+            <div class="col-md-6 col-lg-3">
+                <div class="value-card">
+                    <i class="bi bi-shield-check"></i>
+                    <h5>{{ title }}</h5>
+                    <p>{{ description }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="section-pad pt-0">
+    <div class="container">
+        <div class="section-heading">
+            <div>
+                <h2>Executive Team</h2>
+                <p>Experienced leaders across health operations, donor trust, partnerships, and verification.</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            {% for executive in executives %}
+            <div class="col-md-6 col-lg-3">
+                <div class="executive-card h-100">
+                    <img src="{{ executive.image }}" alt="{{ executive.name }}">
+                    <div>
+                        <h5>{{ executive.name }}</h5>
+                        <span>{{ executive.role }}</span>
+                        <p>{{ executive.bio }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="section-pad pt-0">
+    <div class="container">
+        <div class="about-process">
+            <div>
+                <p class="eyebrow">How We Work</p>
+                <h2>From campaign review to donor confidence.</h2>
+                <p>HopeBridge is organized around a simple workflow: verify the need, publish the campaign, record payments, support confirmations, and report progress. This keeps the giving experience human without making it careless.</p>
+            </div>
+            <div class="process-list">
+                <div><strong>1</strong><span>Campaign details and organizer identity are reviewed.</span></div>
+                <div><strong>2</strong><span>Donors select verified campaigns and payment methods.</span></div>
+                <div><strong>3</strong><span>Payment records stay visible while confirmation is processing.</span></div>
+                <div><strong>4</strong><span>Families and partners receive structured support updates.</span></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section-pad pt-0">
+    <div class="container">
+        <div class="panel-card partner-strip">
+            <div>
+                <h2>Trusted Partners</h2>
+                <p>Our partner model is built for hospital networks, NGOs, relief organizations, and donor communities that care about speed and accountability.</p>
+            </div>
+            <div class="partner-list">
+                {% for partner in partners %}
+                <div class="partner-logo-card">
+                    <span>{{ partner.logo }}</span>
+                    <strong>{{ partner.name }}</strong>
+                    <small>{{ partner.caption }}</small>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section-pad pt-0">
+    <div class="container">
+        <div class="about-cta">
+            <h2>Ready to bridge treatment funding with trusted support?</h2>
+            <p>Explore verified campaigns, start a patient campaign, or contact our support team for help with donations and payment confirmation.</p>
+            <div class="d-flex flex-wrap justify-content-center gap-3">
+                <a class="btn btn-light" href="{{ url_for('campaign_list') }}">Donate Now</a>
+                <a class="btn btn-outline-light" href="mailto:support@hopebridge.org">Contact Support</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
