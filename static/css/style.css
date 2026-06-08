@@ -1777,33 +1777,31 @@ a {
     border-radius: 12px;
 }
 
-.chat-contact-row {
+.support-chat-form {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
 }
 
-.chat-contact-row.three-actions {
-    grid-template-columns: 1fr;
+.support-chat-form textarea {
+    min-height: 108px;
+    resize: vertical;
+    border-radius: 14px;
+    background: #fff;
 }
 
-.chat-contact-row a {
-    display: flex;
+.support-chat-form .btn {
+    display: inline-flex;
     justify-content: center;
     align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-    color: var(--ink);
-    background: #fff;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    font-weight: 800;
+    gap: 8px;
+    min-height: 46px;
+    border-radius: 12px;
 }
 
-.chat-contact-row a.primary-chat {
-    color: #fff;
-    background: linear-gradient(135deg, #7a39ef, #5a2ccf);
-    border-color: transparent;
+.support-chat-form small {
+    color: var(--muted);
+    font-size: .78rem;
+    text-align: center;
 }
 
 @media (max-width: 767px) {

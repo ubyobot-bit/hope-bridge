@@ -62,11 +62,14 @@
             </div>
             <div class="chat-body">
                 <p class="chat-bubble">Hello, a HopeBridge customer representative can help with donations, campaign verification, or payment confirmation.</p>
-                <div class="chat-contact-row three-actions">
-                    <a class="primary-chat" href="{{ url_for('home') }}#contact"><i class="bi bi-send"></i> Send to representative</a>
-                    <a href="mailto:{{ site_settings.support_email }}"><i class="bi bi-envelope"></i> Email</a>
-                    <a href="tel:{{ site_settings.support_phone }}"><i class="bi bi-telephone"></i> Call</a>
-                </div>
+                <form class="support-chat-form" action="{{ url_for('contact') }}" method="post">
+                    <input type="hidden" name="subject" value="Chat with representative">
+                    <input type="hidden" name="name" value="{{ current_user.full_name if current_user.is_authenticated else 'Website Visitor' }}">
+                    <input type="hidden" name="email" value="{{ current_user.email if current_user.is_authenticated else site_settings.support_email }}">
+                    <textarea class="form-control" name="message" rows="3" placeholder="Type your message to HopeBridge support..." required></textarea>
+                    <button class="btn btn-primary w-100" type="submit"><i class="bi bi-send"></i> Send to representative</button>
+                    <small>Support replies are handled from the HopeBridge admin desk.</small>
+                </form>
             </div>
         </div>
     </div>

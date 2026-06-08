@@ -935,9 +935,12 @@ def testimonials():
 @app.route("/contact", methods=["POST"])
 def contact():
     return_to = request.referrer or url_for("home")
+    is_chat_widget = request.form.get("subject") == "Chat with representative"
+    fallback_name = current_user.full_name if current_user.is_authenticated else "Website Visitor"
+    fallback_email = current_user.email if current_user.is_authenticated else get_setting("support_email", DEFAULT_SETTINGS["support_email"])
     message = SupportMessage(
-        full_name=request.form.get("name", "").strip(),
-        email=normalize_email(request.form.get("email")),
+        full_name=request.form.get("name", "").strip() or fallback_name,
+        email=normalize_email(request.form.get("email")) or fallback_email,
         phone=clean_phone(request.form.get("phone")),
         subject=request.form.get("subject", "Support request").strip(),
         message=request.form.get("message", "").strip(),
@@ -947,7 +950,12 @@ def contact():
         return redirect(return_to)
     db.session.add(message)
     db.session.commit()
-    flash("Your message has been sent to HopeBridge support. A representative will review it from the admin dashboard.", "success")
+    flash(
+        "Your chat message has been sent to HopeBridge support. A representative will review it from the admin desk."
+        if is_chat_widget
+        else "Your message has been sent to HopeBridge support. A representative will review it from the admin dashboard.",
+        "success",
+    )
     return redirect(return_to)
 
 
