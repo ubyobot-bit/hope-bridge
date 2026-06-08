@@ -34,7 +34,6 @@
                     <a class="wallet-action-btn" href="{{ url_for('donation_receipt', reference=donation.reference, amount=donation.amount) }}"><i class="bi bi-hash"></i><span>Set Amount</span></a>
                     <button class="wallet-action-btn" type="button" data-share-url="{{ request.url }}"><i class="bi bi-share-fill"></i><span>Share</span></button>
                 </div>
-                <div class="deposit-box"><i class="bi bi-arrow-down"></i><div><strong>Deposit from exchange</strong><span>By direct transfer from your account</span></div></div>
             </div>
             {% elif donation.payment_method == "giftcard" %}
             <div class="payment-instructions">
@@ -54,7 +53,7 @@
                     <span>We will keep this record pending until the payment proof or blockchain confirmation is reviewed.</span>
                 </div>
             </div>
-            <a class="btn btn-outline-primary" href="{{ url_for('dashboard') if current_user.is_authenticated else url_for('home') }}">Leave this page</a>
+            <a class="btn btn-primary" href="{{ url_for('dashboard') if current_user.is_authenticated else url_for('home') }}">Submit</a>
         </div>
     </div>
 </section>

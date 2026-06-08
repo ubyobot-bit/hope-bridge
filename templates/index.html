@@ -15,8 +15,8 @@
                     {% if current_user.is_authenticated %}
                     <a class="btn btn-outline-primary btn-lg" href="{{ url_for('dashboard') }}">Dashboard</a>
                     {% else %}
-                    <a class="btn btn-light btn-lg hero-auth-btn" href="{{ url_for('login') }}">Login</a>
-                    <a class="btn btn-light btn-lg hero-auth-btn" href="{{ url_for('register') }}">Sign Up</a>
+                    <a class="btn btn-light hero-auth-btn" href="{{ url_for('login') }}">Login</a>
+                    <a class="btn btn-light hero-auth-btn" href="{{ url_for('register') }}">Sign Up</a>
                     {% endif %}
                 </div>
             </div>

@@ -559,12 +559,27 @@ TESTIMONIAL_DETAILS = [
     ("Mei Lin", "I appreciate seeing many completed projects with different outcomes and real captions."),
 ]
 
+PROJECT_PHOTOS = [
+    "https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1538108149393-fbbd81895907?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1587854692152-cbe660dbde88?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1504439468489-c8920d796a29?auto=format&fit=crop&w=900&q=80",
+]
+
 COMPLETED_PROJECTS = [
     {
         "title": title,
         "amount": amount,
         "summary": summary,
-        "image": f"https://loremflickr.com/900/650/medical,hospital,care?lock={1200 + index}",
+        "image": f"{PROJECT_PHOTOS[index % len(PROJECT_PHOTOS)]}&project={index + 1}",
     }
     for index, (title, amount, summary) in enumerate(PROJECT_COMPLETION_DETAILS)
 ]
@@ -698,8 +713,7 @@ def select_crypto_address(asset, network):
 def crypto_qr_url(donation):
     if donation.payment_method != "crypto" or not donation.payment_address:
         return None
-    payload = f"{donation.payment_asset}:{donation.payment_address}?network={donation.payment_network}&amount={donation.amount}"
-    return f"https://api.qrserver.com/v1/create-qr-code/?size=220x220&data={quote_plus(payload)}"
+    return f"https://api.qrserver.com/v1/create-qr-code/?size=220x220&data={quote_plus(donation.payment_address)}"
 
 
 def save_upload(file_storage):
@@ -784,6 +798,10 @@ def seed_site_content():
                     sort_order=index,
                 )
             )
+    else:
+        for index, project in enumerate(CompletedProject.query.order_by(CompletedProject.sort_order.asc(), CompletedProject.id.asc()).all()):
+            if "loremflickr.com" in (project.image or "") and index < len(COMPLETED_PROJECTS):
+                project.image = COMPLETED_PROJECTS[index]["image"]
     if Testimonial.query.count() == 0:
         for index, data in enumerate(TESTIMONIALS):
             db.session.add(
@@ -966,6 +984,7 @@ def donate(campaign_id):
             donation.payment_asset = asset
             donation.payment_network = network
             donation.payment_address = address
+            donation.proof_filename = save_upload(request.files.get("crypto_proof"))
         elif method == "giftcard":
             giftcard_type = request.form.get("giftcard_type")
             if giftcard_type not in GIFT_CARD_TYPES:
@@ -1036,7 +1055,10 @@ def register():
         db.session.add(user)
         db.session.commit()
         login_user(user)
-        flash("Your account has been created.", "success")
+        flash(
+            "Welcome to HopeBridge. Your account is ready. From your dashboard you can start a campaign, track donations, upload payment proof, and manage your profile. If you need help at any point, use the support chat button or contact HopeBridge support from the footer.",
+            "success",
+        )
         return redirect(url_for("dashboard"))
     return render_template("register.html")
 

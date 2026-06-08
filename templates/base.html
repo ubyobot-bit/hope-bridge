@@ -35,8 +35,6 @@
                     <a class="btn btn-outline-primary px-3" href="{{ url_for('dashboard') }}">Dashboard</a>
                     <a class="btn btn-primary px-3" href="{{ url_for('logout') }}">Logout</a>
                     {% else %}
-                    <a class="btn btn-outline-primary px-3" href="{{ url_for('login') }}">Login</a>
-                    <a class="btn btn-outline-primary px-3" href="{{ url_for('register') }}">Sign Up</a>
                     <a class="btn btn-primary px-4" href="{{ url_for('campaign_list') }}">Donate Now</a>
                     {% endif %}
                 </div>

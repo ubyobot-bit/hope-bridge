@@ -180,11 +180,37 @@ class HopeBridgeTestCase(unittest.TestCase):
             self.assertIsNotNone(match)
             self.assertIn(b"Processing / Confirming", response.data)
             self.assertIn(b"create-qr-code", response.data)
+            self.assertNotIn(b"USDT%3A", response.data)
+            self.assertNotIn(b"network%3DTRC20", response.data)
+            self.assertNotIn(b"amount%3D25", response.data)
             self.assertIn(b"Copy", response.data)
             self.assertIn(b"Share", response.data)
             self.assertIn(b"Scan QR code", response.data)
+            self.assertIn(b"Submit", response.data)
+            self.assertNotIn(b"Leave this page", response.data)
+            self.assertNotIn(b"Deposit from exchange", response.data)
             addresses.append(match.group(0))
         self.assertEqual(addresses, expected)
+
+    def test_crypto_payment_proof_upload_is_saved(self):
+        with app.app_context():
+            campaign_id = Campaign.query.first().id
+        self.client.post(
+            f"/campaign/{campaign_id}/donate",
+            data={
+                "amount": "40",
+                "payment_method": "crypto",
+                "asset": "USDC",
+                "network": "SPL",
+                "crypto_proof": (BytesIO(b"proof bytes"), "crypto-proof.jpg"),
+            },
+            content_type="multipart/form-data",
+            follow_redirects=True,
+        )
+        with app.app_context():
+            donation = Donation.query.filter_by(payment_asset="USDC", payment_network="SPL").first()
+            self.assertIsNotNone(donation.proof_filename)
+            self.assertIn("crypto-proof.jpg", donation.proof_filename)
 
     def test_uploaded_wallet_batches_are_exact(self):
         self.assertEqual(CRYPTO_ADDRESS_BOOK["BTC"]["BTC"], [
@@ -239,6 +265,7 @@ class HopeBridgeTestCase(unittest.TestCase):
             self.assertEqual(CompletedProject.query.count(), 60)
             self.assertEqual(Testimonial.query.count(), 60)
             self.assertGreaterEqual(Partner.query.count(), 8)
+            self.assertFalse(any("loremflickr.com" in project.image for project in CompletedProject.query.all()))
 
     def test_about_page(self):
         response = self.client.get("/about")
