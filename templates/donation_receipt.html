@@ -53,7 +53,18 @@
                     <span>We will keep this record pending until the payment proof or blockchain confirmation is reviewed.</span>
                 </div>
             </div>
-            <a class="btn btn-primary" href="{{ url_for('dashboard') if current_user.is_authenticated else url_for('home') }}">Submit</a>
+            <form class="payment-proof-form" method="post" enctype="multipart/form-data">
+                <label>Upload Payment Proof</label>
+                <input class="form-control" type="file" name="payment_proof" accept="image/*,.pdf">
+                {% if donation.proof_filename %}
+                <small class="text-success d-block mt-2">Proof already uploaded. Submitting again will replace it.</small>
+                {% else %}
+                <small class="text-muted d-block mt-2">Upload a clear screenshot or PDF receipt before final submission.</small>
+                {% endif %}
+                <div class="submit-center">
+                    <button class="btn btn-primary" type="submit">Submit</button>
+                </div>
+            </form>
         </div>
     </div>
 </section>

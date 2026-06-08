@@ -984,7 +984,6 @@ def donate(campaign_id):
             donation.payment_asset = asset
             donation.payment_network = network
             donation.payment_address = address
-            donation.proof_filename = save_upload(request.files.get("crypto_proof"))
         elif method == "giftcard":
             giftcard_type = request.form.get("giftcard_type")
             if giftcard_type not in GIFT_CARD_TYPES:
@@ -1017,9 +1016,18 @@ def donate(campaign_id):
     )
 
 
-@app.route("/donation/<reference>")
+@app.route("/donation/<reference>", methods=["GET", "POST"])
 def donation_receipt(reference):
     donation = Donation.query.filter_by(reference=reference).first_or_404()
+    if request.method == "POST":
+        uploaded_proof = save_upload(request.files.get("payment_proof"))
+        if uploaded_proof:
+            donation.proof_filename = uploaded_proof
+            db.session.commit()
+            flash("Payment proof submitted. HopeBridge support will review and confirm your payment.", "success")
+        else:
+            flash("Payment record submitted. You can still contact support if you need help uploading proof.", "success")
+        return redirect(url_for("dashboard") if current_user.is_authenticated else url_for("home"))
     return render_template(
         "donation_receipt.html",
         donation=donation,

@@ -928,10 +928,29 @@ a {
 }
 
 .form-card label,
-.payment-form label {
+.payment-form label,
+.payment-proof-form label {
     margin: 12px 0 7px;
     font-size: .88rem;
     font-weight: 900;
+}
+
+.payment-proof-form {
+    margin-top: 24px;
+    padding: 20px;
+    background: #faf8ff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+}
+
+.submit-center {
+    display: flex;
+    justify-content: center;
+    margin-top: 18px;
+}
+
+.submit-center .btn {
+    min-width: 150px;
 }
 
 .method-tabs {
@@ -1520,7 +1539,27 @@ a {
     z-index: 1200;
 }
 
+.support-nudge {
+    position: absolute;
+    right: 74px;
+    bottom: 10px;
+    width: 230px;
+    padding: 10px 12px;
+    color: var(--ink);
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    font-size: .86rem;
+    font-weight: 800;
+}
+
+.support-chat.seen .support-nudge {
+    display: none;
+}
+
 .chat-toggle {
+    position: relative;
     display: grid;
     width: 62px;
     height: 62px;
@@ -1531,6 +1570,32 @@ a {
     border-radius: 50%;
     box-shadow: 0 16px 34px rgba(111, 53, 232, .32);
     font-size: 1.65rem;
+}
+
+.support-badge {
+    position: absolute;
+    top: -4px;
+    right: -2px;
+    display: grid;
+    width: 22px;
+    height: 22px;
+    place-items: center;
+    color: #fff;
+    background: #ff3b66;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    font-size: .72rem;
+    font-weight: 950;
+    animation: badgePulse 1.6s infinite;
+}
+
+.support-chat.seen .support-badge {
+    display: none;
+}
+
+@keyframes badgePulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
 }
 
 .chat-panel {

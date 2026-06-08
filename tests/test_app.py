@@ -186,6 +186,7 @@ class HopeBridgeTestCase(unittest.TestCase):
             self.assertIn(b"Copy", response.data)
             self.assertIn(b"Share", response.data)
             self.assertIn(b"Scan QR code", response.data)
+            self.assertIn(b"Upload Payment Proof", response.data)
             self.assertIn(b"Submit", response.data)
             self.assertNotIn(b"Leave this page", response.data)
             self.assertNotIn(b"Deposit from exchange", response.data)
@@ -195,20 +196,31 @@ class HopeBridgeTestCase(unittest.TestCase):
     def test_crypto_payment_proof_upload_is_saved(self):
         with app.app_context():
             campaign_id = Campaign.query.first().id
-        self.client.post(
+        receipt = self.client.post(
             f"/campaign/{campaign_id}/donate",
             data={
                 "amount": "40",
                 "payment_method": "crypto",
                 "asset": "USDC",
                 "network": "SPL",
-                "crypto_proof": (BytesIO(b"proof bytes"), "crypto-proof.jpg"),
             },
-            content_type="multipart/form-data",
             follow_redirects=True,
         )
         with app.app_context():
             donation = Donation.query.filter_by(payment_asset="USDC", payment_network="SPL").first()
+            reference = donation.reference
+            self.assertIsNone(donation.proof_filename)
+        self.assertIn(b"Upload Payment Proof", receipt.data)
+
+        submitted = self.client.post(
+            f"/donation/{reference}",
+            data={"payment_proof": (BytesIO(b"proof bytes"), "crypto-proof.jpg")},
+            content_type="multipart/form-data",
+            follow_redirects=True,
+        )
+        self.assertIn(b"Payment proof submitted", submitted.data)
+        with app.app_context():
+            donation = Donation.query.filter_by(reference=reference).first()
             self.assertIsNotNone(donation.proof_filename)
             self.assertIn("crypto-proof.jpg", donation.proof_filename)
 
