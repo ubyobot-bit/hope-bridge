@@ -8,12 +8,40 @@
             <div>
                 <p class="eyebrow">Admin Control</p>
                 <h1>Manage Users</h1>
-                <p>Review account details and grant admin access to trusted operators.</p>
+                <p>Add, restrict, remove, and grant admin access to trusted operators.</p>
             </div>
             <div class="admin-actions">
                 <a class="btn btn-outline-primary" href="{{ url_for('admin_export_users') }}"><i class="bi bi-download"></i> Export CSV</a>
                 <a class="btn btn-outline-primary" href="{{ url_for('admin_dashboard') }}"><i class="bi bi-speedometer2"></i> Admin Home</a>
             </div>
+        </div>
+        <div class="panel-card mb-4">
+            <h3>Add User</h3>
+            <form class="row g-3" method="post" action="{{ url_for('admin_create_user') }}">
+                <div class="col-md-3">
+                    <label>Full Name</label>
+                    <input class="form-control" name="full_name" required>
+                </div>
+                <div class="col-md-3">
+                    <label>Email</label>
+                    <input class="form-control" type="email" name="email" required>
+                </div>
+                <div class="col-md-2">
+                    <label>Phone</label>
+                    <input class="form-control" name="phone">
+                </div>
+                <div class="col-md-2">
+                    <label>Password</label>
+                    <input class="form-control" name="password" placeholder="Optional">
+                </div>
+                <div class="col-md-2 d-flex align-items-end gap-3">
+                    <label class="form-check mb-2"><input class="form-check-input" type="checkbox" name="is_admin"> Admin</label>
+                    <label class="form-check mb-2"><input class="form-check-input" type="checkbox" name="is_restricted"> Restrict</label>
+                </div>
+                <div class="col-12">
+                    <button class="btn btn-primary" type="submit"><i class="bi bi-person-plus"></i> Add User</button>
+                </div>
+            </form>
         </div>
         <div class="admin-table-wrap">
             <table class="admin-table">
@@ -24,6 +52,7 @@
                         <th>Provider</th>
                         <th>Joined</th>
                         <th>Access</th>
+                        <th>Control</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -35,15 +64,28 @@
                         <td>{{ user.created_at.strftime('%b %d, %Y') if user.created_at else 'Unknown' }}</td>
                         <td>
                             <span class="status-pill {{ 'confirmed' if user.is_admin else 'pending' }}">{{ 'Admin' if user.is_admin else 'User' }}</span>
+                            <span class="status-pill {{ 'rejected' if user.is_restricted else 'confirmed' }}">{{ 'Restricted' if user.is_restricted else 'Active' }}</span>
+                        </td>
+                        <td>
                             {% if user.id != current_user.id %}
+                            <div class="admin-actions compact">
                             <form method="post" action="{{ url_for('admin_toggle_user', user_id=user.id) }}">
                                 <button class="btn btn-sm btn-outline-primary" type="submit">{{ 'Remove Admin' if user.is_admin else 'Make Admin' }}</button>
                             </form>
+                            <form method="post" action="{{ url_for('admin_toggle_user_restriction', user_id=user.id) }}">
+                                <button class="btn btn-sm btn-outline-warning" type="submit">{{ 'Unrestrict' if user.is_restricted else 'Restrict' }}</button>
+                            </form>
+                            <form method="post" action="{{ url_for('admin_delete_user', user_id=user.id) }}" onsubmit="return confirm('Remove this user? This cannot be undone.');">
+                                <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
+                            </form>
+                            </div>
+                            {% else %}
+                            <span class="text-muted">Current account</span>
                             {% endif %}
                         </td>
                     </tr>
                     {% else %}
-                    <tr><td colspan="5">No users yet.</td></tr>
+                    <tr><td colspan="6">No users yet.</td></tr>
                     {% endfor %}
                 </tbody>
             </table>

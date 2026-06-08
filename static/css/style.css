@@ -1672,6 +1672,10 @@ a {
     gap: 10px;
 }
 
+.chat-contact-row.three-actions {
+    grid-template-columns: 1fr;
+}
+
 .chat-contact-row a {
     display: flex;
     justify-content: center;
@@ -1685,15 +1689,10 @@ a {
     font-weight: 800;
 }
 
-.support-mini-form .form-control {
-    min-height: 44px;
-    border-radius: 10px;
-    font-size: .92rem;
-}
-
-.support-mini-form textarea.form-control {
-    min-height: 92px;
-    resize: vertical;
+.chat-contact-row a.primary-chat {
+    color: #fff;
+    background: linear-gradient(135deg, #7a39ef, #5a2ccf);
+    border-color: transparent;
 }
 
 @media (max-width: 767px) {
@@ -1720,6 +1719,10 @@ a {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
+}
+
+.admin-actions.compact {
+    gap: 6px;
 }
 
 .admin-metrics {
@@ -1806,6 +1809,54 @@ a {
     display: flex;
     gap: 8px;
     min-width: 230px;
+}
+
+.message-admin-list {
+    display: grid;
+    gap: 18px;
+}
+
+.support-message-card {
+    display: grid;
+    gap: 12px;
+}
+
+.message-card-head,
+.message-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.message-card-head span,
+.message-meta {
+    color: var(--muted);
+    font-size: .9rem;
+}
+
+.message-text,
+.message-reply p {
+    margin: 0;
+    color: var(--ink);
+    line-height: 1.7;
+}
+
+.message-reply {
+    padding: 12px;
+    background: #f8f4ff;
+    border: 1px solid #e7dcff;
+    border-radius: 12px;
+}
+
+.message-reply span {
+    color: var(--muted);
+    font-size: .82rem;
+}
+
+.message-reply-form label {
+    margin-bottom: 8px;
+    color: var(--ink);
+    font-weight: 900;
 }
 
 .status-pill {

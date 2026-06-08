@@ -64,6 +64,7 @@ class User(UserMixin, db.Model):
     reset_token = db.Column(db.String(120), unique=True, nullable=True)
     reset_token_expires = db.Column(db.DateTime, nullable=True)
     is_admin = db.Column(db.Boolean, default=False)
+    is_restricted = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     campaigns = db.relationship("Campaign", backref="owner", lazy=True)
@@ -187,6 +188,8 @@ class SupportMessage(db.Model):
     phone = db.Column(db.String(40), nullable=True)
     subject = db.Column(db.String(180), nullable=False)
     message = db.Column(db.Text, nullable=False)
+    reply = db.Column(db.Text, nullable=True)
+    replied_at = db.Column(db.DateTime, nullable=True)
     status = db.Column(db.String(30), nullable=False, default="open")
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -763,6 +766,28 @@ def send_reset_email(user, reset_link):
     return True
 
 
+def send_support_reply(message, reply_text):
+    host = os.environ.get("SMTP_HOST")
+    username = os.environ.get("SMTP_USERNAME")
+    password = os.environ.get("SMTP_PASSWORD")
+    sender = os.environ.get("SMTP_FROM", username or get_setting("support_email", DEFAULT_SETTINGS["support_email"]))
+    if not host or not username or not password:
+        return False
+    email = EmailMessage()
+    email["Subject"] = f"HopeBridge Support: {message.subject}"
+    email["From"] = sender
+    email["To"] = message.email
+    email.set_content(
+        f"Hello {message.full_name},\n\n{reply_text}\n\nRegards,\nHopeBridge Support"
+    )
+    port = int(os.environ.get("SMTP_PORT", "587"))
+    with smtplib.SMTP(host, port) as smtp:
+        smtp.starttls()
+        smtp.login(username, password)
+        smtp.send_message(email)
+    return True
+
+
 def social_login(provider, email, full_name):
     email = normalize_email(email)
     if not email:
@@ -776,6 +801,9 @@ def social_login(provider, email, full_name):
         db.session.flush()
     elif user.auth_provider not in (provider, "email"):
         flash("This email is already bonded to another sign-in method.", "danger")
+        return redirect(url_for("login"))
+    if user.is_restricted:
+        flash("This account has been restricted. Please contact HopeBridge support.", "danger")
         return redirect(url_for("login"))
 
     account = SocialAccount.query.filter_by(provider=provider, provider_subject=email).first()
@@ -842,7 +870,8 @@ def seed_site_content():
 def ensure_schema():
     db.create_all()
     inspector = inspect(db.engine)
-    if "user" not in inspector.get_table_names():
+    table_names = inspector.get_table_names()
+    if "user" not in table_names:
         return
     columns = {column["name"] for column in inspector.get_columns("user")}
     additions = {
@@ -854,11 +883,21 @@ def ensure_schema():
         "reset_token": "VARCHAR(120)",
         "reset_token_expires": "TIMESTAMP",
         "is_admin": "BOOLEAN DEFAULT FALSE",
+        "is_restricted": "BOOLEAN DEFAULT FALSE",
         "created_at": "TIMESTAMP",
     }
     for name, definition in additions.items():
         if name not in columns:
             db.session.execute(text(f'ALTER TABLE "user" ADD COLUMN {name} {definition}'))
+    if "support_message" in table_names:
+        message_columns = {column["name"] for column in inspector.get_columns("support_message")}
+        message_additions = {
+            "reply": "TEXT",
+            "replied_at": "TIMESTAMP",
+        }
+        for name, definition in message_additions.items():
+            if name not in message_columns:
+                db.session.execute(text(f'ALTER TABLE support_message ADD COLUMN {name} {definition}'))
     db.session.commit()
 
 
@@ -1092,6 +1131,9 @@ def login():
         if user is None or not user.check_password(password):
             flash("Incorrect email or password.", "danger")
             return redirect(url_for("login"))
+        if user.is_restricted:
+            flash("This account has been restricted. Please contact HopeBridge support.", "danger")
+            return redirect(url_for("login"))
         login_user(user, remember=request.form.get("remember") == "on")
         flash("Welcome back to HopeBridge.", "success")
         return redirect(url_for("dashboard"))
@@ -1115,7 +1157,11 @@ def forgot_password():
         user = User.query.filter(func.lower(User.email) == email).first()
         if user:
             reset_link = create_reset_link(user)
-            if send_reset_email(user, reset_link):
+            try:
+                sent = send_reset_email(user, reset_link)
+            except Exception:
+                sent = False
+            if sent:
                 flash("Password reset instructions have been sent to your email.", "success")
             else:
                 flash(f"Password reset link created: {reset_link}", "success")
@@ -1309,6 +1355,35 @@ def admin_users():
     return render_template("admin_users.html", users=users)
 
 
+@app.route("/admin/user/new", methods=["POST"])
+@login_required
+@admin_required
+def admin_create_user():
+    full_name = request.form.get("full_name", "").strip()
+    email = normalize_email(request.form.get("email"))
+    phone = clean_phone(request.form.get("phone"))
+    password = request.form.get("password", "").strip() or "HopeBridgeUser123"
+    if not full_name or not email:
+        flash("Full name and email are required to add a user.", "danger")
+        return redirect(url_for("admin_users"))
+    if User.query.filter(func.lower(User.email) == email).first():
+        flash("A user with that email already exists.", "danger")
+        return redirect(url_for("admin_users"))
+    user = User(
+        full_name=full_name,
+        email=email,
+        phone=phone,
+        auth_provider="email",
+        is_admin=request.form.get("is_admin") == "on",
+        is_restricted=request.form.get("is_restricted") == "on",
+    )
+    user.set_password(password)
+    db.session.add(user)
+    db.session.commit()
+    flash(f"{user.full_name} was added. Temporary password: {password}", "success")
+    return redirect(url_for("admin_users"))
+
+
 @app.route("/admin/user/<int:user_id>/toggle-admin", methods=["POST"])
 @login_required
 @admin_required
@@ -1322,6 +1397,42 @@ def admin_toggle_user(user_id):
     user.is_admin = not user.is_admin
     db.session.commit()
     flash(f"{user.full_name}'s admin access was updated.", "success")
+    return redirect(url_for("admin_users"))
+
+
+@app.route("/admin/user/<int:user_id>/toggle-restriction", methods=["POST"])
+@login_required
+@admin_required
+def admin_toggle_user_restriction(user_id):
+    user = db.session.get(User, user_id)
+    if user is None:
+        abort(404)
+    if user.id == current_user.id:
+        flash("You cannot restrict your own active admin account.", "danger")
+        return redirect(url_for("admin_users"))
+    user.is_restricted = not user.is_restricted
+    db.session.commit()
+    flash(f"{user.full_name}'s account restriction was updated.", "success")
+    return redirect(url_for("admin_users"))
+
+
+@app.route("/admin/user/<int:user_id>/delete", methods=["POST"])
+@login_required
+@admin_required
+def admin_delete_user(user_id):
+    user = db.session.get(User, user_id)
+    if user is None:
+        abort(404)
+    if user.id == current_user.id:
+        flash("You cannot delete your own active admin account.", "danger")
+        return redirect(url_for("admin_users"))
+    name = user.full_name
+    Donation.query.filter_by(donor_id=user.id).update({"donor_id": None})
+    Campaign.query.filter_by(owner_id=user.id).update({"owner_id": None})
+    SocialAccount.query.filter_by(user_id=user.id).delete()
+    db.session.delete(user)
+    db.session.commit()
+    flash(f"{name} was removed from HopeBridge.", "success")
     return redirect(url_for("admin_users"))
 
 
@@ -1526,12 +1637,23 @@ def admin_message_status(message_id):
     if message is None:
         abort(404)
     status = request.form.get("status")
+    reply = request.form.get("reply", "").strip()
     if status not in ("open", "replied", "closed"):
         flash("Choose a valid message status.", "danger")
         return redirect(url_for("admin_messages"))
+    if reply:
+        message.reply = reply
+        message.replied_at = datetime.utcnow()
+        status = "replied"
+        try:
+            sent = send_support_reply(message, reply)
+        except Exception:
+            sent = False
+        flash("Reply saved and emailed to the client." if sent else "Reply saved. Email was not sent because SMTP is not available.", "success")
+    else:
+        flash("Support message updated.", "success")
     message.status = status
     db.session.commit()
-    flash("Support message updated.", "success")
     return redirect(url_for("admin_messages"))
 
 

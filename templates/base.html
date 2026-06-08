@@ -62,25 +62,8 @@
             </div>
             <div class="chat-body">
                 <p class="chat-bubble">Hello, a HopeBridge customer representative can help with donations, campaign verification, or payment confirmation.</p>
-                <form class="support-mini-form" action="{{ url_for('contact') }}" method="post">
-                    <input type="hidden" name="subject" value="Chat with representative">
-                    <div class="row g-2">
-                        <div class="col-sm-6">
-                            <input class="form-control" name="name" placeholder="Full name" value="{{ current_user.full_name if current_user.is_authenticated else '' }}" required>
-                        </div>
-                        <div class="col-sm-6">
-                            <input class="form-control" type="email" name="email" placeholder="Email address" value="{{ current_user.email if current_user.is_authenticated else '' }}" required>
-                        </div>
-                        <div class="col-12">
-                            <input class="form-control" name="phone" placeholder="Phone number">
-                        </div>
-                        <div class="col-12">
-                            <textarea class="form-control" name="message" rows="3" placeholder="How can our representative help?" required></textarea>
-                        </div>
-                    </div>
-                    <button class="btn btn-primary w-100 mt-3" type="submit"><i class="bi bi-send"></i> Send to representative</button>
-                </form>
-                <div class="chat-contact-row">
+                <div class="chat-contact-row three-actions">
+                    <a class="primary-chat" href="{{ url_for('home') }}#contact"><i class="bi bi-send"></i> Send to representative</a>
                     <a href="mailto:{{ site_settings.support_email }}"><i class="bi bi-envelope"></i> Email</a>
                     <a href="tel:{{ site_settings.support_phone }}"><i class="bi bi-telephone"></i> Call</a>
                 </div>
