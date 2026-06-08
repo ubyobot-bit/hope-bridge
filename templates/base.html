@@ -62,6 +62,16 @@
             </div>
             <div class="chat-body">
                 <p class="chat-bubble">Hello, a HopeBridge customer representative can help with donations, campaign verification, or payment confirmation.</p>
+                <div class="chat-history" id="supportChatHistory">
+                    {% for item in support_chat_history %}
+                    <div class="chat-line {{ 'from-admin' if item.sender == 'admin' else 'from-customer' }}">
+                        <p>{{ item.message }}</p>
+                        <span>{{ 'HopeBridge Support' if item.sender == 'admin' else 'You' }} • {{ item.created_at.strftime('%I:%M %p') if item.created_at else 'Now' }}</span>
+                    </div>
+                    {% else %}
+                    <div class="chat-empty">Start a conversation with HopeBridge support.</div>
+                    {% endfor %}
+                </div>
                 <form class="support-chat-form" action="{{ url_for('contact') }}" method="post">
                     <input type="hidden" name="subject" value="Chat with representative">
                     <input type="hidden" name="name" value="{{ current_user.full_name if current_user.is_authenticated else 'Website Visitor' }}">

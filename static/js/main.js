@@ -82,6 +82,11 @@ document.querySelectorAll("[data-share-url]").forEach((button) => {
 });
 
 const supportChat = document.querySelector("#supportChat");
+const supportChatHistory = document.querySelector("#supportChatHistory");
+const scrollSupportChat = () => {
+  if (supportChatHistory) supportChatHistory.scrollTop = supportChatHistory.scrollHeight;
+};
+scrollSupportChat();
 setTimeout(() => {
   supportChat?.classList.add("nudge-hidden");
 }, 4200);
@@ -89,6 +94,7 @@ document.querySelector(".chat-toggle")?.addEventListener("click", () => {
   supportChat?.classList.add("open");
   supportChat?.classList.add("seen");
   supportChat?.classList.add("nudge-hidden");
+  scrollSupportChat();
 });
 document.querySelector(".chat-close")?.addEventListener("click", () => {
   supportChat?.classList.remove("open");

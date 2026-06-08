@@ -6,42 +6,45 @@
     <div class="container">
         <div class="section-heading"><div><p class="eyebrow">Admin Control</p><h1>Support Messages</h1><p>Messages submitted from the contact section.</p></div><a class="btn btn-outline-primary" href="{{ url_for('admin_dashboard') }}">Admin Home</a></div>
         <div class="message-admin-list">
-            {% for message in messages %}
+            {% for conversation in conversations %}
+            {% set message = conversation.latest %}
+            {% set root = conversation.root %}
             <article class="panel-card support-message-card">
                 <div class="message-card-head">
                     <div>
-                        <strong>{{ message.full_name }}</strong>
-                        <span>{{ message.email }}{% if message.phone %} • {{ message.phone }}{% endif %}</span>
+                        <strong>{{ root.full_name }}</strong>
+                        <span>{{ root.email }}{% if root.phone %} • {{ root.phone }}{% endif %}</span>
                     </div>
-                    <span class="status-pill {{ 'confirmed' if message.status == 'replied' else 'rejected' if message.status == 'closed' else 'pending' }}">{{ message.status | title }}</span>
+                    <span class="status-pill {{ 'confirmed' if conversation.status == 'replied' else 'rejected' if conversation.status == 'closed' else 'pending' }}">{{ conversation.status | title }}</span>
                 </div>
                 <div class="message-meta">
-                    <span>{{ message.subject }}</span>
+                    <span>{{ root.subject }}</span>
                     <span>{{ message.created_at.strftime('%b %d, %Y %I:%M %p') if message.created_at else 'Unknown date' }}</span>
                 </div>
-                <p class="message-text">{{ message.message }}</p>
-                {% if message.reply %}
-                <div class="message-reply">
-                    <strong>Admin Reply</strong>
-                    <p>{{ message.reply }}</p>
-                    {% if message.replied_at %}<span>{{ message.replied_at.strftime('%b %d, %Y %I:%M %p') }}</span>{% endif %}
+                <div class="admin-chat-history">
+                    {% for item in conversation.messages %}
+                    <div class="admin-chat-line {{ 'from-admin' if item.sender == 'admin' else 'from-customer' }}">
+                        <strong>{{ 'HopeBridge Support' if item.sender == 'admin' else item.full_name }}</strong>
+                        <p>{{ item.message }}</p>
+                        <span>{{ item.created_at.strftime('%b %d, %Y %I:%M %p') if item.created_at else 'Unknown date' }}</span>
+                    </div>
+                    {% endfor %}
                 </div>
-                {% endif %}
-                <form class="message-reply-form" method="post" action="{{ url_for('admin_message_status', message_id=message.id) }}">
-                    <label>Reply Client</label>
-                    <textarea class="form-control" name="reply" rows="3" placeholder="Write a clear reply to this client...">{{ message.reply or '' }}</textarea>
+                <form class="message-reply-form" method="post" action="{{ url_for('admin_message_status', message_id=root.id) }}">
+                    <label>Reply in Conversation</label>
+                    <textarea class="form-control" name="reply" rows="3" placeholder="Type the next support reply..."></textarea>
                     <div class="admin-inline-form mt-2">
                         <select class="form-select form-select-sm" name="status">
                             {% for status in ['open', 'replied', 'closed'] %}
-                            <option value="{{ status }}" {% if message.status == status %}selected{% endif %}>{{ status | title }}</option>
+                            <option value="{{ status }}" {% if conversation.status == status %}selected{% endif %}>{{ status | title }}</option>
                             {% endfor %}
                         </select>
-                        <button class="btn btn-sm btn-primary" type="submit"><i class="bi bi-send"></i> Send / Save Reply</button>
+                        <button class="btn btn-sm btn-primary" type="submit"><i class="bi bi-send"></i> Send Reply</button>
                     </div>
                 </form>
             </article>
             {% else %}
-            <div class="panel-card">No support messages yet.</div>
+            <div class="panel-card">No support conversations yet.</div>
             {% endfor %}
         </div>
     </div>

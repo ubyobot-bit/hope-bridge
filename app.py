@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from urllib.parse import quote_plus
 
-from flask import Flask, Response, abort, flash, redirect, render_template, request, send_from_directory, url_for
+from flask import Flask, Response, abort, flash, redirect, render_template, request, send_from_directory, session, url_for
 from flask_login import (
     LoginManager,
     UserMixin,
@@ -188,6 +188,8 @@ class SupportMessage(db.Model):
     phone = db.Column(db.String(40), nullable=True)
     subject = db.Column(db.String(180), nullable=False)
     message = db.Column(db.Text, nullable=False)
+    conversation_id = db.Column(db.String(80), nullable=True, index=True)
+    sender = db.Column(db.String(30), nullable=False, default="customer")
     reply = db.Column(db.Text, nullable=True)
     replied_at = db.Column(db.DateTime, nullable=True)
     status = db.Column(db.String(30), nullable=False, default="open")
@@ -644,6 +646,45 @@ def admin_required(view_func):
     return wrapped
 
 
+def get_support_conversation_id(create=False):
+    if current_user.is_authenticated:
+        return f"user-{current_user.id}"
+    if create and "support_conversation_id" not in session:
+        session["support_conversation_id"] = f"guest-{secrets.token_hex(8)}"
+    return session.get("support_conversation_id")
+
+
+def get_support_chat_history(limit=20):
+    conversation_id = get_support_conversation_id(create=False)
+    if not conversation_id:
+        return []
+    return (
+        SupportMessage.query.filter_by(conversation_id=conversation_id)
+        .order_by(SupportMessage.created_at.asc(), SupportMessage.id.asc())
+        .limit(limit)
+        .all()
+    )
+
+
+def get_support_conversations():
+    messages = SupportMessage.query.order_by(SupportMessage.created_at.desc(), SupportMessage.id.desc()).all()
+    conversations = {}
+    for message in messages:
+        key = message.conversation_id or f"legacy-{message.id}"
+        if key not in conversations:
+            conversations[key] = {"id": key, "latest": message, "root": message, "messages": [], "status": message.status}
+        conversations[key]["messages"].append(message)
+        if message.sender != "admin":
+            conversations[key]["root"] = message
+        if message.status == "open":
+            conversations[key]["status"] = "open"
+        elif conversations[key]["status"] != "open" and message.status == "replied":
+            conversations[key]["status"] = "replied"
+    for conversation in conversations.values():
+        conversation["messages"].sort(key=lambda item: (item.created_at or datetime.min, item.id or 0))
+    return list(conversations.values())
+
+
 def generate_reference(prefix="HB"):
     return f"{prefix}-{secrets.token_hex(5).upper()}"
 
@@ -654,7 +695,11 @@ def external_url_for(endpoint, **values):
 
 @app.context_processor
 def inject_template_globals():
-    return {"is_admin_context": is_admin_user(), "site_settings": get_settings()}
+    return {
+        "is_admin_context": is_admin_user(),
+        "site_settings": get_settings(),
+        "support_chat_history": get_support_chat_history(),
+    }
 
 
 def get_campaigns():
@@ -892,6 +937,8 @@ def ensure_schema():
     if "support_message" in table_names:
         message_columns = {column["name"] for column in inspector.get_columns("support_message")}
         message_additions = {
+            "conversation_id": "VARCHAR(80)",
+            "sender": "VARCHAR(30) DEFAULT 'customer'",
             "reply": "TEXT",
             "replied_at": "TIMESTAMP",
         }
@@ -938,12 +985,15 @@ def contact():
     is_chat_widget = request.form.get("subject") == "Chat with representative"
     fallback_name = current_user.full_name if current_user.is_authenticated else "Website Visitor"
     fallback_email = current_user.email if current_user.is_authenticated else get_setting("support_email", DEFAULT_SETTINGS["support_email"])
+    conversation_id = get_support_conversation_id(create=is_chat_widget)
     message = SupportMessage(
         full_name=request.form.get("name", "").strip() or fallback_name,
         email=normalize_email(request.form.get("email")) or fallback_email,
         phone=clean_phone(request.form.get("phone")),
         subject=request.form.get("subject", "Support request").strip(),
         message=request.form.get("message", "").strip(),
+        conversation_id=conversation_id,
+        sender="customer",
     )
     if not message.full_name or not message.email or not message.message:
         flash("Please complete your name, email, and message.", "danger")
@@ -1633,8 +1683,8 @@ def admin_settings():
 @login_required
 @admin_required
 def admin_messages():
-    messages = SupportMessage.query.order_by(SupportMessage.created_at.desc()).all()
-    return render_template("admin_messages.html", messages=messages)
+    conversations = get_support_conversations()
+    return render_template("admin_messages.html", conversations=conversations)
 
 
 @app.route("/admin/message/<int:message_id>/status", methods=["POST"])
@@ -1652,6 +1702,20 @@ def admin_message_status(message_id):
     if reply:
         message.reply = reply
         message.replied_at = datetime.utcnow()
+        conversation_id = message.conversation_id or f"legacy-{message.id}"
+        if not message.conversation_id:
+            message.conversation_id = conversation_id
+        admin_entry = SupportMessage(
+            full_name="HopeBridge Support",
+            email=get_setting("support_email", DEFAULT_SETTINGS["support_email"]),
+            phone=None,
+            subject=message.subject,
+            message=reply,
+            conversation_id=conversation_id,
+            sender="admin",
+            status="replied",
+        )
+        db.session.add(admin_entry)
         status = "replied"
         try:
             sent = send_support_reply(message, reply)
