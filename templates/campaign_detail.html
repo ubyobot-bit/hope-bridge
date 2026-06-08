@@ -64,6 +64,14 @@
                     <div class="pay-icons">
                         <i class="bi bi-credit-card"></i><i class="bi bi-paypal"></i><i class="bi bi-bank"></i><i class="bi bi-wallet2"></i>
                     </div>
+                    <div class="campaign-share-box">
+                        <small>Share this campaign</small>
+                        <code id="campaignShareUrl">{{ share_url }}</code>
+                        <div class="d-flex gap-2 mt-2">
+                            <button class="btn btn-outline-primary btn-sm flex-fill" type="button" data-copy-target="#campaignShareUrl"><i class="bi bi-copy"></i> Copy</button>
+                            <button class="btn btn-primary btn-sm flex-fill" type="button" data-share-url="{{ share_url }}"><i class="bi bi-share-fill"></i> Share</button>
+                        </div>
+                    </div>
                 </aside>
             </div>
         </div>

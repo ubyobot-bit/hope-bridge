@@ -15,18 +15,26 @@
                 <div><small>Status</small><strong>Processing / Confirming</strong></div>
             </div>
             {% if donation.payment_method == "crypto" %}
-            <div class="payment-instructions">
-                <h3>Send {{ donation.payment_asset }} on {{ donation.payment_network }}</h3>
-                <div class="crypto-confirm-grid">
-                    {% if qr_url %}
-                    <img class="qr-code" src="{{ qr_url }}" alt="Scan QR code for {{ donation.payment_asset }} wallet">
-                    {% endif %}
-                    <div>
-                        <p>Scan the code or copy the wallet address below. Use only the selected network.</p>
-                        <code>{{ donation.payment_address }}</code>
-                        <small class="d-block mt-2 text-muted">Network: {{ donation.payment_network }} • Asset: {{ donation.payment_asset }}</small>
-                    </div>
+            <div class="payment-instructions wallet-screen">
+                <div class="wallet-warning"><i class="bi bi-info-circle-fill"></i> Only send {{ donation.payment_asset }} ({{ donation.payment_network }}) assets to this address. Other assets will be lost forever.</div>
+                <div class="wallet-token">
+                    <span class="wallet-coin">{{ donation.payment_asset[0] }}</span>
+                    <strong>{{ donation.payment_asset }}</strong>
+                    <b>{{ donation.payment_network }}</b>
                 </div>
+                {% if qr_url %}
+                <div class="wallet-qr-card">
+                    <img class="qr-code" src="{{ qr_url }}" alt="Scan QR code for {{ donation.payment_asset }} wallet">
+                    <code id="walletAddress">{{ donation.payment_address }}</code>
+                    <span>No memo required</span>
+                </div>
+                {% endif %}
+                <div class="wallet-actions">
+                    <button class="wallet-action-btn" type="button" data-copy-target="#walletAddress"><i class="bi bi-copy"></i><span>Copy</span></button>
+                    <a class="wallet-action-btn" href="{{ url_for('donation_receipt', reference=donation.reference, amount=donation.amount) }}"><i class="bi bi-hash"></i><span>Set Amount</span></a>
+                    <button class="wallet-action-btn" type="button" data-share-url="{{ request.url }}"><i class="bi bi-share-fill"></i><span>Share</span></button>
+                </div>
+                <div class="deposit-box"><i class="bi bi-arrow-down"></i><div><strong>Deposit from exchange</strong><span>By direct transfer from your account</span></div></div>
             </div>
             {% elif donation.payment_method == "giftcard" %}
             <div class="payment-instructions">

@@ -188,19 +188,53 @@ def load_user(user_id):
 
 
 CRYPTO_ADDRESS_BOOK = {
-    "BTC": {"BTC": ["bc1qhopebtc01sample", "bc1qhopebtc02sample", "bc1qhopebtc03sample"]},
-    "ETH": {"ERC20": ["0xHopeEthAddress01", "0xHopeEthAddress02", "0xHopeEthAddress03"]},
+    "BTC": {
+        "BTC": [
+            "bc1ql45pwem9fussyr9r32n6kuz7sx0aeemtlaqpjm",
+            "bc1qkffjus22ewuunu24x37le9t389ljjytpuae45m",
+        ]
+    },
+    "ETH": {
+        "ERC20": [
+            "0x411266e5c271d4dcdeb92228dA9f37158f46A0F8",
+            "0x8D7c83424a99C5617499E2F2aDbC71B1f9751FB0",
+        ]
+    },
     "USDC": {
-        "ERC20": ["0xHopeUsdcErc01", "0xHopeUsdcErc02", "0xHopeUsdcErc03"],
-        "BEP20": ["0xHopeUsdcBep01", "0xHopeUsdcBep02", "0xHopeUsdcBep03"],
-        "TRC20": ["THopeUsdcTrc01", "THopeUsdcTrc02", "THopeUsdcTrc03"],
-        "POLYGON": ["0xHopeUsdcPoly01", "0xHopeUsdcPoly02", "0xHopeUsdcPoly03"],
+        "ERC20": [
+            "0x411266e5c271d4dcdeb92228dA9f37158f46A0F8",
+            "0x8D7c83424a99C5617499E2F2aDbC71B1f9751FB0",
+        ],
+        "BEP20": [
+            "0x411266e5c271d4dcdeb92228dA9f37158f46A0F8",
+            "0x8D7c83424a99C5617499E2F2aDbC71B1f9751FB0",
+        ],
+        "TRC20": [
+            "TAZFYj4hBdNEytNRSnVAqMxfKN3wnZdgLk",
+            "TPkmQio6DCQGRQL4PKt9gh9zsbnBH3q6hQ",
+        ],
+        "SPL": [
+            "J9gCsf2wzt1zqSpri379Nn7jhgzvnACQzEeEkfYNU8gy",
+            "2MHUxNirXDvDWQ8hafUVkwTsMvfhLTGqNPhuRqDJMgNx",
+        ],
     },
     "USDT": {
-        "ERC20": ["0xHopeUsdtErc01", "0xHopeUsdtErc02", "0xHopeUsdtErc03"],
-        "BEP20": ["0xHopeUsdtBep01", "0xHopeUsdtBep02", "0xHopeUsdtBep03"],
-        "TRC20": ["THopeUsdtTrc01", "THopeUsdtTrc02", "THopeUsdtTrc03"],
-        "POLYGON": ["0xHopeUsdtPoly01", "0xHopeUsdtPoly02", "0xHopeUsdtPoly03"],
+        "ERC20": [
+            "0x411266e5c271d4dcdeb92228dA9f37158f46A0F8",
+            "0x8D7c83424a99C5617499E2F2aDbC71B1f9751FB0",
+        ],
+        "BEP20": [
+            "0x411266e5c271d4dcdeb92228dA9f37158f46A0F8",
+            "0x8D7c83424a99C5617499E2F2aDbC71B1f9751FB0",
+        ],
+        "TRC20": [
+            "TAZFYj4hBdNEytNRSnVAqMxfKN3wnZdgLk",
+            "TPkmQio6DCQGRQL4PKt9gh9zsbnBH3q6hQ",
+        ],
+        "SPL": [
+            "J9gCsf2wzt1zqSpri379Nn7jhgzvnACQzEeEkfYNU8gy",
+            "2MHUxNirXDvDWQ8hafUVkwTsMvfhLTGqNPhuRqDJMgNx",
+        ],
     },
 }
 
@@ -898,7 +932,7 @@ def campaign_detail(campaign_id):
     if campaign is None:
         return redirect(url_for("campaign_list"))
     donations = Donation.query.filter_by(campaign_id=campaign.id).order_by(Donation.created_at.desc()).limit(6).all()
-    return render_template("campaign_detail.html", campaign=campaign, donations=donations)
+    return render_template("campaign_detail.html", campaign=campaign, donations=donations, share_url=external_url_for("campaign_detail", campaign_id=campaign.id))
 
 
 @app.route("/campaign/<int:campaign_id>/donate", methods=["GET", "POST"])

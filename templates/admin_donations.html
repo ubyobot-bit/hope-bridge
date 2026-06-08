@@ -41,6 +41,12 @@
                         </td>
                         <td><span class="status-pill {{ donation.status }}">{{ donation.status | title }}</span></td>
                         <td>
+                            {% if donation.status != 'confirmed' %}
+                            <form method="post" action="{{ url_for('admin_update_donation_status', donation_id=donation.id) }}">
+                                <input type="hidden" name="status" value="confirmed">
+                                <button class="btn btn-sm btn-primary" type="submit"><i class="bi bi-check2-circle"></i> Confirm</button>
+                            </form>
+                            {% endif %}
                             <form class="admin-inline-form" method="post" action="{{ url_for('admin_update_donation_status', donation_id=donation.id) }}">
                                 <select class="form-select form-select-sm" name="status">
                                     {% for status in ['pending', 'confirmed', 'rejected'] %}

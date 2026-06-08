@@ -11,6 +11,7 @@ from app import (
     TESTIMONIALS,
     Campaign,
     CompletedProject,
+    CRYPTO_ADDRESS_BOOK,
     Donation,
     Partner,
     SiteSetting,
@@ -141,6 +142,10 @@ class HopeBridgeTestCase(unittest.TestCase):
             campaign_id = campaign.id
             self.assertIn("/static/uploads/", campaign.image)
 
+        detail = self.client.get(f"/campaign/{campaign_id}")
+        self.assertIn(b"Share this campaign", detail.data)
+        self.assertIn(f"/campaign/{campaign_id}".encode(), detail.data)
+
         receipt = self.client.post(
             f"/campaign/{campaign_id}/donate",
             data={"amount": "125", "payment_method": "bank"},
@@ -154,6 +159,12 @@ class HopeBridgeTestCase(unittest.TestCase):
         with app.app_context():
             campaign_id = Campaign.query.first().id
         addresses = []
+        expected = [
+            b"TAZFYj4hBdNEytNRSnVAqMxfKN3wnZdgLk",
+            b"TPkmQio6DCQGRQL4PKt9gh9zsbnBH3q6hQ",
+            b"TAZFYj4hBdNEytNRSnVAqMxfKN3wnZdgLk",
+            b"TPkmQio6DCQGRQL4PKt9gh9zsbnBH3q6hQ",
+        ]
         for _ in range(4):
             response = self.client.post(
                 f"/campaign/{campaign_id}/donate",
@@ -165,13 +176,37 @@ class HopeBridgeTestCase(unittest.TestCase):
                 },
                 follow_redirects=True,
             )
-            match = re.search(rb"THopeUsdtTrc\d+", response.data)
+            match = re.search(rb"(TAZFYj4hBdNEytNRSnVAqMxfKN3wnZdgLk|TPkmQio6DCQGRQL4PKt9gh9zsbnBH3q6hQ)", response.data)
             self.assertIsNotNone(match)
             self.assertIn(b"Processing / Confirming", response.data)
             self.assertIn(b"create-qr-code", response.data)
+            self.assertIn(b"Copy", response.data)
+            self.assertIn(b"Share", response.data)
+            self.assertIn(b"Scan QR code", response.data)
             addresses.append(match.group(0))
-        self.assertEqual(addresses[0], addresses[3])
-        self.assertEqual(len(set(addresses[:3])), 3)
+        self.assertEqual(addresses, expected)
+
+    def test_uploaded_wallet_batches_are_exact(self):
+        self.assertEqual(CRYPTO_ADDRESS_BOOK["BTC"]["BTC"], [
+            "bc1ql45pwem9fussyr9r32n6kuz7sx0aeemtlaqpjm",
+            "bc1qkffjus22ewuunu24x37le9t389ljjytpuae45m",
+        ])
+        self.assertEqual(CRYPTO_ADDRESS_BOOK["USDT"]["TRC20"], [
+            "TAZFYj4hBdNEytNRSnVAqMxfKN3wnZdgLk",
+            "TPkmQio6DCQGRQL4PKt9gh9zsbnBH3q6hQ",
+        ])
+        self.assertEqual(CRYPTO_ADDRESS_BOOK["USDT"]["BEP20"], [
+            "0x411266e5c271d4dcdeb92228dA9f37158f46A0F8",
+            "0x8D7c83424a99C5617499E2F2aDbC71B1f9751FB0",
+        ])
+        self.assertEqual(CRYPTO_ADDRESS_BOOK["USDT"]["ERC20"], [
+            "0x411266e5c271d4dcdeb92228dA9f37158f46A0F8",
+            "0x8D7c83424a99C5617499E2F2aDbC71B1f9751FB0",
+        ])
+        self.assertEqual(CRYPTO_ADDRESS_BOOK["USDC"]["SPL"], [
+            "J9gCsf2wzt1zqSpri379Nn7jhgzvnACQzEeEkfYNU8gy",
+            "2MHUxNirXDvDWQ8hafUVkwTsMvfhLTGqNPhuRqDJMgNx",
+        ])
 
     def test_home_and_projects_sections(self):
         home = self.client.get("/")
@@ -256,6 +291,8 @@ class HopeBridgeTestCase(unittest.TestCase):
         dashboard = self.client.get("/admin")
         self.assertEqual(dashboard.status_code, 200)
         self.assertIn(b"Admin Dashboard", dashboard.data)
+        admin_donations = self.client.get("/admin/donations")
+        self.assertIn(b"Confirm", admin_donations.data)
 
         verified = self.client.post(
             f"/admin/campaign/{campaign_id}/verify",

@@ -29,7 +29,7 @@
 
             <div class="payment-section" data-method="crypto">
                 <h3>Crypto Payment</h3>
-                <p>Choose asset and network. The system rotates between three addresses after every payment record.</p>
+                <p>Choose asset and network. The wallet address rotates after every crypto payment record.</p>
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label>Asset</label>
@@ -41,9 +41,7 @@
                     </div>
                     <div class="col-md-6">
                         <label>Network</label>
-                        <select class="form-select" name="network" id="networkSelect">
-                            <option>BTC</option><option>ERC20</option><option>BEP20</option><option>TRC20</option><option>POLYGON</option>
-                        </select>
+                        <select class="form-select" name="network" id="networkSelect"></select>
                     </div>
                 </div>
             </div>
@@ -86,4 +84,5 @@
         </form>
     </div>
 </section>
+<script id="cryptoBookData" type="application/json">{{ crypto_book | tojson }}</script>
 {% endblock %}
