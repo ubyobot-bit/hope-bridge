@@ -13,7 +13,9 @@
             <div class="admin-actions">
                 <a class="btn btn-outline-primary" href="{{ url_for('admin_campaigns') }}"><i class="bi bi-folder-check"></i> Campaigns</a>
                 <a class="btn btn-outline-primary" href="{{ url_for('admin_donations') }}"><i class="bi bi-receipt"></i> Donations</a>
-                <a class="btn btn-primary" href="{{ url_for('admin_users') }}"><i class="bi bi-people"></i> Users</a>
+                <a class="btn btn-outline-primary" href="{{ url_for('admin_content') }}"><i class="bi bi-layout-text-window"></i> Content</a>
+                <a class="btn btn-outline-primary" href="{{ url_for('admin_messages') }}"><i class="bi bi-chat-dots"></i> Messages</a>
+                <a class="btn btn-primary" href="{{ url_for('admin_settings') }}"><i class="bi bi-sliders"></i> Settings</a>
             </div>
         </div>
         <div class="metric-grid admin-metrics">
@@ -22,6 +24,8 @@
             <div class="metric"><i class="bi bi-hourglass-split"></i><strong>{{ metrics.pending_campaigns }}</strong><span>Pending Campaigns</span></div>
             <div class="metric"><i class="bi bi-cash-stack"></i><strong>{{ metrics.pending_donations }}</strong><span>Pending Donations</span></div>
             <div class="metric"><i class="bi bi-check-circle"></i><strong>{{ metrics.confirmed_total | money }}</strong><span>Confirmed Donations</span></div>
+            <div class="metric"><i class="bi bi-chat-left-text"></i><strong>{{ metrics.messages }}</strong><span>Open Messages</span></div>
+            <div class="metric"><i class="bi bi-images"></i><strong>{{ metrics.content_items }}</strong><span>Content Items</span></div>
         </div>
         <div class="row g-4 mt-1">
             <div class="col-lg-6">

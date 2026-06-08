@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Site Settings - HopeBridge{% endblock %}
+
+{% block content %}
+<section class="section-pad admin-page">
+    <div class="container">
+        <div class="section-heading"><div><p class="eyebrow">Admin Control</p><h1>Site Settings</h1><p>Update support contacts and bank payment details used across the website.</p></div><a class="btn btn-outline-primary" href="{{ url_for('admin_dashboard') }}">Admin Home</a></div>
+        <form class="panel-card admin-form" method="post">
+            <h3>Support Contacts</h3>
+            <div class="row g-3">
+                <div class="col-md-6"><label>Phone</label><input class="form-control" name="support_phone" value="{{ settings.support_phone }}"></div>
+                <div class="col-md-6"><label>Email</label><input class="form-control" name="support_email" value="{{ settings.support_email }}"></div>
+                <div class="col-md-6"><label>Facebook URL</label><input class="form-control" name="support_facebook" value="{{ settings.support_facebook }}"></div>
+                <div class="col-md-6"><label>TikTok URL</label><input class="form-control" name="support_tiktok" value="{{ settings.support_tiktok }}"></div>
+                <div class="col-md-6"><label>WhatsApp Number</label><input class="form-control" name="support_whatsapp" value="{{ settings.support_whatsapp }}"></div>
+            </div>
+            <h3 class="mt-4">Bank Payment</h3>
+            <div class="row g-3">
+                <div class="col-md-4"><label>Bank Name</label><input class="form-control" name="bank_name" value="{{ settings.bank_name }}"></div>
+                <div class="col-md-4"><label>Account Name</label><input class="form-control" name="bank_account_name" value="{{ settings.bank_account_name }}"></div>
+                <div class="col-md-4"><label>Account Number</label><input class="form-control" name="bank_account_number" value="{{ settings.bank_account_number }}"></div>
+            </div>
+            <button class="btn btn-primary mt-4" type="submit">Save Settings</button>
+        </form>
+    </div>
+</section>
+{% endblock %}

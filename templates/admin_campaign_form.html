@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Edit Campaign - HopeBridge{% endblock %}
+
+{% block content %}
+<section class="section-pad admin-page">
+    <div class="container">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">Admin Control</p>
+                <h1>Edit Campaign</h1>
+                <p>Update patient details, story, status, and campaign image.</p>
+            </div>
+            <a class="btn btn-outline-primary" href="{{ url_for('admin_campaigns') }}"><i class="bi bi-arrow-left"></i> Campaigns</a>
+        </div>
+        <form class="panel-card admin-form" method="post" enctype="multipart/form-data">
+            <div class="row g-3">
+                <div class="col-md-6"><label>Title</label><input class="form-control" name="title" value="{{ campaign.title }}" required></div>
+                <div class="col-md-6"><label>Patient</label><input class="form-control" name="patient" value="{{ campaign.patient }}" required></div>
+                <div class="col-md-6"><label>Category</label><input class="form-control" name="category" value="{{ campaign.category }}" required></div>
+                <div class="col-md-6"><label>Organizer</label><input class="form-control" name="organizer" value="{{ campaign.organizer }}" required></div>
+                <div class="col-md-6"><label>Location</label><input class="form-control" name="location" value="{{ campaign.location }}" required></div>
+                <div class="col-md-6"><label>Goal</label><input class="form-control" type="number" name="goal" value="{{ campaign.goal }}" min="1" required></div>
+                <div class="col-12"><label>Image URL</label><input class="form-control" name="image" value="{{ campaign.image }}"></div>
+                <div class="col-12"><label>Upload New Image</label><input class="form-control" type="file" name="campaign_image" accept="image/*"></div>
+                <div class="col-12"><label>Summary</label><textarea class="form-control" name="summary" rows="3" required>{{ campaign.summary }}</textarea></div>
+                <div class="col-12"><label>Story</label><textarea class="form-control" name="story" rows="6" required>{{ campaign.story }}</textarea></div>
+                <div class="col-md-6"><label class="form-check"><input class="form-check-input" type="checkbox" name="verified" {% if campaign.verified %}checked{% endif %}> Verified</label></div>
+                <div class="col-md-6"><label class="form-check"><input class="form-check-input" type="checkbox" name="completed" {% if campaign.completed %}checked{% endif %}> Completed</label></div>
+            </div>
+            <button class="btn btn-primary mt-4" type="submit">Save Campaign</button>
+        </form>
+    </div>
+</section>
+{% endblock %}

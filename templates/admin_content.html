@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Manage Content - HopeBridge{% endblock %}
+
+{% block content %}
+<section class="section-pad admin-page">
+    <div class="container">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">Admin Control</p>
+                <h1>Manage Site Content</h1>
+                <p>Edit completed projects, testimonials, and partner logos shown on the public website.</p>
+            </div>
+            <div class="admin-actions">
+                <a class="btn btn-outline-primary" href="{{ url_for('admin_project_form') }}">New Project</a>
+                <a class="btn btn-outline-primary" href="{{ url_for('admin_testimonial_form') }}">New Testimonial</a>
+                <a class="btn btn-primary" href="{{ url_for('admin_partner_form') }}">New Partner</a>
+            </div>
+        </div>
+        <div class="admin-content-grid">
+            <div class="panel-card">
+                <h3>Completed Projects</h3>
+                {% for project in projects %}
+                <div class="admin-list-row">
+                    <div><strong>{{ project.title }}</strong><span>{{ project.amount }} • {{ 'Published' if project.published else 'Hidden' }}</span></div>
+                    <div class="admin-actions">
+                        <a class="btn btn-sm btn-outline-primary" href="{{ url_for('admin_project_form', project_id=project.id) }}">Edit</a>
+                        <form method="post" action="{{ url_for('admin_delete_project', project_id=project.id) }}"><button class="btn btn-sm btn-outline-danger" type="submit">Delete</button></form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="panel-card">
+                <h3>Testimonials</h3>
+                {% for testimonial in testimonials %}
+                <div class="admin-list-row">
+                    <div><strong>{{ testimonial.name }}</strong><span>{{ testimonial.role or 'No role' }} • {{ 'Published' if testimonial.published else 'Hidden' }}</span></div>
+                    <div class="admin-actions">
+                        <a class="btn btn-sm btn-outline-primary" href="{{ url_for('admin_testimonial_form', testimonial_id=testimonial.id) }}">Edit</a>
+                        <form method="post" action="{{ url_for('admin_delete_testimonial', testimonial_id=testimonial.id) }}"><button class="btn btn-sm btn-outline-danger" type="submit">Delete</button></form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="panel-card">
+                <h3>Partners</h3>
+                {% for partner in partners %}
+                <div class="admin-list-row">
+                    <div><strong>{{ partner.logo }} {{ partner.name }}</strong><span>{{ partner.caption }} • {{ 'Published' if partner.published else 'Hidden' }}</span></div>
+                    <div class="admin-actions">
+                        <a class="btn btn-sm btn-outline-primary" href="{{ url_for('admin_partner_form', partner_id=partner.id) }}">Edit</a>
+                        <form method="post" action="{{ url_for('admin_delete_partner', partner_id=partner.id) }}"><button class="btn btn-sm btn-outline-danger" type="submit">Delete</button></form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -10,7 +10,10 @@
                 <h1>Manage Donations</h1>
                 <p>Confirm, reject, or keep donation submissions pending while payment is reviewed.</p>
             </div>
-            <a class="btn btn-outline-primary" href="{{ url_for('admin_dashboard') }}"><i class="bi bi-speedometer2"></i> Admin Home</a>
+            <div class="admin-actions">
+                <a class="btn btn-outline-primary" href="{{ url_for('admin_export_donations') }}"><i class="bi bi-download"></i> Export CSV</a>
+                <a class="btn btn-outline-primary" href="{{ url_for('admin_dashboard') }}"><i class="bi bi-speedometer2"></i> Admin Home</a>
+            </div>
         </div>
         <div class="admin-table-wrap">
             <table class="admin-table">
@@ -30,7 +33,12 @@
                         <td><strong>{{ donation.reference }}</strong><span>{{ donation.created_at.strftime('%b %d, %Y') }}</span></td>
                         <td>{{ donation.campaign.title }}</td>
                         <td>{{ donation.amount | money }}</td>
-                        <td>{{ donation.payment_method | title }}{% if donation.payment_asset %} • {{ donation.payment_asset }} {{ donation.payment_network }}{% endif %}</td>
+                        <td>
+                            {{ donation.payment_method | title }}{% if donation.payment_asset %} • {{ donation.payment_asset }} {{ donation.payment_network }}{% endif %}
+                            {% if donation.proof_filename %}
+                            <a href="{{ url_for('admin_view_proof', filename=donation.proof_filename) }}" target="_blank" rel="noreferrer">View proof</a>
+                            {% endif %}
+                        </td>
                         <td><span class="status-pill {{ donation.status }}">{{ donation.status | title }}</span></td>
                         <td>
                             <form class="admin-inline-form" method="post" action="{{ url_for('admin_update_donation_status', donation_id=donation.id) }}">

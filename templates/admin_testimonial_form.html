@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Testimonial Form - HopeBridge{% endblock %}
+
+{% block content %}
+<section class="section-pad admin-page">
+    <div class="container">
+        <div class="section-heading"><div><p class="eyebrow">Admin Control</p><h1>{{ 'Edit' if testimonial.id else 'New' }} Testimonial</h1></div><a class="btn btn-outline-primary" href="{{ url_for('admin_content') }}">Back</a></div>
+        <form class="panel-card admin-form" method="post" enctype="multipart/form-data">
+            <div class="row g-3">
+                <div class="col-md-6"><label>Name</label><input class="form-control" name="name" value="{{ testimonial.name or '' }}" required></div>
+                <div class="col-md-6"><label>Role</label><input class="form-control" name="role" value="{{ testimonial.role or '' }}"></div>
+                <div class="col-md-8"><label>Image URL</label><input class="form-control" name="image" value="{{ testimonial.image or '' }}"></div>
+                <div class="col-md-4"><label>Sort Order</label><input class="form-control" type="number" name="sort_order" value="{{ testimonial.sort_order or 0 }}"></div>
+                <div class="col-12"><label>Upload Image</label><input class="form-control" type="file" name="image_file" accept="image/*"></div>
+                <div class="col-12"><label>Quote</label><textarea class="form-control" name="quote" rows="4" required>{{ testimonial.quote or '' }}</textarea></div>
+                <div class="col-12"><label class="form-check"><input class="form-check-input" type="checkbox" name="published" {% if testimonial.published or not testimonial.id %}checked{% endif %}> Published</label></div>
+            </div>
+            <button class="btn btn-primary mt-4" type="submit">Save Testimonial</button>
+        </form>
+    </div>
+</section>
+{% endblock %}

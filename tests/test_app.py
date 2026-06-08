@@ -6,7 +6,22 @@ from io import BytesIO
 os.environ["DATABASE_URL"] = "sqlite:///:memory:"
 os.environ["SECRET_KEY"] = "test-secret"
 
-from app import COMPLETED_PROJECTS, TESTIMONIALS, Campaign, Donation, User, app, db, seed_campaigns
+from app import (
+    COMPLETED_PROJECTS,
+    TESTIMONIALS,
+    Campaign,
+    CompletedProject,
+    Donation,
+    Partner,
+    SiteSetting,
+    SupportMessage,
+    Testimonial,
+    User,
+    app,
+    db,
+    seed_campaigns,
+    seed_site_content,
+)
 
 
 class HopeBridgeTestCase(unittest.TestCase):
@@ -17,6 +32,7 @@ class HopeBridgeTestCase(unittest.TestCase):
             db.drop_all()
             db.create_all()
             seed_campaigns()
+            seed_site_content()
 
     def register(self, email="user@example.com", phone="08010000000"):
         return self.client.post(
@@ -184,6 +200,10 @@ class HopeBridgeTestCase(unittest.TestCase):
         self.assertEqual(len({testimonial["name"] for testimonial in TESTIMONIALS}), 60)
         self.assertEqual(len({testimonial["quote"] for testimonial in TESTIMONIALS}), 60)
         self.assertEqual(len({testimonial["image"] for testimonial in TESTIMONIALS}), 60)
+        with app.app_context():
+            self.assertEqual(CompletedProject.query.count(), 60)
+            self.assertEqual(Testimonial.query.count(), 60)
+            self.assertGreaterEqual(Partner.query.count(), 8)
 
     def test_about_page(self):
         response = self.client.get("/about")
@@ -264,6 +284,121 @@ class HopeBridgeTestCase(unittest.TestCase):
             self.assertTrue(campaign.verified)
             self.assertTrue(campaign.completed)
             self.assertEqual(donation.status, "confirmed")
+
+    def make_admin(self):
+        self.register()
+        with app.app_context():
+            user = User.query.filter_by(email="user@example.com").first()
+            user.is_admin = True
+            db.session.commit()
+
+    def test_admin_content_settings_messages_and_exports(self):
+        self.make_admin()
+        message = self.client.post(
+            "/contact",
+            data={
+                "name": "Visitor One",
+                "email": "visitor@example.com",
+                "phone": "08090000000",
+                "subject": "Donation help",
+                "message": "Please help me confirm my donation.",
+            },
+            follow_redirects=True,
+        )
+        self.assertIn(b"message has been sent", message.data)
+
+        with app.app_context():
+            support_message = SupportMessage.query.filter_by(email="visitor@example.com").first()
+            self.assertIsNotNone(support_message)
+            message_id = support_message.id
+
+        messages = self.client.get("/admin/messages")
+        self.assertIn(b"Visitor One", messages.data)
+        updated_message = self.client.post(
+            f"/admin/message/{message_id}/status",
+            data={"status": "replied"},
+            follow_redirects=True,
+        )
+        self.assertIn(b"Support message updated", updated_message.data)
+
+        settings = self.client.post(
+            "/admin/settings",
+            data={
+                "support_phone": "+2348111111111",
+                "support_email": "care@hopebridge.org",
+                "support_facebook": "https://facebook.com/newhopebridge",
+                "support_tiktok": "https://www.tiktok.com/@newhopebridge",
+                "support_whatsapp": "2348111111111",
+                "bank_name": "HopeBridge Test Bank",
+                "bank_account_name": "HopeBridge Test Account",
+                "bank_account_number": "9990001112",
+            },
+            follow_redirects=True,
+        )
+        self.assertIn(b"Site settings updated", settings.data)
+        home = self.client.get("/")
+        self.assertIn(b"care@hopebridge.org", home.data)
+        self.assertIn(b"+2348111111111", home.data)
+
+        content = self.client.get("/admin/content")
+        self.assertIn(b"Manage Site Content", content.data)
+        created_project = self.client.post(
+            "/admin/project/new",
+            data={
+                "title": "Backend Test Project",
+                "amount": "$5,000",
+                "summary": "A test project created from the admin backend.",
+                "image": "https://example.com/project.jpg",
+                "sort_order": "99",
+                "published": "on",
+            },
+            follow_redirects=True,
+        )
+        self.assertIn(b"Completed project saved", created_project.data)
+
+        created_testimonial = self.client.post(
+            "/admin/testimonial/new",
+            data={
+                "name": "Backend Witness",
+                "role": "Donor",
+                "quote": "The admin backend created this testimonial.",
+                "image": "https://example.com/person.jpg",
+                "sort_order": "99",
+                "published": "on",
+            },
+            follow_redirects=True,
+        )
+        self.assertIn(b"Testimonial saved", created_testimonial.data)
+
+        created_partner = self.client.post(
+            "/admin/partner/new",
+            data={
+                "name": "Backend Partner",
+                "logo": "BP",
+                "caption": "Admin-created partner",
+                "website": "https://example.com",
+                "sort_order": "99",
+                "published": "on",
+            },
+            follow_redirects=True,
+        )
+        self.assertIn(b"Partner saved", created_partner.data)
+
+        users_csv = self.client.get("/admin/export/users.csv")
+        donations_csv = self.client.get("/admin/export/donations.csv")
+        campaigns_csv = self.client.get("/admin/export/campaigns.csv")
+        self.assertEqual(users_csv.status_code, 200)
+        self.assertEqual(donations_csv.status_code, 200)
+        self.assertEqual(campaigns_csv.status_code, 200)
+        self.assertIn(b"full_name,email", users_csv.data)
+        self.assertIn(b"reference,campaign", donations_csv.data)
+        self.assertIn(b"title,patient", campaigns_csv.data)
+
+        with app.app_context():
+            self.assertEqual(db.session.get(SiteSetting, "bank_name").value, "HopeBridge Test Bank")
+            self.assertIsNotNone(CompletedProject.query.filter_by(title="Backend Test Project").first())
+            self.assertIsNotNone(Testimonial.query.filter_by(name="Backend Witness").first())
+            self.assertIsNotNone(Partner.query.filter_by(name="Backend Partner").first())
 
 
 if __name__ == "__main__":

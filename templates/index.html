@@ -135,11 +135,21 @@
             </div>
         </div>
         <div class="contact-grid mt-4">
-            <a class="contact-item" href="tel:+2348000000000"><i class="bi bi-telephone"></i><span>+234 800 000 0000</span></a>
-            <a class="contact-item" href="mailto:support@hopebridge.org"><i class="bi bi-envelope"></i><span>support@hopebridge.org</span></a>
-            <a class="contact-item" href="https://facebook.com/hopebridge" target="_blank" rel="noreferrer"><i class="bi bi-facebook"></i><span>Facebook</span></a>
-            <a class="contact-item" href="https://www.tiktok.com/@hopebridge" target="_blank" rel="noreferrer"><i class="bi bi-tiktok"></i><span>TikTok</span></a>
+            <a class="contact-item" href="tel:{{ site_settings.support_phone }}"><i class="bi bi-telephone"></i><span>{{ site_settings.support_phone }}</span></a>
+            <a class="contact-item" href="mailto:{{ site_settings.support_email }}"><i class="bi bi-envelope"></i><span>{{ site_settings.support_email }}</span></a>
+            <a class="contact-item" href="{{ site_settings.support_facebook }}" target="_blank" rel="noreferrer"><i class="bi bi-facebook"></i><span>Facebook</span></a>
+            <a class="contact-item" href="{{ site_settings.support_tiktok }}" target="_blank" rel="noreferrer"><i class="bi bi-tiktok"></i><span>TikTok</span></a>
         </div>
+        <form class="panel-card contact-form mt-4" method="post" action="{{ url_for('contact') }}">
+            <div class="row g-3">
+                <div class="col-md-6"><input class="form-control" name="name" placeholder="Full name" required></div>
+                <div class="col-md-6"><input class="form-control" type="email" name="email" placeholder="Email address" required></div>
+                <div class="col-md-6"><input class="form-control" name="phone" placeholder="Phone number"></div>
+                <div class="col-md-6"><input class="form-control" name="subject" placeholder="Subject" value="Support request"></div>
+                <div class="col-12"><textarea class="form-control" name="message" rows="4" placeholder="How can HopeBridge help?" required></textarea></div>
+            </div>
+            <button class="btn btn-primary mt-3" type="submit">Send Message</button>
+        </form>
     </div>
 </section>
 {% endblock %}

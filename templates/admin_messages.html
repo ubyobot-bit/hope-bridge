@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Support Messages - HopeBridge{% endblock %}
+
+{% block content %}
+<section class="section-pad admin-page">
+    <div class="container">
+        <div class="section-heading"><div><p class="eyebrow">Admin Control</p><h1>Support Messages</h1><p>Messages submitted from the contact section.</p></div><a class="btn btn-outline-primary" href="{{ url_for('admin_dashboard') }}">Admin Home</a></div>
+        <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead><tr><th>Sender</th><th>Subject</th><th>Message</th><th>Status</th><th>Action</th></tr></thead>
+                <tbody>
+                    {% for message in messages %}
+                    <tr>
+                        <td><strong>{{ message.full_name }}</strong><span>{{ message.email }}{% if message.phone %} • {{ message.phone }}{% endif %}</span></td>
+                        <td>{{ message.subject }}<span>{{ message.created_at.strftime('%b %d, %Y') }}</span></td>
+                        <td>{{ message.message }}</td>
+                        <td><span class="status-pill {{ 'confirmed' if message.status == 'replied' else 'pending' }}">{{ message.status | title }}</span></td>
+                        <td>
+                            <form class="admin-inline-form" method="post" action="{{ url_for('admin_message_status', message_id=message.id) }}">
+                                <select class="form-select form-select-sm" name="status">
+                                    {% for status in ['open', 'replied', 'closed'] %}
+                                    <option value="{{ status }}" {% if message.status == status %}selected{% endif %}>{{ status | title }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button class="btn btn-sm btn-primary" type="submit">Save</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="5">No support messages yet.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

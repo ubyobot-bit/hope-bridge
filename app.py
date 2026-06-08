@@ -1,10 +1,15 @@
 import os
+import csv
 import secrets
+import smtplib
+from functools import wraps
+from io import StringIO
+from email.message import EmailMessage
 from datetime import datetime, timedelta
 from pathlib import Path
 from urllib.parse import quote_plus
 
-from flask import Flask, abort, flash, redirect, render_template, request, url_for
+from flask import Flask, Response, abort, flash, redirect, render_template, request, send_from_directory, url_for
 from flask_login import (
     LoginManager,
     UserMixin,
@@ -124,6 +129,56 @@ class Donation(db.Model):
     bank_account_number = db.Column(db.String(80), nullable=True)
     reference = db.Column(db.String(80), unique=True, nullable=False)
     status = db.Column(db.String(30), nullable=False, default="pending")
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class CompletedProject(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(180), nullable=False)
+    amount = db.Column(db.String(40), nullable=False)
+    summary = db.Column(db.Text, nullable=False)
+    image = db.Column(db.String(500), nullable=False)
+    published = db.Column(db.Boolean, default=True)
+    sort_order = db.Column(db.Integer, default=0)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class Testimonial(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), nullable=False)
+    role = db.Column(db.String(120), nullable=True)
+    quote = db.Column(db.Text, nullable=False)
+    image = db.Column(db.String(500), nullable=False)
+    published = db.Column(db.Boolean, default=True)
+    sort_order = db.Column(db.Integer, default=0)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class Partner(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(150), nullable=False)
+    logo = db.Column(db.String(80), nullable=False)
+    caption = db.Column(db.String(180), nullable=False)
+    website = db.Column(db.String(300), nullable=True)
+    published = db.Column(db.Boolean, default=True)
+    sort_order = db.Column(db.Integer, default=0)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class SiteSetting(db.Model):
+    key = db.Column(db.String(80), primary_key=True)
+    value = db.Column(db.Text, nullable=True)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class SupportMessage(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    full_name = db.Column(db.String(120), nullable=False)
+    email = db.Column(db.String(150), nullable=False)
+    phone = db.Column(db.String(40), nullable=True)
+    subject = db.Column(db.String(180), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    status = db.Column(db.String(30), nullable=False, default="open")
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 
@@ -298,6 +353,17 @@ PARTNERS = [
     {"name": "Red Cross", "logo": "RC", "caption": "Relief coordination"},
     {"name": "Clinton Health Access Initiative", "logo": "CHAI", "caption": "Health access programs"},
 ]
+
+DEFAULT_SETTINGS = {
+    "support_phone": "+2348000000000",
+    "support_email": "support@hopebridge.org",
+    "support_facebook": "https://facebook.com/hopebridge",
+    "support_tiktok": "https://www.tiktok.com/@hopebridge",
+    "support_whatsapp": "2348000000000",
+    "bank_name": BANK_ACCOUNT["bank_name"],
+    "bank_account_name": BANK_ACCOUNT["account_name"],
+    "bank_account_number": BANK_ACCOUNT["account_number"],
+}
 
 EXECUTIVES = [
     {
@@ -507,14 +573,13 @@ def is_admin_user(user=None):
 
 
 def admin_required(view_func):
+    @wraps(view_func)
     def wrapped(*args, **kwargs):
         if not current_user.is_authenticated:
             return redirect(url_for("login"))
         if not is_admin_user():
             abort(403)
         return view_func(*args, **kwargs)
-
-    wrapped.__name__ = view_func.__name__
     return wrapped
 
 
@@ -528,11 +593,64 @@ def external_url_for(endpoint, **values):
 
 @app.context_processor
 def inject_template_globals():
-    return {"is_admin_context": is_admin_user()}
+    return {"is_admin_context": is_admin_user(), "site_settings": get_settings()}
 
 
 def get_campaigns():
     return Campaign.query.order_by(Campaign.created_at.asc()).all()
+
+
+def get_completed_projects(limit=None):
+    query = CompletedProject.query.filter_by(published=True).order_by(CompletedProject.sort_order.asc(), CompletedProject.id.asc())
+    return query.limit(limit).all() if limit else query.all()
+
+
+def get_testimonials(limit=None):
+    query = Testimonial.query.filter_by(published=True).order_by(Testimonial.sort_order.asc(), Testimonial.id.asc())
+    return query.limit(limit).all() if limit else query.all()
+
+
+def get_partners():
+    return Partner.query.filter_by(published=True).order_by(Partner.sort_order.asc(), Partner.id.asc()).all()
+
+
+def get_setting(key, default=None):
+    setting = db.session.get(SiteSetting, key)
+    if setting is None or setting.value in (None, ""):
+        return default
+    return setting.value
+
+
+def get_settings():
+    values = dict(DEFAULT_SETTINGS)
+    if db.engine is None:
+        return values
+    try:
+        for setting in SiteSetting.query.all():
+            values[setting.key] = setting.value
+    except Exception:
+        return values
+    return values
+
+
+def set_setting(key, value):
+    setting = db.session.get(SiteSetting, key)
+    if setting is None:
+        db.session.add(SiteSetting(key=key, value=value))
+    else:
+        setting.value = value
+
+
+def csv_response(filename, rows, headers):
+    output = StringIO()
+    writer = csv.writer(output)
+    writer.writerow(headers)
+    writer.writerows(rows)
+    return Response(
+        output.getvalue(),
+        mimetype="text/csv",
+        headers={"Content-Disposition": f"attachment; filename={filename}"},
+    )
 
 
 def select_crypto_address(asset, network):
@@ -564,6 +682,28 @@ def create_reset_link(user):
     user.reset_token_expires = datetime.utcnow() + timedelta(hours=1)
     db.session.commit()
     return external_url_for("reset_password", token=user.reset_token)
+
+
+def send_reset_email(user, reset_link):
+    host = os.environ.get("SMTP_HOST")
+    username = os.environ.get("SMTP_USERNAME")
+    password = os.environ.get("SMTP_PASSWORD")
+    sender = os.environ.get("SMTP_FROM", username or get_setting("support_email", DEFAULT_SETTINGS["support_email"]))
+    if not host or not username or not password:
+        return False
+    message = EmailMessage()
+    message["Subject"] = "Reset your HopeBridge password"
+    message["From"] = sender
+    message["To"] = user.email
+    message.set_content(
+        f"Hello {user.full_name},\n\nUse this secure link to reset your HopeBridge password:\n{reset_link}\n\nThis link expires in 1 hour."
+    )
+    port = int(os.environ.get("SMTP_PORT", "587"))
+    with smtplib.SMTP(host, port) as smtp:
+        smtp.starttls()
+        smtp.login(username, password)
+        smtp.send_message(message)
+    return True
 
 
 def social_login(provider, email, full_name):
@@ -598,6 +738,46 @@ def seed_campaigns():
     db.session.commit()
 
 
+def seed_site_content():
+    if CompletedProject.query.count() == 0:
+        for index, data in enumerate(COMPLETED_PROJECTS):
+            db.session.add(
+                CompletedProject(
+                    title=data["title"],
+                    amount=data["amount"],
+                    summary=data["summary"],
+                    image=data["image"],
+                    sort_order=index,
+                )
+            )
+    if Testimonial.query.count() == 0:
+        for index, data in enumerate(TESTIMONIALS):
+            db.session.add(
+                Testimonial(
+                    name=data["name"],
+                    quote=data["quote"],
+                    role="HopeBridge community member",
+                    image=data["image"],
+                    sort_order=index,
+                )
+            )
+    if Partner.query.count() == 0:
+        for index, data in enumerate(PARTNERS):
+            db.session.add(
+                Partner(
+                    name=data["name"],
+                    logo=data["logo"],
+                    caption=data["caption"],
+                    website="",
+                    sort_order=index,
+                )
+            )
+    for key, value in DEFAULT_SETTINGS.items():
+        if db.session.get(SiteSetting, key) is None:
+            db.session.add(SiteSetting(key=key, value=value))
+    db.session.commit()
+
+
 def ensure_schema():
     db.create_all()
     inspector = inspect(db.engine)
@@ -626,9 +806,9 @@ def home():
     return render_template(
         "index.html",
         campaigns=get_campaigns()[:3],
-        completed_projects=COMPLETED_PROJECTS[:6],
-        testimonials=TESTIMONIALS[:6],
-        partners=PARTNERS,
+        completed_projects=get_completed_projects(6),
+        testimonials=get_testimonials(6),
+        partners=get_partners(),
     )
 
 
@@ -638,18 +818,36 @@ def about():
         "about.html",
         executives=EXECUTIVES,
         values=ABOUT_VALUES,
-        partners=PARTNERS,
+        partners=get_partners(),
     )
 
 
 @app.route("/projects")
 def completed_projects():
-    return render_template("projects.html", projects=COMPLETED_PROJECTS)
+    return render_template("projects.html", projects=get_completed_projects())
 
 
 @app.route("/testimonials")
 def testimonials():
-    return render_template("testimonials.html", testimonials=TESTIMONIALS)
+    return render_template("testimonials.html", testimonials=get_testimonials())
+
+
+@app.route("/contact", methods=["POST"])
+def contact():
+    message = SupportMessage(
+        full_name=request.form.get("name", "").strip(),
+        email=normalize_email(request.form.get("email")),
+        phone=clean_phone(request.form.get("phone")),
+        subject=request.form.get("subject", "Support request").strip(),
+        message=request.form.get("message", "").strip(),
+    )
+    if not message.full_name or not message.email or not message.message:
+        flash("Please complete your name, email, and message.", "danger")
+        return redirect(url_for("home") + "#contact")
+    db.session.add(message)
+    db.session.commit()
+    flash("Your message has been sent to HopeBridge support.", "success")
+    return redirect(url_for("home") + "#contact")
 
 
 @app.route("/campaigns")
@@ -743,9 +941,10 @@ def donate(campaign_id):
             donation.giftcard_code = request.form.get("giftcard_code", "").strip()
             donation.proof_filename = save_upload(request.files.get("giftcard_proof"))
         elif method == "bank":
-            donation.bank_name = BANK_ACCOUNT["bank_name"]
-            donation.bank_account_name = BANK_ACCOUNT["account_name"]
-            donation.bank_account_number = BANK_ACCOUNT["account_number"]
+            settings = get_settings()
+            donation.bank_name = settings["bank_name"]
+            donation.bank_account_name = settings["bank_account_name"]
+            donation.bank_account_number = settings["bank_account_number"]
             donation.proof_filename = save_upload(request.files.get("bank_proof"))
 
         db.session.add(donation)
@@ -757,7 +956,11 @@ def donate(campaign_id):
         campaign=campaign,
         crypto_book=CRYPTO_ADDRESS_BOOK,
         giftcards=GIFT_CARD_TYPES,
-        bank_account=BANK_ACCOUNT,
+        bank_account={
+            "bank_name": get_setting("bank_name", BANK_ACCOUNT["bank_name"]),
+            "account_name": get_setting("bank_account_name", BANK_ACCOUNT["account_name"]),
+            "account_number": get_setting("bank_account_number", BANK_ACCOUNT["account_number"]),
+        },
     )
 
 
@@ -838,7 +1041,10 @@ def forgot_password():
         user = User.query.filter(func.lower(User.email) == email).first()
         if user:
             reset_link = create_reset_link(user)
-            flash(f"Password reset link created: {reset_link}", "success")
+            if send_reset_email(user, reset_link):
+                flash("Password reset instructions have been sent to your email.", "success")
+            else:
+                flash(f"Password reset link created: {reset_link}", "success")
         else:
             flash("If that email exists, a password reset link will be created.", "success")
         return redirect(url_for("forgot_password"))
@@ -949,6 +1155,8 @@ def admin_dashboard():
         "donations": Donation.query.count(),
         "pending_donations": Donation.query.filter_by(status="pending").count(),
         "confirmed_total": db.session.query(func.coalesce(func.sum(Donation.amount), 0)).filter(Donation.status == "confirmed").scalar() or 0,
+        "messages": SupportMessage.query.filter_by(status="open").count(),
+        "content_items": CompletedProject.query.count() + Testimonial.query.count() + Partner.query.count(),
     }
     recent_campaigns = Campaign.query.order_by(Campaign.created_at.desc()).limit(5).all()
     recent_donations = Donation.query.order_by(Donation.created_at.desc()).limit(5).all()
@@ -1043,9 +1251,271 @@ def admin_toggle_user(user_id):
     return redirect(url_for("admin_users"))
 
 
+@app.route("/admin/campaign/<int:campaign_id>/edit", methods=["GET", "POST"])
+@login_required
+@admin_required
+def admin_edit_campaign(campaign_id):
+    campaign = db.session.get(Campaign, campaign_id)
+    if campaign is None:
+        abort(404)
+    if request.method == "POST":
+        goal = int(request.form.get("goal", campaign.goal) or campaign.goal)
+        uploaded_image = save_upload(request.files.get("campaign_image"))
+        campaign.title = request.form.get("title", "").strip() or campaign.title
+        campaign.patient = request.form.get("patient", "").strip() or campaign.patient
+        campaign.category = request.form.get("category", "").strip() or campaign.category
+        campaign.organizer = request.form.get("organizer", "").strip() or campaign.organizer
+        campaign.location = request.form.get("location", "").strip() or campaign.location
+        campaign.goal = goal
+        campaign.summary = request.form.get("summary", "").strip() or campaign.summary
+        campaign.story = request.form.get("story", "").strip() or campaign.story
+        campaign.image = url_for("static", filename=f"uploads/{uploaded_image}") if uploaded_image else request.form.get("image", "").strip() or campaign.image
+        campaign.verified = request.form.get("verified") == "on"
+        campaign.completed = request.form.get("completed") == "on"
+        db.session.commit()
+        flash("Campaign updated.", "success")
+        return redirect(url_for("admin_campaigns"))
+    return render_template("admin_campaign_form.html", campaign=campaign)
+
+
+@app.route("/admin/campaign/<int:campaign_id>/delete", methods=["POST"])
+@login_required
+@admin_required
+def admin_delete_campaign(campaign_id):
+    campaign = db.session.get(Campaign, campaign_id)
+    if campaign is None:
+        abort(404)
+    if campaign.donations:
+        flash("This campaign has donations, so it was archived instead of deleted.", "warning")
+        campaign.verified = False
+        campaign.completed = True
+    else:
+        db.session.delete(campaign)
+    db.session.commit()
+    return redirect(url_for("admin_campaigns"))
+
+
+@app.route("/admin/content")
+@login_required
+@admin_required
+def admin_content():
+    return render_template(
+        "admin_content.html",
+        projects=CompletedProject.query.order_by(CompletedProject.sort_order.asc(), CompletedProject.id.asc()).all(),
+        testimonials=Testimonial.query.order_by(Testimonial.sort_order.asc(), Testimonial.id.asc()).all(),
+        partners=Partner.query.order_by(Partner.sort_order.asc(), Partner.id.asc()).all(),
+    )
+
+
+@app.route("/admin/project/new", methods=["GET", "POST"])
+@app.route("/admin/project/<int:project_id>/edit", methods=["GET", "POST"])
+@login_required
+@admin_required
+def admin_project_form(project_id=None):
+    project = db.session.get(CompletedProject, project_id) if project_id else CompletedProject()
+    if project_id and project is None:
+        abort(404)
+    if request.method == "POST":
+        uploaded_image = save_upload(request.files.get("image_file"))
+        project.title = request.form.get("title", "").strip()
+        project.amount = request.form.get("amount", "").strip()
+        project.summary = request.form.get("summary", "").strip()
+        project.image = url_for("static", filename=f"uploads/{uploaded_image}") if uploaded_image else request.form.get("image", "").strip() or project.image
+        project.published = request.form.get("published") == "on"
+        project.sort_order = int(request.form.get("sort_order", "0") or 0)
+        if not project.title or not project.amount or not project.summary or not project.image:
+            flash("Please complete every project field.", "danger")
+            return redirect(request.url)
+        db.session.add(project)
+        db.session.commit()
+        flash("Completed project saved.", "success")
+        return redirect(url_for("admin_content"))
+    return render_template("admin_project_form.html", project=project)
+
+
+@app.route("/admin/project/<int:project_id>/delete", methods=["POST"])
+@login_required
+@admin_required
+def admin_delete_project(project_id):
+    project = db.session.get(CompletedProject, project_id)
+    if project is None:
+        abort(404)
+    db.session.delete(project)
+    db.session.commit()
+    flash("Completed project deleted.", "success")
+    return redirect(url_for("admin_content"))
+
+
+@app.route("/admin/testimonial/new", methods=["GET", "POST"])
+@app.route("/admin/testimonial/<int:testimonial_id>/edit", methods=["GET", "POST"])
+@login_required
+@admin_required
+def admin_testimonial_form(testimonial_id=None):
+    testimonial = db.session.get(Testimonial, testimonial_id) if testimonial_id else Testimonial()
+    if testimonial_id and testimonial is None:
+        abort(404)
+    if request.method == "POST":
+        uploaded_image = save_upload(request.files.get("image_file"))
+        testimonial.name = request.form.get("name", "").strip()
+        testimonial.role = request.form.get("role", "").strip()
+        testimonial.quote = request.form.get("quote", "").strip()
+        testimonial.image = url_for("static", filename=f"uploads/{uploaded_image}") if uploaded_image else request.form.get("image", "").strip() or testimonial.image
+        testimonial.published = request.form.get("published") == "on"
+        testimonial.sort_order = int(request.form.get("sort_order", "0") or 0)
+        if not testimonial.name or not testimonial.quote or not testimonial.image:
+            flash("Please complete every testimonial field.", "danger")
+            return redirect(request.url)
+        db.session.add(testimonial)
+        db.session.commit()
+        flash("Testimonial saved.", "success")
+        return redirect(url_for("admin_content"))
+    return render_template("admin_testimonial_form.html", testimonial=testimonial)
+
+
+@app.route("/admin/testimonial/<int:testimonial_id>/delete", methods=["POST"])
+@login_required
+@admin_required
+def admin_delete_testimonial(testimonial_id):
+    testimonial = db.session.get(Testimonial, testimonial_id)
+    if testimonial is None:
+        abort(404)
+    db.session.delete(testimonial)
+    db.session.commit()
+    flash("Testimonial deleted.", "success")
+    return redirect(url_for("admin_content"))
+
+
+@app.route("/admin/partner/new", methods=["GET", "POST"])
+@app.route("/admin/partner/<int:partner_id>/edit", methods=["GET", "POST"])
+@login_required
+@admin_required
+def admin_partner_form(partner_id=None):
+    partner = db.session.get(Partner, partner_id) if partner_id else Partner()
+    if partner_id and partner is None:
+        abort(404)
+    if request.method == "POST":
+        partner.name = request.form.get("name", "").strip()
+        partner.logo = request.form.get("logo", "").strip()
+        partner.caption = request.form.get("caption", "").strip()
+        partner.website = request.form.get("website", "").strip()
+        partner.published = request.form.get("published") == "on"
+        partner.sort_order = int(request.form.get("sort_order", "0") or 0)
+        if not partner.name or not partner.logo or not partner.caption:
+            flash("Please complete every partner field.", "danger")
+            return redirect(request.url)
+        db.session.add(partner)
+        db.session.commit()
+        flash("Partner saved.", "success")
+        return redirect(url_for("admin_content"))
+    return render_template("admin_partner_form.html", partner=partner)
+
+
+@app.route("/admin/partner/<int:partner_id>/delete", methods=["POST"])
+@login_required
+@admin_required
+def admin_delete_partner(partner_id):
+    partner = db.session.get(Partner, partner_id)
+    if partner is None:
+        abort(404)
+    db.session.delete(partner)
+    db.session.commit()
+    flash("Partner deleted.", "success")
+    return redirect(url_for("admin_content"))
+
+
+@app.route("/admin/settings", methods=["GET", "POST"])
+@login_required
+@admin_required
+def admin_settings():
+    if request.method == "POST":
+        for key in DEFAULT_SETTINGS:
+            set_setting(key, request.form.get(key, "").strip())
+        db.session.commit()
+        flash("Site settings updated.", "success")
+        return redirect(url_for("admin_settings"))
+    return render_template("admin_settings.html", settings=get_settings())
+
+
+@app.route("/admin/messages")
+@login_required
+@admin_required
+def admin_messages():
+    messages = SupportMessage.query.order_by(SupportMessage.created_at.desc()).all()
+    return render_template("admin_messages.html", messages=messages)
+
+
+@app.route("/admin/message/<int:message_id>/status", methods=["POST"])
+@login_required
+@admin_required
+def admin_message_status(message_id):
+    message = db.session.get(SupportMessage, message_id)
+    if message is None:
+        abort(404)
+    status = request.form.get("status")
+    if status not in ("open", "replied", "closed"):
+        flash("Choose a valid message status.", "danger")
+        return redirect(url_for("admin_messages"))
+    message.status = status
+    db.session.commit()
+    flash("Support message updated.", "success")
+    return redirect(url_for("admin_messages"))
+
+
+@app.route("/admin/proof/<filename>")
+@login_required
+@admin_required
+def admin_view_proof(filename):
+    return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
+
+
+@app.route("/admin/export/users.csv")
+@login_required
+@admin_required
+def admin_export_users():
+    rows = [
+        [user.id, user.full_name, user.email, user.phone or "", user.city or "", user.country or "", user.auth_provider, user.is_admin, user.created_at]
+        for user in User.query.order_by(User.created_at.desc()).all()
+    ]
+    return csv_response("hopebridge-users.csv", rows, ["id", "full_name", "email", "phone", "city", "country", "provider", "is_admin", "created_at"])
+
+
+@app.route("/admin/export/donations.csv")
+@login_required
+@admin_required
+def admin_export_donations():
+    rows = [
+        [
+            donation.id,
+            donation.reference,
+            donation.campaign.title,
+            donation.donor.email if donation.donor else "",
+            donation.amount,
+            donation.payment_method,
+            donation.payment_asset or "",
+            donation.payment_network or "",
+            donation.status,
+            donation.created_at,
+        ]
+        for donation in Donation.query.order_by(Donation.created_at.desc()).all()
+    ]
+    return csv_response("hopebridge-donations.csv", rows, ["id", "reference", "campaign", "donor_email", "amount", "method", "asset", "network", "status", "created_at"])
+
+
+@app.route("/admin/export/campaigns.csv")
+@login_required
+@admin_required
+def admin_export_campaigns():
+    rows = [
+        [campaign.id, campaign.title, campaign.patient, campaign.category, campaign.organizer, campaign.location, campaign.goal, campaign.raised, campaign.verified, campaign.completed, campaign.created_at]
+        for campaign in Campaign.query.order_by(Campaign.created_at.desc()).all()
+    ]
+    return csv_response("hopebridge-campaigns.csv", rows, ["id", "title", "patient", "category", "organizer", "location", "goal", "raised", "verified", "completed", "created_at"])
+
+
 with app.app_context():
     ensure_schema()
     seed_campaigns()
+    seed_site_content()
 
 
 if __name__ == "__main__":

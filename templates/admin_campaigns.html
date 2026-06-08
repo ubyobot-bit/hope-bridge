@@ -10,7 +10,10 @@
                 <h1>Manage Campaigns</h1>
                 <p>Verify submitted campaigns and mark funded campaigns as completed.</p>
             </div>
-            <a class="btn btn-outline-primary" href="{{ url_for('admin_dashboard') }}"><i class="bi bi-speedometer2"></i> Admin Home</a>
+            <div class="admin-actions">
+                <a class="btn btn-outline-primary" href="{{ url_for('admin_export_campaigns') }}"><i class="bi bi-download"></i> Export CSV</a>
+                <a class="btn btn-outline-primary" href="{{ url_for('admin_dashboard') }}"><i class="bi bi-speedometer2"></i> Admin Home</a>
+            </div>
         </div>
         <div class="admin-table-wrap">
             <table class="admin-table">
@@ -43,6 +46,10 @@
                             <form method="post" action="{{ url_for('admin_complete_campaign', campaign_id=campaign.id) }}">
                                 <input type="hidden" name="completed" value="{{ 'false' if campaign.completed else 'true' }}">
                                 <button class="btn btn-sm btn-primary" type="submit">{{ 'Reopen' if campaign.completed else 'Complete' }}</button>
+                            </form>
+                            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('admin_edit_campaign', campaign_id=campaign.id) }}">Edit</a>
+                            <form method="post" action="{{ url_for('admin_delete_campaign', campaign_id=campaign.id) }}">
+                                <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
                             </form>
                         </td>
                     </tr>

@@ -53,10 +53,10 @@
             </div>
             <div class="chat-body">
                 <p class="chat-bubble">Hello, a HopeBridge customer representative can help with donations, campaign verification, or payment confirmation.</p>
-                <a class="primary-chat" href="https://wa.me/2348000000000?text=Hello%20HopeBridge%20support%2C%20I%20need%20help%20with%20my%20account%20or%20donation." target="_blank" rel="noreferrer"><i class="bi bi-whatsapp"></i> Chat with representative</a>
-                <a href="mailto:support@hopebridge.org"><i class="bi bi-envelope"></i> Email support</a>
-                <a href="tel:+2348000000000"><i class="bi bi-telephone"></i> Call support</a>
-                <a href="https://facebook.com/hopebridge" target="_blank" rel="noreferrer"><i class="bi bi-facebook"></i> Facebook page</a>
+                <a class="primary-chat" href="https://wa.me/{{ site_settings.support_whatsapp }}?text=Hello%20HopeBridge%20support%2C%20I%20need%20help%20with%20my%20account%20or%20donation." target="_blank" rel="noreferrer"><i class="bi bi-whatsapp"></i> Chat with representative</a>
+                <a href="mailto:{{ site_settings.support_email }}"><i class="bi bi-envelope"></i> Email support</a>
+                <a href="tel:{{ site_settings.support_phone }}"><i class="bi bi-telephone"></i> Call support</a>
+                <a href="{{ site_settings.support_facebook }}" target="_blank" rel="noreferrer"><i class="bi bi-facebook"></i> Facebook page</a>
             </div>
         </div>
     </div>
@@ -84,10 +84,10 @@
                 </div>
                 <div>
                     <h5>Contact</h5>
-                    <a href="tel:+2348000000000"><i class="bi bi-telephone"></i> +234 800 000 0000</a>
-                    <a href="mailto:support@hopebridge.org"><i class="bi bi-envelope"></i> support@hopebridge.org</a>
-                    <a href="https://facebook.com/hopebridge" target="_blank" rel="noreferrer"><i class="bi bi-facebook"></i> Facebook</a>
-                    <a href="https://www.tiktok.com/@hopebridge" target="_blank" rel="noreferrer"><i class="bi bi-tiktok"></i> TikTok</a>
+                    <a href="tel:{{ site_settings.support_phone }}"><i class="bi bi-telephone"></i> {{ site_settings.support_phone }}</a>
+                    <a href="mailto:{{ site_settings.support_email }}"><i class="bi bi-envelope"></i> {{ site_settings.support_email }}</a>
+                    <a href="{{ site_settings.support_facebook }}" target="_blank" rel="noreferrer"><i class="bi bi-facebook"></i> Facebook</a>
+                    <a href="{{ site_settings.support_tiktok }}" target="_blank" rel="noreferrer"><i class="bi bi-tiktok"></i> TikTok</a>
                 </div>
             </div>
             <div class="footer-bottom">
