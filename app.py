@@ -42,6 +42,15 @@ login_manager.login_view = "login"
 login_manager.login_message = "Please log in to continue."
 
 
+@app.after_request
+def add_no_cache_headers(response):
+    if response.content_type and response.content_type.startswith("text/html"):
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+    return response
+
+
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     full_name = db.Column(db.String(120), nullable=False)
@@ -886,6 +895,7 @@ def testimonials():
 
 @app.route("/contact", methods=["POST"])
 def contact():
+    return_to = request.referrer or url_for("home")
     message = SupportMessage(
         full_name=request.form.get("name", "").strip(),
         email=normalize_email(request.form.get("email")),
@@ -895,11 +905,11 @@ def contact():
     )
     if not message.full_name or not message.email or not message.message:
         flash("Please complete your name, email, and message.", "danger")
-        return redirect(url_for("home") + "#contact")
+        return redirect(return_to)
     db.session.add(message)
     db.session.commit()
-    flash("Your message has been sent to HopeBridge support.", "success")
-    return redirect(url_for("home") + "#contact")
+    flash("Your message has been sent to HopeBridge support. A representative will review it from the admin dashboard.", "success")
+    return redirect(return_to)
 
 
 @app.route("/campaigns")

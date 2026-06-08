@@ -73,9 +73,13 @@ document.querySelectorAll("[data-share-url]").forEach((button) => {
 });
 
 const supportChat = document.querySelector("#supportChat");
+setTimeout(() => {
+  supportChat?.classList.add("nudge-hidden");
+}, 4200);
 document.querySelector(".chat-toggle")?.addEventListener("click", () => {
   supportChat?.classList.add("open");
   supportChat?.classList.add("seen");
+  supportChat?.classList.add("nudge-hidden");
 });
 document.querySelector(".chat-close")?.addEventListener("click", () => {
   supportChat?.classList.remove("open");
