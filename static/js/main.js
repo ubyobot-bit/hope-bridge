@@ -50,6 +50,15 @@ const showToast = (message) => {
   setTimeout(() => toast.remove(), 2200);
 };
 
+document.querySelectorAll(".flash-toast").forEach((toast) => {
+  const closeToast = () => {
+    toast.classList.add("hiding");
+    setTimeout(() => toast.remove(), 220);
+  };
+  toast.querySelector(".flash-close")?.addEventListener("click", closeToast);
+  setTimeout(closeToast, 5200);
+});
+
 document.querySelectorAll("[data-copy-target]").forEach((button) => {
   button.addEventListener("click", async () => {
     const target = document.querySelector(button.dataset.copyTarget);

@@ -1649,7 +1649,12 @@ def admin_message_status(message_id):
             sent = send_support_reply(message, reply)
         except Exception:
             sent = False
-        flash("Reply saved and emailed to the client." if sent else "Reply saved. Email was not sent because SMTP is not available.", "success")
+        flash(
+            "Your reply has been saved and emailed to the client."
+            if sent
+            else "Your reply has been saved in the client record. Email delivery is not active yet, so please contact the client directly if an immediate response is required.",
+            "success",
+        )
     else:
         flash("Support message updated.", "success")
     message.status = status

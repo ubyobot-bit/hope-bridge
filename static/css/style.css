@@ -794,10 +794,121 @@ a {
 .flash-stack {
     position: fixed;
     top: 92px;
-    left: 0;
-    right: 0;
+    right: 24px;
     z-index: 1080;
+    display: grid;
+    width: min(440px, calc(100vw - 32px));
+    gap: 12px;
     pointer-events: none;
+}
+
+.flash-toast {
+    display: grid;
+    grid-template-columns: 42px 1fr auto;
+    gap: 12px;
+    align-items: start;
+    padding: 14px;
+    color: var(--ink);
+    background: rgba(255, 255, 255, .96);
+    border: 1px solid rgba(111, 53, 232, .16);
+    border-left: 5px solid var(--primary);
+    border-radius: 18px;
+    box-shadow: 0 22px 58px rgba(32, 24, 72, .18);
+    backdrop-filter: blur(18px);
+    pointer-events: auto;
+    animation: flashSlideIn .24s ease-out;
+}
+
+.flash-toast.flash-success {
+    border-left-color: #16a365;
+}
+
+.flash-toast.flash-danger {
+    border-left-color: #e23d5b;
+}
+
+.flash-toast.flash-warning {
+    border-left-color: #f2a20c;
+}
+
+.flash-icon {
+    display: grid;
+    width: 42px;
+    height: 42px;
+    place-items: center;
+    color: var(--primary);
+    background: #f1ecff;
+    border-radius: 14px;
+    font-size: 1.2rem;
+}
+
+.flash-success .flash-icon {
+    color: #0f7a4b;
+    background: #e0f8ec;
+}
+
+.flash-danger .flash-icon {
+    color: #a81530;
+    background: #ffe6eb;
+}
+
+.flash-warning .flash-icon {
+    color: #8a5c00;
+    background: #fff3d5;
+}
+
+.flash-copy {
+    display: grid;
+    gap: 2px;
+}
+
+.flash-copy strong {
+    color: var(--ink);
+    font-size: .94rem;
+}
+
+.flash-copy span {
+    color: #5b5575;
+    font-size: .9rem;
+    line-height: 1.45;
+}
+
+.flash-close {
+    display: grid;
+    width: 28px;
+    height: 28px;
+    place-items: center;
+    color: #746b92;
+    background: transparent;
+    border: 0;
+    border-radius: 50%;
+}
+
+.flash-close:hover {
+    color: var(--ink);
+    background: #f5f1ff;
+}
+
+.flash-toast.hiding {
+    animation: flashSlideOut .2s ease-in forwards;
+}
+
+@keyframes flashSlideIn {
+    from { opacity: 0; transform: translateY(-10px) scale(.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes flashSlideOut {
+    to { opacity: 0; transform: translateY(-8px) scale(.98); }
+}
+
+@media (max-width: 575px) {
+    .flash-stack {
+        top: 82px;
+        right: 16px;
+        left: 16px;
+        width: auto;
+    }
 }
 
 @media (max-width: 991px) {

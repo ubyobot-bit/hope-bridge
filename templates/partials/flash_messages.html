@@ -1,8 +1,27 @@
 {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
-        <div class="container flash-stack">
+        <div class="flash-stack" aria-live="polite" aria-atomic="true">
             {% for category, message in messages %}
-                <div class="alert alert-{{ category }} shadow-sm">{{ message }}</div>
+                <div class="flash-toast flash-{{ category }}" role="status">
+                    <div class="flash-icon">
+                        {% if category == "success" %}
+                        <i class="bi bi-check2-circle"></i>
+                        {% elif category == "danger" %}
+                        <i class="bi bi-exclamation-triangle"></i>
+                        {% elif category == "warning" %}
+                        <i class="bi bi-info-circle"></i>
+                        {% else %}
+                        <i class="bi bi-bell"></i>
+                        {% endif %}
+                    </div>
+                    <div class="flash-copy">
+                        <strong>
+                            {% if category == "success" %}Success{% elif category == "danger" %}Action Needed{% elif category == "warning" %}Notice{% else %}Update{% endif %}
+                        </strong>
+                        <span>{{ message }}</span>
+                    </div>
+                    <button class="flash-close" type="button" aria-label="Dismiss notification"><i class="bi bi-x-lg"></i></button>
+                </div>
             {% endfor %}
         </div>
     {% endif %}
