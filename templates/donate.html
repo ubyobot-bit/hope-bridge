@@ -29,7 +29,7 @@
 
             <div class="payment-section" data-method="crypto">
                 <h3>Crypto Payment</h3>
-                <p>Choose asset and network. The wallet address rotates after every crypto payment record.</p>
+                <p>Choose the asset and network you want to use. We will show a fresh wallet address and keep the details visible while your payment is being reviewed.</p>
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label>Asset</label>
@@ -44,6 +44,10 @@
                         <select class="form-select" name="network" id="networkSelect"></select>
                     </div>
                 </div>
+                <label class="network-confirmation">
+                    <input type="checkbox" required>
+                    I have checked that my sending wallet will use the same network selected here.
+                </label>
             </div>
 
             <div class="payment-section d-none" data-method="giftcard">

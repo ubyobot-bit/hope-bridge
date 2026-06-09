@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Messages - HopeBridge{% endblock %}
+
+{% block content %}
+<section class="page-top">
+    <div class="container">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">Support conversation</p>
+                <h1>Messages</h1>
+                <p>Continue your conversation with HopeBridge support about donations, campaign verification, or payment confirmation.</p>
+            </div>
+            <a class="btn btn-outline-primary" href="{{ url_for('dashboard') }}"><i class="bi bi-speedometer2"></i> Dashboard</a>
+        </div>
+
+        <div class="support-thread-card">
+            <div class="support-thread-header">
+                <div>
+                    <strong>HopeBridge Support</strong>
+                    <span>Replies from the admin desk will appear in this thread.</span>
+                </div>
+                <span class="status-pill pending">Open thread</span>
+            </div>
+            <div class="support-thread-history" id="supportThreadHistory">
+                <div class="support-thread-intro">
+                    <i class="bi bi-chat-heart"></i>
+                    <p>Hello, a HopeBridge customer representative can help with donations, campaign verification, or payment confirmation.</p>
+                </div>
+                {% for item in messages %}
+                <div class="thread-line {{ 'from-admin' if item.sender == 'admin' else 'from-customer' }}">
+                    <p>{{ item.message }}</p>
+                    <span>{{ 'HopeBridge Support' if item.sender == 'admin' else 'You' }} • {{ item.created_at.strftime('%b %d, %Y %I:%M %p') if item.created_at else 'Now' }}</span>
+                </div>
+                {% else %}
+                <div class="chat-empty">No messages yet. Send your first message below.</div>
+                {% endfor %}
+            </div>
+            <form class="support-thread-form" action="{{ url_for('contact') }}" method="post">
+                <input type="hidden" name="subject" value="Chat with representative">
+                <input type="hidden" name="name" value="{{ user.full_name }}">
+                <input type="hidden" name="email" value="{{ user.email }}">
+                <textarea class="form-control" name="message" rows="4" placeholder="Type your message..." required></textarea>
+                <button class="btn btn-primary" type="submit"><i class="bi bi-send"></i> Send</button>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

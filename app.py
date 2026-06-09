@@ -261,39 +261,243 @@ BANK_ACCOUNT = {
 
 SEED_CAMPAIGNS = [
     {
-        "title": "Help Sarah Fight Breast Cancer",
-        "category": "Breast Cancer",
-        "patient": "Sarah",
-        "organizer": "Sarah's Family",
-        "location": "New York, USA",
-        "goal": 5000,
-        "image": "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=900&q=80",
-        "summary": "Sarah needs support for her chemotherapy treatment and recovery care.",
-        "story": "Sarah is a bright 12-year-old girl diagnosed with stage 2 breast cancer. Her family needs help to continue chemotherapy and surgery.",
+        "title": "Gaza Emergency Medical Aid",
+        "category": "Gaza Aid",
+        "patient": "Displaced Families",
+        "organizer": "HopeBridge Relief Desk",
+        "location": "Gaza",
+        "goal": 85000,
+        "image": "/static/images/hopebridge/gaza-family-shelter.jpg",
+        "summary": "Emergency care, wound dressing, medicine, and clinic transport for families affected by conflict.",
+        "story": "This verified emergency campaign supports families who need immediate medical supplies, clinic referrals, safe transport, and essential recovery items after displacement.",
         "verified": True,
     },
     {
-        "title": "Support David's Treatment",
-        "category": "Lung Cancer",
-        "patient": "David",
-        "organizer": "Hope Friends",
-        "location": "Chicago, USA",
-        "goal": 10000,
-        "image": "https://images.unsplash.com/photo-1582750433449-648ed127bb54?auto=format&fit=crop&w=900&q=80",
-        "summary": "David is battling lung cancer and needs urgent surgery.",
-        "story": "David needs support for surgery, medicine, scans, and recovery care.",
+        "title": "Cancer Treatment for Grace",
+        "category": "Cancer Aid",
+        "patient": "Grace",
+        "organizer": "Grace's Care Team",
+        "location": "Lagos, Nigeria",
+        "goal": 42000,
+        "image": "/static/images/hopebridge/child-cancer-care.jpg",
+        "summary": "Chemotherapy, lab checks, medication, and nutrition support for a verified cancer patient.",
+        "story": "Grace needs help completing treatment cycles, buying prescribed medication, and keeping follow-up appointments while her family manages daily care costs.",
         "verified": True,
     },
     {
-        "title": "Help Maria's Recovery",
-        "category": "Ovarian Cancer",
-        "patient": "Maria",
-        "organizer": "Maria's Sister",
-        "location": "Austin, USA",
-        "goal": 4500,
-        "image": "https://images.unsplash.com/photo-1550831107-1553da8c8464?auto=format&fit=crop&w=900&q=80",
-        "summary": "Maria needs help for ovarian cancer treatment and recovery support.",
-        "story": "Maria needs help with medication, transport, and specialist visits.",
+        "title": "Urgent Surgery Support for Musa",
+        "category": "Surgery Aid",
+        "patient": "Musa",
+        "organizer": "Musa's Family",
+        "location": "Kano, Nigeria",
+        "goal": 31500,
+        "image": "/static/images/aid/surgery-operation.jpg",
+        "summary": "Surgical deposit, theatre supplies, and post-operative medication for an urgent procedure.",
+        "story": "Musa has been cleared for surgery but needs support for the hospital deposit, recovery medication, dressings, and transport for follow-up visits.",
+        "verified": True,
+    },
+    {
+        "title": "Kidney Transplant Bridge for Daniel",
+        "category": "Kidney Transplant",
+        "patient": "Daniel",
+        "organizer": "Daniel's Siblings",
+        "location": "Abuja, Nigeria",
+        "goal": 120000,
+        "image": "/static/images/hopebridge/hospital-iv-patient.jpg",
+        "summary": "Pre-transplant tests, dialysis support, theatre deposit, and early recovery care.",
+        "story": "Daniel's transplant process is ready to move forward after matching, but the family needs help covering diagnostic tests, dialysis sessions, admission fees, and recovery essentials.",
+        "verified": True,
+    },
+    {
+        "title": "Safe Housing for Displaced Children",
+        "category": "Housing Aid",
+        "patient": "Three Displaced Families",
+        "organizer": "HopeBridge Shelter Partners",
+        "location": "Northern Nigeria",
+        "goal": 38000,
+        "image": "/static/images/hopebridge/relief-camp-tents.jpg",
+        "summary": "Temporary shelter, bedding, hygiene supplies, and safe sleeping space for displaced children.",
+        "story": "This campaign helps families move from unsafe makeshift shelter into temporary accommodation while social workers coordinate longer-term support.",
+        "verified": True,
+    },
+    {
+        "title": "Transport to Treatment Fund",
+        "category": "Transportation Aid",
+        "patient": "Rural Patients",
+        "organizer": "HopeBridge Transport Desk",
+        "location": "Oyo, Nigeria",
+        "goal": 18500,
+        "image": "/static/images/aid/ambulance-rescue.jpg",
+        "summary": "Ambulance and clinic transport for patients who cannot afford repeated hospital trips.",
+        "story": "Verified patients are missing care because transport costs are too high. Donations fund scheduled rides, ambulance transfers, and appointment reminders.",
+        "verified": True,
+    },
+    {
+        "title": "Disaster Relief Medical Kits",
+        "category": "Disaster Aid",
+        "patient": "Flood-Affected Communities",
+        "organizer": "HopeBridge Emergency Partners",
+        "location": "Bayelsa, Nigeria",
+        "goal": 56000,
+        "image": "/static/images/hopebridge/humanitarian-aid-trucks.jpg",
+        "summary": "First-aid kits, water purification tablets, mosquito nets, and basic clinic supplies after flooding.",
+        "story": "Families affected by flooding need basic health supplies and rapid clinic support to prevent avoidable illness while homes and roads are being restored.",
+        "verified": True,
+    },
+    {
+        "title": "Feeding Aid for Recovery Families",
+        "category": "Feeding Aid",
+        "patient": "Caregiver Households",
+        "organizer": "HopeBridge Nutrition Team",
+        "location": "Ibadan, Nigeria",
+        "goal": 24000,
+        "image": "/static/images/hopebridge/food-queue-pots.jpg",
+        "summary": "Nutritious food baskets for families caring for patients after surgery or cancer treatment.",
+        "story": "Caregivers often lose income while supporting loved ones. This campaign provides nutritious food baskets and recovery meals during treatment weeks.",
+        "verified": True,
+    },
+    {
+        "title": "Dental Surgery for Little Samuel",
+        "category": "Dental Aid",
+        "patient": "Samuel",
+        "organizer": "Samuel's Mother",
+        "location": "Accra, Ghana",
+        "goal": 9700,
+        "image": "/static/images/aid/dental-child.jpg",
+        "summary": "Specialist dental surgery, X-rays, medication, and follow-up care for a child in pain.",
+        "story": "Samuel needs urgent dental treatment to stop recurring infection and pain. Donations cover scans, specialist care, medication, and transport.",
+        "verified": True,
+    },
+    {
+        "title": "Mobility Support for Aisha",
+        "category": "Disability Aid",
+        "patient": "Aisha",
+        "organizer": "Community Care Circle",
+        "location": "Kaduna, Nigeria",
+        "goal": 16000,
+        "image": "/static/images/aid/disability-support.jpg",
+        "summary": "Wheelchair, physiotherapy sessions, home adjustments, and caregiver training.",
+        "story": "Aisha needs mobility equipment and therapy support to regain independence after an accident. Funds are paid toward verified equipment and care sessions.",
+        "verified": True,
+    },
+    {
+        "title": "Child Vaccination Outreach",
+        "category": "Children's Health",
+        "patient": "Underserved Children",
+        "organizer": "HopeBridge Clinic Partners",
+        "location": "Kwara, Nigeria",
+        "goal": 20500,
+        "image": "/static/images/aid/child-injection.jpg",
+        "summary": "Vaccination transport, clinic supplies, and follow-up for children in underserved communities.",
+        "story": "This campaign helps clinic partners reach children whose families cannot afford transport or clinic-related costs for essential preventive care.",
+        "verified": True,
+    },
+    {
+        "title": "Emergency Ambulance Rescue Fund",
+        "category": "Emergency Aid",
+        "patient": "Critical Patients",
+        "organizer": "HopeBridge Emergency Desk",
+        "location": "Port Harcourt, Nigeria",
+        "goal": 47000,
+        "image": "/static/images/hopebridge/crisis-street-smoke.jpg",
+        "summary": "Emergency ambulance response, oxygen support, and hospital transfer deposits.",
+        "story": "When minutes matter, many families cannot pay ambulance or intake fees quickly. This fund helps verified cases move to care without avoidable delay.",
+        "verified": True,
+    },
+    {
+        "title": "Gaza Child Nutrition Relief",
+        "category": "Gaza Aid",
+        "patient": "Children in Shelter",
+        "organizer": "HopeBridge Relief Desk",
+        "location": "Gaza",
+        "goal": 68000,
+        "image": "/static/images/hopebridge/crying-child-cup.jpg",
+        "summary": "Food packs, clean water, pediatric checkups, and caregiver support for children in shelter.",
+        "story": "Children in temporary shelter need stable meals, hydration, and basic health checks. Donations support partner-led distribution and documentation.",
+        "verified": True,
+    },
+    {
+        "title": "Dialysis Access for Chinedu",
+        "category": "Kidney Aid",
+        "patient": "Chinedu",
+        "organizer": "Chinedu's Friends",
+        "location": "Enugu, Nigeria",
+        "goal": 28500,
+        "image": "/static/images/aid/hospital-bed.jpg",
+        "summary": "Dialysis sessions, lab monitoring, medication, and transport while transplant options are reviewed.",
+        "story": "Chinedu needs steady dialysis to stay stable. Funds support verified hospital sessions, medication, and travel for treatment appointments.",
+        "verified": True,
+    },
+    {
+        "title": "Maternal Surgery Aid for Esther",
+        "category": "Maternal Health",
+        "patient": "Esther",
+        "organizer": "Esther's Care Group",
+        "location": "Benin City, Nigeria",
+        "goal": 22000,
+        "image": "/static/images/aid/clinical-surgery.jpg",
+        "summary": "Surgery deposit, blood work, recovery medication, and newborn support items.",
+        "story": "Esther needs a safe surgical intervention and post-care support. Donations help her family meet verified hospital costs without delay.",
+        "verified": True,
+    },
+    {
+        "title": "Hospital Bed Recovery Support",
+        "category": "Recovery Aid",
+        "patient": "Post-Surgery Patients",
+        "organizer": "HopeBridge Ward Partners",
+        "location": "Uyo, Nigeria",
+        "goal": 26000,
+        "image": "/static/images/hopebridge/nurse-hand-care.jpg",
+        "summary": "Recovery beds, wound-care materials, hygiene kits, and short-term home support.",
+        "story": "Patients discharged after surgery still need safe recovery tools. This campaign provides beds, dressings, hygiene supplies, and follow-up support.",
+        "verified": True,
+    },
+    {
+        "title": "War-Affected Elder Care",
+        "category": "Humanitarian Aid",
+        "patient": "Older Adults",
+        "organizer": "HopeBridge Relief Desk",
+        "location": "Gaza",
+        "goal": 33000,
+        "image": "/static/images/aid/gaza-elder.jpg",
+        "summary": "Medication, mobility help, food support, and clinic referrals for older displaced people.",
+        "story": "Older adults in displacement often need medication continuity and mobility assistance. Donations help partners provide basic support and referrals.",
+        "verified": True,
+    },
+    {
+        "title": "Pediatric Surgery for Mariam",
+        "category": "Children's Surgery",
+        "patient": "Mariam",
+        "organizer": "Mariam's Uncle",
+        "location": "Kumasi, Ghana",
+        "goal": 34500,
+        "image": "/static/images/aid/operating-room.jpg",
+        "summary": "Pediatric surgical care, admission fees, medication, and family lodging.",
+        "story": "Mariam's family has been referred to a specialist center. Donations support admission, surgery supplies, recovery care, and nearby lodging.",
+        "verified": True,
+    },
+    {
+        "title": "Clinic Supplies for Disaster Response",
+        "category": "Disaster Aid",
+        "patient": "Partner Clinics",
+        "organizer": "HopeBridge Supply Desk",
+        "location": "Cross River, Nigeria",
+        "goal": 51000,
+        "image": "/static/images/hopebridge/rubble-search-frame.jpg",
+        "summary": "Gloves, disinfectant, wound care, oral rehydration supplies, and triage materials.",
+        "story": "Local clinics need reliable supplies after emergencies. This campaign helps them treat verified cases and document distribution transparently.",
+        "verified": True,
+    },
+    {
+        "title": "Safe Transport for Cancer Patients",
+        "category": "Transportation Aid",
+        "patient": "Cancer Patients",
+        "organizer": "HopeBridge Transport Desk",
+        "location": "Abuja, Nigeria",
+        "goal": 19500,
+        "image": "/static/images/hopebridge/patient-portrait-hope.jpg",
+        "summary": "Scheduled rides for chemotherapy, radiotherapy, scans, and post-treatment reviews.",
+        "story": "Transport costs can interrupt treatment. This fund supports recurring verified trips so patients can keep critical appointments on time.",
         "verified": True,
     },
 ]
@@ -448,26 +652,26 @@ ABOUT_VALUES = [
 ]
 
 PROJECT_COMPLETION_DETAILS = [
-    ("Radiology Access Fund", "$24,850", "CT and ultrasound scans were paid for 38 patients before treatment decisions were delayed."),
-    ("Emergency Surgery Bridge", "$33,420", "Urgent surgical deposits were released within 48 hours for families in crisis."),
-    ("Patient Nutrition Support", "$11,960", "Protein meals and recovery groceries reached patients completing chemotherapy cycles."),
-    ("Rural Screening Outreach", "$19,730", "Volunteer clinicians completed community screenings and referred high-risk residents for care."),
-    ("Caregiver Housing Relief", "$14,280", "Short-stay accommodation kept caregivers close to loved ones during specialist appointments."),
-    ("Medication Access Desk", "$26,640", "Verified prescriptions were filled for patients who had exhausted their insurance limits."),
-    ("Children's Recovery Fund", "$38,900", "Pediatric patients received lab support, ward supplies, and family travel assistance."),
-    ("Transport To Treatment", "$10,450", "Reliable hospital rides were arranged for patients living outside major city centers."),
-    ("Chemotherapy Subsidy Drive", "$45,250", "Treatment sessions were subsidized through clinic partners and documented donor reporting."),
-    ("Diagnostic Test Sponsorship", "$21,875", "Biopsy, bloodwork, and imaging fees were covered for newly referred patients."),
-    ("Family Care Grant", "$16,300", "Small household grants helped families stay stable while primary earners received care."),
-    ("Post-Surgery Recovery Aid", "$23,780", "Follow-up visits, dressing supplies, and recovery medication were funded in full."),
-    ("Mothers' Oncology Relief", "$29,600", "Mothers in active treatment received transport, childcare, and pharmacy support."),
-    ("Young Survivors Program", "$18,240", "Counselling and follow-up care supported young adults returning to school and work."),
-    ("Hospital Equipment Boost", "$52,700", "Partner wards received infusion chairs, monitors, and sanitation materials."),
-    ("Community Awareness Week", "$8,950", "Nurses delivered early-warning education in markets, schools, and faith communities."),
-    ("Treatment Deposit Reserve", "$31,410", "Rapid-response deposits prevented appointment cancellations for verified campaigns."),
-    ("Home Care Essentials", "$13,520", "Recovery beds, hygiene kits, and wound-care supplies were delivered to homes."),
-    ("Patient Navigation Fund", "$12,680", "Case workers helped families complete hospital paperwork and schedule appointments."),
-    ("Oncology Pharmacy Relief", "$34,760", "High-cost medication vouchers were redeemed by verified patients across partner pharmacies."),
+    ("Gaza Family Clinic Relief", "$64,850", "Partner medics supplied wound care, medicine, clean water, and safe transport for displaced families."),
+    ("Grace Cancer Care Completion", "$42,000", "Chemotherapy cycles, nutrition support, and pharmacy bills were funded through verified donor records."),
+    ("Musa Emergency Surgery Bridge", "$31,500", "The theatre deposit, surgical supplies, and post-operative medication were covered before discharge."),
+    ("Daniel Kidney Care Reserve", "$58,420", "Dialysis sessions, transplant tests, and admission fees were paid directly to care providers."),
+    ("Safe Shelter for Children", "$38,200", "Temporary rooms, bedding, hygiene packs, and care coordination supported displaced children."),
+    ("Rural Treatment Transport", "$18,450", "Reliable hospital rides helped patients attend scans, chemotherapy, and follow-up appointments."),
+    ("Flood Response Medical Kits", "$27,900", "Emergency kits, clean-water tablets, nets, and clinic consumables reached flood-affected families."),
+    ("Recovery Food Basket Drive", "$24,600", "Caregiver households received high-nutrition food baskets during treatment and recovery weeks."),
+    ("Samuel Pediatric Dental Fund", "$9,700", "Dental imaging, specialist treatment, medication, and follow-up transport were fully covered."),
+    ("Aisha Mobility Equipment", "$16,000", "A wheelchair, physiotherapy sessions, and home-access support restored safer mobility."),
+    ("Child Vaccination Outreach", "$20,500", "Clinic partners reached underserved children with transport support and essential preventive care."),
+    ("Emergency Ambulance Response", "$47,000", "Ambulance transfers, oxygen support, and hospital intake deposits moved critical patients faster."),
+    ("Gaza Child Nutrition Relief", "$68,000", "Food packs, pediatric checkups, and caregiver support were delivered through relief partners."),
+    ("Chinedu Dialysis Access", "$28,500", "Dialysis, monitoring labs, medication, and treatment transport kept care on schedule."),
+    ("Esther Maternal Surgery Aid", "$22,000", "Surgery fees, blood work, medication, and newborn essentials were paid for a safe recovery."),
+    ("Hospital Bed Recovery Support", "$26,000", "Recovery beds, wound-care materials, hygiene kits, and home checks were completed."),
+    ("War-Affected Elder Care", "$33,000", "Medication continuity, mobility support, and food assistance reached older displaced residents."),
+    ("Mariam Pediatric Surgery", "$34,500", "Admission, surgery supplies, recovery medicine, and family lodging were funded."),
+    ("Clinic Supplies for Disaster Response", "$51,000", "Gloves, disinfectant, triage materials, and wound-care supplies were stocked for partner clinics."),
+    ("Safe Transport for Cancer Patients", "$19,500", "Scheduled rides reduced missed appointments for radiotherapy, chemotherapy, and medical reviews."),
     ("Lagos Screening Weekend", "$20,340", "Weekend screening booths reached workers who could not attend weekday hospital clinics."),
     ("Abuja Caregiver Shuttle", "$9,420", "A shared transport schedule reduced missed appointments for families outside Abuja."),
     ("Port Harcourt Lab Aid", "$17,880", "Lab fees were cleared for patients awaiting treatment-plan confirmation."),
@@ -511,26 +715,26 @@ PROJECT_COMPLETION_DETAILS = [
 ]
 
 TESTIMONIAL_DETAILS = [
-    ("Amina Yusuf", "My sister's scan was paid the same week we applied, and the hospital confirmed every step."),
-    ("Daniel Reed", "The donation updates were clear enough for me to understand exactly how my support was used."),
-    ("Maria Lopez", "HopeBridge helped my family cover transport when treatment was already draining our savings."),
-    ("Chinedu Okafor", "The campaign review felt respectful, and the support arrived before our next appointment."),
-    ("Grace Miller", "I donated to a campaign and received confirmation without chasing anyone for information."),
-    ("Fatima Bello", "The team explained the payment options patiently and helped us upload our proof correctly."),
-    ("Samuel Carter", "Seeing verified stories and real progress gave me confidence to keep supporting patients."),
-    ("Nora Williams", "My mother's medicine was funded when we had no idea how to continue the prescription."),
-    ("Ibrahim Musa", "The dashboard made it simple to follow donations and campaign progress from my phone."),
-    ("Elena Rossi", "HopeBridge brought structure to a frightening season and treated our family with dignity."),
-    ("Victor Chen", "I liked that donors could choose crypto, bank transfer, or gift cards without confusion."),
-    ("Maya Johnson", "The support message connected me quickly to someone who understood the payment process."),
-    ("Tunde Adebayo", "Our campaign was reviewed carefully, and the approval notes helped us improve the story."),
-    ("Rachel Morgan", "I supported a screening project and later saw the number of residents who benefited."),
-    ("Omar Hassan", "The platform made medical fundraising feel safer than the informal pages I had seen before."),
-    ("Nkechi Eze", "My son's lab tests were completed because donors stepped in through HopeBridge."),
-    ("Patrick Wilson", "The confirmation page helped me keep payment details visible while my crypto transfer processed."),
-    ("Zainab Ali", "I appreciated that the representative stayed available until my gift card proof was submitted."),
-    ("Emily Brooks", "The completed project reports made me feel part of a genuine chain of care."),
-    ("Abdul Kareem", "HopeBridge gave our family a calm way to ask for help without feeling exposed."),
+    ("Amina Yusuf", "After the Gaza clinic relief project, my cousins received medicine and safe transport without being asked to repeat their story everywhere."),
+    ("Grace Miller", "My chemotherapy support was handled with dignity, and every donor update matched the hospital payment record."),
+    ("Ibrahim Musa", "The emergency surgery bridge helped my brother enter theatre on time instead of waiting for another family loan."),
+    ("Daniel Reed", "The kidney-care reserve was clear, verified, and practical; dialysis appointments no longer depended on last-minute borrowing."),
+    ("Mariam Bello", "The shelter support gave the children clean bedding and a calmer place to sleep while we rebuilt our plans."),
+    ("Haruna Bello", "Transport support meant patients from our village stopped missing appointments because of fare increases."),
+    ("Rachel Morgan", "The flood response kits arrived quickly and included the simple health supplies families were asking for."),
+    ("Nora Williams", "Food baskets may sound small, but during recovery they helped my mother eat properly and take medication safely."),
+    ("Samuel Carter", "My son's dental pain was taken seriously, and the fund covered X-rays, treatment, and the follow-up visit."),
+    ("Aisha Umar", "The mobility equipment gave me back independence at home and made clinic visits less frightening."),
+    ("Omar Hassan", "The vaccination outreach made preventive care possible for children whose parents could not afford the trip."),
+    ("Fatima Bello", "When the ambulance came, HopeBridge had already helped with the transfer deposit and hospital intake."),
+    ("Zainab Ali", "The nutrition relief for children was carefully organized, and caregivers received clear support notes."),
+    ("Chinedu Okafor", "Dialysis support kept my treatment schedule stable while our family worked on the next medical step."),
+    ("Esther Collins", "The maternal surgery aid covered the urgent costs and let me focus on recovery and my baby."),
+    ("Emily Brooks", "The recovery bed and wound-care materials made home care safer after discharge."),
+    ("Abdul Kareem", "Older relatives in displacement were not forgotten; medication and mobility help reached them with respect."),
+    ("Maya Johnson", "Mariam's pediatric surgery update showed exactly what was paid and how her recovery was followed."),
+    ("Victor Chen", "The disaster-response clinic supplies were concrete, trackable, and exactly the kind of support I wanted to fund."),
+    ("Tunde Adebayo", "Safe transport gave cancer patients a dependable path to treatment instead of missed appointments."),
     ("Sophia Clark", "Every email was clear, and the reset-password flow saved me when I changed phones."),
     ("David Mensah", "I could start a campaign, upload my own image, and track support from one dashboard."),
     ("Lina Petrova", "The stories are handled with care, and the payment records are easy to follow."),
@@ -574,18 +778,66 @@ TESTIMONIAL_DETAILS = [
 ]
 
 PROJECT_PHOTOS = [
+    "/static/images/hopebridge/displaced-family-tent.jpg",
+    "/static/images/hopebridge/displaced-family-roadside.jpg",
+    "/static/images/hopebridge/displaced-camp-cleanup.jpg",
+    "/static/images/hopebridge/displaced-families-rubble.jpg",
+    "/static/images/hopebridge/gaza-smoke-skyline.jpg",
+    "/static/images/hopebridge/war-cloud-children.jpg",
+    "/static/images/hopebridge/boy-smoke-road.jpg",
+    "/static/images/hopebridge/child-war-bread.jpg",
+    "/static/images/hopebridge/mother-baby-shelter.jpg",
+    "/static/images/hopebridge/child-rubble-reflection.jpg",
+    "/static/images/hopebridge/smiling-child-flowers.jpg",
+    "/static/images/hopebridge/child-seated-poverty.jpg",
+    "/static/images/hopebridge/praying-child-alley.jpg",
+    "/static/images/hopebridge/child-grapes.jpg",
+    "/static/images/hopebridge/water-aid-child.jpg",
+    "/static/images/hopebridge/two-children-camp.jpg",
+    "/static/images/hopebridge/child-carrying-sacks.jpg",
+    "/static/images/hopebridge/children-sharing-meal.jpg",
+    "/static/images/hopebridge/home-rebuild-donation.webp",
+    "/static/images/aid/gaza-children-2.jpg",
+    "/static/images/aid/gaza-portrait.jpg",
+    "/static/images/aid/gaza-war-1.jpg",
+    "/static/images/aid/gaza-smoke.jpg",
+    "/static/images/aid/gaza-shelter.jpg",
+    "/static/images/aid/gaza-family.jpg",
+    "/static/images/aid/gaza-food.jpg",
+    "/static/images/aid/gaza-boy.jpg",
+    "/static/images/aid/gaza-children-1.jpg",
+    "/static/images/aid/surgery-emergency-1.jpg",
+    "/static/images/aid/surgery-emergency-2.jpg",
+    "/static/images/aid/clinical-surgery.jpg?project-photo=31",
+    "/static/images/aid/dental-care.jpg",
+    "/static/images/aid/dental-xray.jpg",
+    "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1504439468489-c8920d796a29?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1587854692152-cbe660dbde88?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1538108149393-fbbd81895907?auto=format&fit=crop&w=900&q=80",
     "https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&w=900&q=80",
     "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1538108149393-fbbd81895907?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1587854692152-cbe660dbde88?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1584516150909-c43483ee7932?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1469571486292-b53601020a1f?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1554734867-bf3c00a49371?auto=format&fit=crop&w=900&q=80",
     "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=900&q=80",
     "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1504439468489-c8920d796a29?auto=format&fit=crop&w=900&q=80",
+    "https://source.unsplash.com/900x650/?medical-aid,clinic&sig=48",
+    "https://source.unsplash.com/900x650/?humanitarian-aid,relief&sig=49",
+    "https://source.unsplash.com/900x650/?hospital-patient,recovery&sig=50",
+    "https://source.unsplash.com/900x650/?ambulance,healthcare&sig=51",
+    "https://source.unsplash.com/900x650/?food-aid,community&sig=52",
+    "https://source.unsplash.com/900x650/?shelter,relief&sig=53",
+    "https://source.unsplash.com/900x650/?doctor,patient&sig=54",
+    "https://source.unsplash.com/900x650/?children,aid&sig=55",
+    "https://source.unsplash.com/900x650/?clean-water,relief&sig=56",
+    "https://source.unsplash.com/900x650/?disaster-relief,medical&sig=57",
+    "https://source.unsplash.com/900x650/?nurse,care&sig=58",
+    "https://source.unsplash.com/900x650/?community-health,aid&sig=59",
+    "https://source.unsplash.com/900x650/?clinic-supplies,health&sig=60",
 ]
 
 COMPLETED_PROJECTS = [
@@ -593,16 +845,82 @@ COMPLETED_PROJECTS = [
         "title": title,
         "amount": amount,
         "summary": summary,
-        "image": f"{PROJECT_PHOTOS[index % len(PROJECT_PHOTOS)]}&project={index + 1}",
+        "image": (
+            f"{PROJECT_PHOTOS[index % len(PROJECT_PHOTOS)]}"
+            f"{'&' if '?' in PROJECT_PHOTOS[index % len(PROJECT_PHOTOS)] else '?'}project={index + 1}"
+        ),
     }
     for index, (title, amount, summary) in enumerate(PROJECT_COMPLETION_DETAILS)
+]
+
+TESTIMONIAL_PHOTOS = [
+    "https://i.pravatar.cc/180?img=1",
+    "https://i.pravatar.cc/180?img=2",
+    "https://i.pravatar.cc/180?img=3",
+    "https://i.pravatar.cc/180?img=4",
+    "https://i.pravatar.cc/180?img=5",
+    "https://i.pravatar.cc/180?img=6",
+    "https://i.pravatar.cc/180?img=7",
+    "https://i.pravatar.cc/180?img=8",
+    "https://i.pravatar.cc/180?img=9",
+    "https://i.pravatar.cc/180?img=10",
+    "https://i.pravatar.cc/180?img=11",
+    "https://i.pravatar.cc/180?img=12",
+    "https://i.pravatar.cc/180?img=13",
+    "https://i.pravatar.cc/180?img=14",
+    "https://i.pravatar.cc/180?img=15",
+    "https://i.pravatar.cc/180?img=16",
+    "https://i.pravatar.cc/180?img=17",
+    "https://i.pravatar.cc/180?img=18",
+    "https://i.pravatar.cc/180?img=19",
+    "https://i.pravatar.cc/180?img=20",
+    "https://i.pravatar.cc/180?img=21",
+    "https://i.pravatar.cc/180?img=22",
+    "https://i.pravatar.cc/180?img=23",
+    "https://i.pravatar.cc/180?img=24",
+    "https://i.pravatar.cc/180?img=25",
+    "https://i.pravatar.cc/180?img=26",
+    "https://i.pravatar.cc/180?img=27",
+    "https://i.pravatar.cc/180?img=28",
+    "https://i.pravatar.cc/180?img=29",
+    "https://i.pravatar.cc/180?img=30",
+    "https://i.pravatar.cc/180?img=31",
+    "https://i.pravatar.cc/180?img=32",
+    "https://i.pravatar.cc/180?img=33",
+    "https://i.pravatar.cc/180?img=34",
+    "https://i.pravatar.cc/180?img=35",
+    "https://i.pravatar.cc/180?img=36",
+    "https://i.pravatar.cc/180?img=37",
+    "https://i.pravatar.cc/180?img=38",
+    "https://i.pravatar.cc/180?img=39",
+    "https://i.pravatar.cc/180?img=40",
+    "https://i.pravatar.cc/180?img=41",
+    "https://i.pravatar.cc/180?img=42",
+    "https://i.pravatar.cc/180?img=43",
+    "https://i.pravatar.cc/180?img=44",
+    "https://i.pravatar.cc/180?img=45",
+    "https://i.pravatar.cc/180?img=46",
+    "https://i.pravatar.cc/180?img=47",
+    "https://i.pravatar.cc/180?img=48",
+    "https://i.pravatar.cc/180?img=49",
+    "https://i.pravatar.cc/180?img=50",
+    "https://i.pravatar.cc/180?img=51",
+    "https://i.pravatar.cc/180?img=52",
+    "https://i.pravatar.cc/180?img=53",
+    "https://i.pravatar.cc/180?img=54",
+    "https://i.pravatar.cc/180?img=55",
+    "https://i.pravatar.cc/180?img=56",
+    "https://i.pravatar.cc/180?img=57",
+    "https://i.pravatar.cc/180?img=58",
+    "https://i.pravatar.cc/180?img=59",
+    "https://i.pravatar.cc/180?img=60",
 ]
 
 TESTIMONIALS = [
     {
         "name": name,
         "quote": quote,
-        "image": f"https://loremflickr.com/180/180/portrait,person?lock={2200 + index}",
+        "image": TESTIMONIAL_PHOTOS[index],
     }
     for index, (name, quote) in enumerate(TESTIMONIAL_DETAILS)
 ]
@@ -865,11 +1183,15 @@ def seed_campaigns():
         existing = Campaign.query.filter_by(title=data["title"]).first()
         if existing is None:
             db.session.add(Campaign(**data))
+        else:
+            for field in ("category", "patient", "organizer", "location", "goal", "image", "summary", "story", "verified"):
+                setattr(existing, field, data[field])
     db.session.commit()
 
 
 def seed_site_content():
-    if CompletedProject.query.count() == 0:
+    existing_projects = CompletedProject.query.order_by(CompletedProject.sort_order.asc(), CompletedProject.id.asc()).all()
+    if not existing_projects:
         for index, data in enumerate(COMPLETED_PROJECTS):
             db.session.add(
                 CompletedProject(
@@ -881,10 +1203,26 @@ def seed_site_content():
                 )
             )
     else:
-        for index, project in enumerate(CompletedProject.query.order_by(CompletedProject.sort_order.asc(), CompletedProject.id.asc()).all()):
-            if "loremflickr.com" in (project.image or "") and index < len(COMPLETED_PROJECTS):
-                project.image = COMPLETED_PROJECTS[index]["image"]
-    if Testimonial.query.count() == 0:
+        for index, data in enumerate(COMPLETED_PROJECTS):
+            if index < len(existing_projects):
+                project = existing_projects[index]
+                project.title = data["title"]
+                project.amount = data["amount"]
+                project.summary = data["summary"]
+                project.image = data["image"]
+                project.sort_order = index
+            else:
+                db.session.add(
+                    CompletedProject(
+                        title=data["title"],
+                        amount=data["amount"],
+                        summary=data["summary"],
+                        image=data["image"],
+                        sort_order=index,
+                    )
+                )
+    existing_testimonials = Testimonial.query.order_by(Testimonial.sort_order.asc(), Testimonial.id.asc()).all()
+    if not existing_testimonials:
         for index, data in enumerate(TESTIMONIALS):
             db.session.add(
                 Testimonial(
@@ -895,6 +1233,25 @@ def seed_site_content():
                     sort_order=index,
                 )
             )
+    else:
+        for index, data in enumerate(TESTIMONIALS):
+            if index < len(existing_testimonials):
+                testimonial = existing_testimonials[index]
+                testimonial.name = data["name"]
+                testimonial.quote = data["quote"]
+                testimonial.role = "HopeBridge community member"
+                testimonial.image = data["image"]
+                testimonial.sort_order = index
+            else:
+                db.session.add(
+                    Testimonial(
+                        name=data["name"],
+                        quote=data["quote"],
+                        role="HopeBridge community member",
+                        image=data["image"],
+                        sort_order=index,
+                    )
+                )
     if Partner.query.count() == 0:
         for index, data in enumerate(PARTNERS):
             db.session.add(
@@ -1273,6 +1630,12 @@ def dashboard():
         "donations_received": db.session.query(Donation).join(Campaign).filter(Campaign.owner_id == current_user.id).count(),
     }
     return render_template("dashboard.html", user=current_user, metrics=metrics, donations=donations, campaigns=campaigns)
+
+
+@app.route("/messages")
+@login_required
+def messages():
+    return render_template("messages.html", messages=get_support_chat_history(limit=100), user=current_user)
 
 
 @app.route("/profile", methods=["GET", "POST"])

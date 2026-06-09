@@ -254,15 +254,28 @@ class HopeBridgeTestCase(unittest.TestCase):
         self.assertIn(b"View All Testimonials", home.data)
         self.assertIn(b"support@hopebridge.org", home.data)
         self.assertIn(b"HopeBridge Support", home.data)
-        self.assertIn(b"Send to representative", home.data)
+        self.assertIn(b" Send</button>", home.data)
         self.assertNotIn(b"wa.me/", home.data)
         projects = self.client.get("/projects")
         self.assertIn(b"Previous Completed Projects", projects.data)
-        self.assertIn(b"Emergency Surgery Bridge", projects.data)
+        self.assertIn(b"Musa Emergency Surgery Bridge", projects.data)
         self.assertGreaterEqual(projects.data.count(b"project-card"), 60)
         testimonials = self.client.get("/testimonials")
         self.assertIn(b"Testimonials", testimonials.data)
         self.assertGreaterEqual(testimonials.data.count(b"testimonial-card"), 60)
+
+    def test_user_messages_page_uses_threaded_chat(self):
+        self.register()
+        response = self.client.get("/messages")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"supportThreadHistory", response.data)
+        self.assertIn(b"HopeBridge Support", response.data)
+        self.assertIn(
+            b"Hello, a HopeBridge customer representative can help with donations, campaign verification, or payment confirmation.",
+            response.data,
+        )
+        self.assertIn(b"Type your message", response.data)
+        self.assertIn(b" Send</button>", response.data)
 
     def test_project_and_testimonial_content_is_unique(self):
         self.assertEqual(len(COMPLETED_PROJECTS), 60)

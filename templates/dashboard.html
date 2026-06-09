@@ -11,7 +11,7 @@
             <a href="#"><i class="bi bi-cash-stack"></i>My Donations</a>
             <a href="#"><i class="bi bi-folder"></i>My Campaigns</a>
             <a href="{{ url_for('create_campaign') }}"><i class="bi bi-plus-circle"></i>Start Campaign</a>
-            <a href="#"><i class="bi bi-chat-dots"></i>Messages</a>
+            <a href="{{ url_for('messages') }}"><i class="bi bi-chat-dots"></i>Messages</a>
             <a href="{{ url_for('profile') }}"><i class="bi bi-person"></i>Profile</a>
             <a href="{{ url_for('settings') }}"><i class="bi bi-gear"></i>Settings</a>
             {% if is_admin_context %}

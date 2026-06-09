@@ -83,8 +83,10 @@ document.querySelectorAll("[data-share-url]").forEach((button) => {
 
 const supportChat = document.querySelector("#supportChat");
 const supportChatHistory = document.querySelector("#supportChatHistory");
+const supportThreadHistory = document.querySelector("#supportThreadHistory");
 const scrollSupportChat = () => {
   if (supportChatHistory) supportChatHistory.scrollTop = supportChatHistory.scrollHeight;
+  if (supportThreadHistory) supportThreadHistory.scrollTop = supportThreadHistory.scrollHeight;
 };
 scrollSupportChat();
 setTimeout(() => {

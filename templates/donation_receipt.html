@@ -16,7 +16,7 @@
             </div>
             {% if donation.payment_method == "crypto" %}
             <div class="payment-instructions wallet-screen">
-                <div class="wallet-warning"><i class="bi bi-info-circle-fill"></i> Only send {{ donation.payment_asset }} ({{ donation.payment_network }}) assets to this address. Other assets will be lost forever.</div>
+                <div class="wallet-warning"><i class="bi bi-info-circle-fill"></i> Please confirm your wallet is sending {{ donation.payment_asset }} on the {{ donation.payment_network }} network before you complete the transfer. This helps our team match and confirm your donation smoothly.</div>
                 <div class="wallet-token">
                     <span class="wallet-coin">{{ donation.payment_asset[0] }}</span>
                     <strong>{{ donation.payment_asset }}</strong>

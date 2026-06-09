@@ -1138,9 +1138,10 @@ a {
     max-width: 720px;
     padding: 16px 18px;
     color: #fff;
-    background: #493c1f;
+    background: linear-gradient(135deg, #463719, #5a4720);
     border-radius: 14px;
-    font-weight: 800;
+    font-weight: 750;
+    line-height: 1.55;
 }
 
 .wallet-warning i {
@@ -1185,7 +1186,7 @@ a {
 }
 
 .wallet-qr-card .qr-code {
-    width: min(100%, 360px);
+    width: min(100%, 300px);
     height: auto;
     aspect-ratio: 1;
     padding: 0;
@@ -1229,12 +1230,30 @@ a {
 
 .wallet-action-btn i {
     display: grid;
-    width: 78px;
-    height: 78px;
+    width: 68px;
+    height: 68px;
     place-items: center;
     background: #292929;
     border-radius: 18px;
-    font-size: 2rem;
+    font-size: 1.75rem;
+}
+
+.network-confirmation {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    margin-top: 16px;
+    padding: 12px 14px;
+    color: var(--ink);
+    background: #faf8ff;
+    border: 1px solid #e7dcff;
+    border-radius: 12px;
+    font-weight: 800;
+}
+
+.network-confirmation input {
+    margin-top: 4px;
+    accent-color: var(--primary);
 }
 
 .deposit-box {
@@ -1874,6 +1893,72 @@ a {
         right: 68px;
         width: min(250px, calc(100vw - 106px));
     }
+
+    .wallet-screen {
+        gap: 16px;
+        padding: 16px 12px;
+        border-radius: 14px;
+    }
+
+    .wallet-warning {
+        padding: 12px;
+        font-size: .86rem;
+        border-radius: 12px;
+    }
+
+    .wallet-token {
+        gap: 8px;
+        font-size: 1.2rem;
+    }
+
+    .wallet-coin {
+        width: 34px;
+        height: 34px;
+    }
+
+    .wallet-token b {
+        padding: 3px 9px;
+        font-size: .78rem;
+    }
+
+    .wallet-qr-card {
+        width: 100%;
+        padding: 14px;
+        border-radius: 12px;
+    }
+
+    .wallet-qr-card .qr-code {
+        width: min(68vw, 236px);
+    }
+
+    .wallet-actions {
+        gap: 12px;
+    }
+
+    .wallet-action-btn {
+        font-size: .82rem;
+    }
+
+    .wallet-action-btn i {
+        width: 54px;
+        height: 54px;
+        border-radius: 14px;
+        font-size: 1.35rem;
+    }
+
+    .support-thread-header,
+    .support-thread-form {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
+    .support-thread-form .btn {
+        width: 100%;
+    }
+
+    .thread-line {
+        max-width: 92%;
+    }
 }
 
 .admin-page {
@@ -2063,6 +2148,129 @@ a {
     margin-bottom: 8px;
     color: var(--ink);
     font-weight: 900;
+}
+
+.support-thread-card {
+    display: grid;
+    gap: 18px;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: clamp(18px, 3vw, 28px);
+    background: rgba(255, 255, 255, .96);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    box-shadow: 0 28px 80px rgba(32, 24, 72, .1);
+}
+
+.support-thread-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: center;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--line);
+}
+
+.support-thread-header strong {
+    display: block;
+    color: var(--ink);
+    font-size: 1.2rem;
+}
+
+.support-thread-header span {
+    color: var(--muted);
+}
+
+.support-thread-history {
+    display: grid;
+    gap: 12px;
+    max-height: 520px;
+    min-height: 300px;
+    overflow-y: auto;
+    padding: 8px;
+    background: #fbfaff;
+    border: 1px solid #eee7ff;
+    border-radius: 16px;
+}
+
+.support-thread-intro {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    max-width: 620px;
+    padding: 14px;
+    color: var(--ink);
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+}
+
+.support-thread-intro i {
+    color: var(--primary);
+    font-size: 1.25rem;
+}
+
+.support-thread-intro p {
+    margin: 0;
+}
+
+.thread-line {
+    display: grid;
+    max-width: min(76%, 620px);
+    gap: 5px;
+}
+
+.thread-line p {
+    margin: 0;
+    padding: 12px 14px;
+    line-height: 1.55;
+    border-radius: 16px;
+}
+
+.thread-line span {
+    color: var(--muted);
+    font-size: .78rem;
+}
+
+.thread-line.from-customer {
+    justify-self: end;
+    text-align: right;
+}
+
+.thread-line.from-customer p {
+    color: #fff;
+    background: linear-gradient(135deg, #7a39ef, #5a2ccf);
+    border-bottom-right-radius: 5px;
+}
+
+.thread-line.from-admin {
+    justify-self: start;
+}
+
+.thread-line.from-admin p {
+    color: var(--ink);
+    background: #fff;
+    border: 1px solid var(--line);
+    border-bottom-left-radius: 5px;
+}
+
+.support-thread-form {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    align-items: end;
+}
+
+.support-thread-form textarea {
+    min-height: 118px;
+    border-radius: 14px;
+    resize: vertical;
+}
+
+.support-thread-form .btn {
+    min-width: 132px;
+    min-height: 50px;
+    border-radius: 14px;
 }
 
 .status-pill {
