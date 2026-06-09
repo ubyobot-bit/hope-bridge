@@ -1003,6 +1003,67 @@ def get_support_conversations():
     return list(conversations.values())
 
 
+
+IMPACT_SUMMARY = [
+    {"icon": "bi-heart-pulse", "value": "2,500+", "label": "Lives Supported"},
+    {"icon": "bi-cash-stack", "value": "$245,000+", "label": "Raised Transparently"},
+    {"icon": "bi-globe2", "value": "18", "label": "Countries Reached"},
+    {"icon": "bi-hospital", "value": "120+", "label": "Medical Cases Completed"},
+    {"icon": "bi-people", "value": "4,800+", "label": "Donors And Partners"},
+]
+
+TRUST_SUMMARY = [
+    {"icon": "bi-patch-check", "title": "Registered oversight", "text": "NGO Registration: HB-NGO-2026-014"},
+    {"icon": "bi-geo-alt", "title": "Operations desk", "text": "Lagos, Nigeria with international relief coordination"},
+    {"icon": "bi-shield-lock", "title": "Verification process", "text": "Campaigns are reviewed before publication and funding release"},
+    {"icon": "bi-file-earmark-text", "title": "Donor reporting", "text": "Project records, receipts, and completion summaries are maintained"},
+]
+
+PROJECT_BADGES = [
+    ("Fully Funded", "bi-check2-circle", "badge-funded"),
+    ("Treatment Completed", "bi-heart-pulse", "badge-treatment"),
+    ("Emergency Relief Delivered", "bi-globe2", "badge-relief"),
+    ("Life Saved", "bi-heart-fill", "badge-life"),
+]
+
+PROJECT_COUNTRIES = [
+    "Gaza", "Nigeria", "Lebanon", "Sudan", "Kenya", "Ghana", "Sierra Leone", "Uganda", "Somalia", "Rwanda",
+    "Pakistan", "Bangladesh", "Haiti", "Nepal", "Ethiopia", "Yemen", "Cameroon", "Liberia", "South Africa", "Malawi",
+]
+
+PROJECT_DATES = [
+    "May 2026", "Apr 2026", "Mar 2026", "Feb 2026", "Jan 2026", "Dec 2025", "Nov 2025", "Oct 2025", "Sep 2025", "Aug 2025",
+    "Jul 2025", "Jun 2025", "May 2025", "Apr 2025", "Mar 2025", "Feb 2025", "Jan 2025", "Dec 2024", "Nov 2024", "Oct 2024",
+]
+
+PROJECT_METRIC_SETS = [
+    [("bi-people", "1,250 Families Assisted"), ("bi-droplet", "18 Water Points Installed"), ("bi-box-seam", "4,600 Relief Packs Delivered")],
+    [("bi-hospital", "320 Patients Treated"), ("bi-capsule", "2,800 Medicines Supplied"), ("bi-person-check", "46 Follow-up Visits Covered")],
+    [("bi-house-heart", "140 Shelter Kits Delivered"), ("bi-truck", "22 Transport Runs Funded"), ("bi-people", "980 People Reached")],
+    [("bi-heart-pulse", "28 Surgeries Completed"), ("bi-clipboard2-pulse", "91 Clinical Tests Covered"), ("bi-shield-check", "100% Case Reviews Closed")],
+    [("bi-egg-fried", "12,400 Meals Served"), ("bi-backpack", "740 Children Supported"), ("bi-calendar-check", "30 Days Emergency Feeding")],
+    [("bi-bus-front", "86 Medical Trips Covered"), ("bi-hospital", "19 Referral Cases Completed"), ("bi-person-wheelchair", "34 Mobility Supports Provided")],
+]
+
+
+def campaign_days_remaining(campaign):
+    created_at = getattr(campaign, "created_at", None) or datetime.utcnow()
+    elapsed = max(0, (datetime.utcnow() - created_at).days)
+    return max(1, 30 - (elapsed % 30))
+
+
+def project_impact(index):
+    badge, icon, badge_class = PROJECT_BADGES[index % len(PROJECT_BADGES)]
+    return {
+        "badge": badge,
+        "icon": icon,
+        "badge_class": badge_class,
+        "country": PROJECT_COUNTRIES[index % len(PROJECT_COUNTRIES)],
+        "date": PROJECT_DATES[index % len(PROJECT_DATES)],
+        "metrics": PROJECT_METRIC_SETS[index % len(PROJECT_METRIC_SETS)],
+    }
+
+
 def generate_reference(prefix="HB"):
     return f"{prefix}-{secrets.token_hex(5).upper()}"
 
@@ -1017,6 +1078,10 @@ def inject_template_globals():
         "is_admin_context": is_admin_user(),
         "site_settings": get_settings(),
         "support_chat_history": get_support_chat_history(),
+        "impact_summary": IMPACT_SUMMARY,
+        "trust_summary": TRUST_SUMMARY,
+        "project_impact": project_impact,
+        "campaign_days_remaining": campaign_days_remaining,
     }
 
 

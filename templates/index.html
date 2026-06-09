@@ -34,6 +34,16 @@
             <div><i class="bi bi-heart"></i><strong>18,750+</strong><span>Donors Worldwide</span></div>
             <div><i class="bi bi-piggy-bank"></i><strong>$2.5M+</strong><span>Raised for Treatment</span></div>
         </div>
+        <div class="impact-kicker mt-4">Our Impact So Far</div>
+        <div class="impact-overview mt-3" aria-label="HopeBridge impact summary">
+            {% for item in impact_summary %}
+            <div class="impact-stat">
+                <i class="bi {{ item.icon }}"></i>
+                <strong>{{ item.value }}</strong>
+                <span>{{ item.label }}</span>
+            </div>
+            {% endfor %}
+        </div>
     </div>
 </section>
 
@@ -67,18 +77,29 @@
         </div>
         <div class="row g-4">
             {% for project in completed_projects %}
+            {% set impact = project_impact(loop.index0) %}
             <div class="col-sm-6 col-lg-4">
-                <div class="project-card h-100">
+                <article class="project-card project-card-pro h-100" id="project-{{ loop.index }}">
                     <div class="project-thumb">
                         <img src="{{ project.image }}" alt="{{ project.title }}">
+                        <span class="project-badge {{ impact.badge_class }}"><i class="bi {{ impact.icon }}"></i>{{ impact.badge }}</span>
                     </div>
                     <div class="project-body">
-                        <span class="project-status"><i class="bi bi-check-circle"></i> Completed</span>
+                        <div class="project-meta"><span>{{ impact.country }}</span><span>Completed: {{ impact.date }}</span></div>
                         <h5>{{ project.title }}</h5>
                         <strong class="d-block text-primary mb-2">{{ project.amount }} raised</strong>
                         <p>{{ project.summary }}</p>
+                        <div class="impact-metrics-mini">
+                            {% for icon, metric in impact.metrics[:2] %}
+                            <span><i class="bi {{ icon }}"></i>{{ metric }}</span>
+                            {% endfor %}
+                        </div>
+                        <div class="project-actions">
+                            <a class="btn btn-sm btn-primary" href="{{ url_for('completed_projects') }}#project-{{ loop.index }}">View Story</a>
+                            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('completed_projects') }}#project-{{ loop.index }}">Donor Report</a>
+                        </div>
                     </div>
-                </div>
+                </article>
             </div>
             {% endfor %}
         </div>

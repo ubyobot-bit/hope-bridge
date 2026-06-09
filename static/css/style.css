@@ -2408,3 +2408,269 @@ a {
         height: 48px !important;
     }
 }
+
+
+/* Impact report cards */
+.impact-overview {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.impact-overview-wide {
+    margin-top: -34px;
+}
+
+.impact-stat {
+    display: grid;
+    gap: 6px;
+    align-content: start;
+    min-height: 132px;
+    padding: 18px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, .92);
+    box-shadow: var(--shadow-soft);
+}
+
+.impact-stat i {
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    color: var(--primary);
+    background: var(--primary-soft);
+    font-size: 1.1rem;
+}
+
+.impact-stat strong {
+    color: var(--ink);
+    font-size: 1.32rem;
+    line-height: 1.1;
+    font-weight: 950;
+}
+
+.impact-stat span {
+    color: var(--muted);
+    font-size: .92rem;
+    line-height: 1.45;
+    font-weight: 750;
+}
+
+.trust-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.trust-card {
+    display: grid;
+    gap: 7px;
+    padding: 16px;
+    border: 1px solid rgba(112, 53, 239, .16);
+    border-radius: 8px;
+    background: linear-gradient(180deg, #fff, #fbf9ff);
+}
+
+.trust-card i {
+    color: var(--primary);
+    font-size: 1.2rem;
+}
+
+.trust-card strong {
+    color: var(--ink);
+    font-size: .96rem;
+    font-weight: 900;
+}
+
+.trust-card span {
+    color: var(--muted);
+    font-size: .9rem;
+    line-height: 1.55;
+}
+
+.project-card-pro {
+    border-radius: 8px;
+    transition: transform .18s ease, box-shadow .18s ease;
+}
+
+.project-card-pro:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 20px 42px rgba(32, 22, 74, .13);
+}
+
+.project-card-pro .project-thumb {
+    position: relative;
+    max-height: none;
+    border-radius: 8px 8px 0 0;
+}
+
+.project-card-pro .project-thumb::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(13, 10, 35, .08), rgba(13, 10, 35, .34));
+    pointer-events: none;
+}
+
+.project-badge {
+    position: absolute;
+    left: 12px;
+    bottom: 12px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    max-width: calc(100% - 24px);
+    padding: 7px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .94);
+    color: var(--ink);
+    font-size: .76rem;
+    line-height: 1;
+    font-weight: 900;
+    box-shadow: 0 10px 24px rgba(13, 10, 35, .18);
+}
+
+.project-badge i { color: var(--primary); }
+.project-badge.badge-funded i { color: #0d9f6e; }
+.project-badge.badge-treatment i { color: #7c3aed; }
+.project-badge.badge-relief i { color: #0f75bc; }
+.project-badge.badge-life i { color: #e11d48; }
+
+.project-meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+    color: var(--muted);
+    font-size: .78rem;
+    font-weight: 850;
+}
+
+.project-card-pro h5 {
+    font-size: 1.04rem;
+    line-height: 1.32;
+}
+
+.project-card-pro p {
+    font-size: .96rem;
+    line-height: 1.68;
+}
+
+.impact-metrics-mini {
+    display: grid;
+    gap: 7px;
+    margin-top: 14px;
+}
+
+.impact-metrics-mini span {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    color: #33275f;
+    font-size: .86rem;
+    line-height: 1.35;
+    font-weight: 800;
+}
+
+.impact-metrics-mini i {
+    color: #10b981;
+    line-height: 1.2;
+}
+
+.project-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 16px;
+}
+
+.project-actions .btn {
+    border-radius: 8px;
+    font-weight: 900;
+    line-height: 1.15;
+}
+
+.three-actions .btn {
+    flex: 1 1 108px;
+}
+
+.project-report-hero {
+    padding-bottom: 72px;
+}
+
+@media (max-width: 1199px) {
+    .impact-overview { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .trust-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 767px) {
+    .impact-overview,
+    .trust-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .impact-overview-wide {
+        margin-top: -18px;
+    }
+
+    .impact-stat {
+        min-height: 118px;
+        padding: 15px;
+    }
+
+    .project-card-pro p {
+        font-size: 1rem;
+        line-height: 1.72;
+    }
+}
+
+@media (max-width: 575px) {
+    .impact-overview,
+    .trust-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .project-actions .btn {
+        flex: 1 1 100%;
+    }
+}
+
+
+.campaign-urgency {
+    display: grid;
+    gap: 6px;
+    margin: 14px 0 10px;
+}
+
+.campaign-urgency > div {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.campaign-urgency strong {
+    color: var(--primary);
+    font-size: .92rem;
+    font-weight: 950;
+}
+
+.campaign-urgency span,
+.campaign-urgency small {
+    color: var(--muted);
+    font-size: .84rem;
+    line-height: 1.45;
+    font-weight: 800;
+}
+
+.impact-kicker {
+    color: var(--ink);
+    font-size: 1.1rem;
+    font-weight: 950;
+}

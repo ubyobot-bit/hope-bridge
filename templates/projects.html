@@ -1,30 +1,73 @@
 {% extends "base.html" %}
 {% block title %}Completed Projects - HopeBridge{% endblock %}
+{% block meta_description %}Review HopeBridge completed humanitarian and medical support projects with impact metrics, completion dates, donor reports, and transparent project summaries.{% endblock %}
 
 {% block content %}
-<section class="page-top">
+<section class="page-top project-report-hero">
     <div class="container">
         <p class="eyebrow">Completed impact</p>
         <h1>Previous Completed Projects</h1>
-        <p>Browse completed medical support projects funded through HopeBridge partners and donors.</p>
+        <p>Browse completed medical, shelter, feeding, emergency, and humanitarian support projects funded through HopeBridge partners and donors.</p>
     </div>
 </section>
-<section class="section-pad">
+
+<section class="section-pad pt-0">
     <div class="container">
+        <div class="impact-overview impact-overview-wide" aria-label="HopeBridge completed project impact">
+            {% for item in impact_summary %}
+            <div class="impact-stat">
+                <i class="bi {{ item.icon }}"></i>
+                <strong>{{ item.value }}</strong>
+                <span>{{ item.label }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="trust-grid mt-4">
+            {% for item in trust_summary %}
+            <div class="trust-card">
+                <i class="bi {{ item.icon }}"></i>
+                <strong>{{ item.title }}</strong>
+                <span>{{ item.text }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="section-pad pt-0">
+    <div class="container">
+        <div class="section-heading">
+            <div>
+                <h2>Verified Completion Reports</h2>
+                <p>Each card shows the outcome, completion month, and measurable support delivered to beneficiaries.</p>
+            </div>
+        </div>
         <div class="row g-4">
             {% for project in projects %}
+            {% set impact = project_impact(loop.index0) %}
             <div class="col-sm-6 col-lg-4 col-xl-3">
-                <div class="project-card h-100">
+                <article class="project-card project-card-pro h-100" id="project-{{ loop.index }}">
                     <div class="project-thumb">
                         <img src="{{ project.image }}" alt="{{ project.title }}">
+                        <span class="project-badge {{ impact.badge_class }}"><i class="bi {{ impact.icon }}"></i>{{ impact.badge }}</span>
                     </div>
                     <div class="project-body">
-                        <span class="project-status"><i class="bi bi-check-circle"></i> Completed</span>
+                        <div class="project-meta"><span>{{ impact.country }}</span><span>Completed: {{ impact.date }}</span></div>
                         <h5>{{ project.title }}</h5>
                         <strong class="d-block text-primary mb-2">{{ project.amount }} raised</strong>
                         <p>{{ project.summary }}</p>
+                        <div class="impact-metrics-mini impact-metrics-full">
+                            {% for icon, metric in impact.metrics %}
+                            <span><i class="bi {{ icon }}"></i>{{ metric }}</span>
+                            {% endfor %}
+                        </div>
+                        <div class="project-actions three-actions">
+                            <a class="btn btn-sm btn-primary" href="#project-{{ loop.index }}">View Story</a>
+                            <a class="btn btn-sm btn-outline-primary" href="#project-{{ loop.index }}">Donor Report</a>
+                            <a class="btn btn-sm btn-light" href="#project-{{ loop.index }}">Before &amp; After Photos</a>
+                        </div>
                     </div>
-                </div>
+                </article>
             </div>
             {% endfor %}
         </div>

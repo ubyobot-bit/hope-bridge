@@ -7,12 +7,15 @@
     <div class="campaign-body">
         <h3>{{ campaign.title }}</h3>
         <p>{{ campaign.summary }}</p>
-        <div class="progress slim-progress">
-            <div class="progress-bar" style="width: {{ percent }}%"></div>
+        <div class="campaign-urgency">
+            <div>
+                <strong>{{ percent }}% Funded</strong>
+                <span>{{ campaign_days_remaining(campaign) }} days remaining</span>
+            </div>
+            <small>{{ campaign.raised | money }} raised of {{ campaign.goal | money }} goal</small>
         </div>
-        <div class="d-flex justify-content-between small money-row">
-            <span>{{ campaign.raised | money }} raised</span>
-            <span>{{ campaign.goal | money }} goal</span>
+        <div class="progress slim-progress" aria-label="{{ percent }} percent funded">
+            <div class="progress-bar" style="width: {{ percent }}%"></div>
         </div>
         <a class="btn btn-primary w-100" href="{{ url_for('campaign_detail', campaign_id=campaign.id) }}">Donate Now</a>
     </div>
