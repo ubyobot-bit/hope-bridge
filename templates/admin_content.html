@@ -55,6 +55,13 @@
                 </div>
                 {% endfor %}
             </div>
+            <h5 class="admin-subheading mt-4">Project Country Labels</h5>
+            <p class="text-muted">Write one country or region per line. These labels rotate across completed project cards in order.</p>
+            <div class="admin-edit-box mb-3">
+                <label>Countries / Regions</label>
+                <textarea class="form-control" name="project_countries" rows="5">{% for country in editable_settings.project_countries %}{{ country }}{% if not loop.last %}
+{% endif %}{% endfor %}</textarea>
+            </div>
             <h5 class="admin-subheading mt-4">Project Impact Metric Lines</h5>
             <p class="text-muted">Each box represents one rotating metric set. Write one metric per line, for example: 1,250 Families Assisted.</p>
             <div class="row g-3">

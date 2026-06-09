@@ -619,6 +619,7 @@ DEFAULT_SETTINGS = {
     "impact_summary_json": "",
     "trust_summary_json": "",
     "project_metrics_json": "",
+    "project_countries_json": "",
 }
 
 EXECUTIVES = [
@@ -1075,6 +1076,12 @@ def get_trust_summary():
     return parse_editable_json_setting("trust_summary_json", TRUST_SUMMARY)
 
 
+def get_project_countries():
+    countries = parse_editable_json_setting("project_countries_json", PROJECT_COUNTRIES)
+    cleaned = [str(country).strip() for country in countries if str(country).strip()]
+    return cleaned or PROJECT_COUNTRIES
+
+
 def get_project_metric_sets():
     normalized = []
     for metric_set in parse_editable_json_setting("project_metrics_json", PROJECT_METRIC_SETS):
@@ -1092,6 +1099,7 @@ def editable_content_settings():
         "impact_summary": get_impact_summary(),
         "trust_summary": get_trust_summary(),
         "project_metrics": get_project_metric_sets(),
+        "project_countries": get_project_countries(),
     }
 
 
@@ -1110,6 +1118,9 @@ def save_editable_content_settings(form):
             "title": form.get(f"trust_title_{index}", default["title"]).strip() or default["title"],
             "text": form.get(f"trust_text_{index}", default["text"]).strip() or default["text"],
         })
+    country_lines = [line.strip() for line in form.get("project_countries", "").splitlines() if line.strip()]
+    if not country_lines:
+        country_lines = PROJECT_COUNTRIES
     metric_sets = []
     for index, default_set in enumerate(PROJECT_METRIC_SETS):
         raw_lines = form.get(f"project_metrics_{index}", "").splitlines()
@@ -1124,6 +1135,7 @@ def save_editable_content_settings(form):
         metric_sets.append(metrics)
     set_setting("impact_summary_json", json.dumps(impact_items))
     set_setting("trust_summary_json", json.dumps(trust_items))
+    set_setting("project_countries_json", json.dumps(country_lines))
     set_setting("project_metrics_json", json.dumps(metric_sets))
 
 
@@ -1133,7 +1145,7 @@ def project_impact(index):
         "badge": badge,
         "icon": icon,
         "badge_class": badge_class,
-        "country": PROJECT_COUNTRIES[index % len(PROJECT_COUNTRIES)],
+        "country": get_project_countries()[index % len(get_project_countries())],
         "date": PROJECT_DATES[index % len(PROJECT_DATES)],
         "metrics": get_project_metric_sets()[index % len(get_project_metric_sets())],
     }

@@ -471,6 +471,7 @@ class HopeBridgeTestCase(unittest.TestCase):
                 "trust_icon_3": "bi-file-earmark-text",
                 "trust_title_3": "Donor reporting",
                 "trust_text_3": "Reports are maintained",
+                "project_countries": "Ghana\nRwanda\nKenya",
                 "project_metrics_0": "2,000 Families Assisted\n22 Water Points Installed\n7,500 Relief Packs Delivered",
                 "project_metrics_1": "330 Patients Treated\n2,900 Medicines Supplied\n50 Follow-up Visits Covered",
                 "project_metrics_2": "150 Shelter Kits Delivered\n26 Transport Runs Funded\n1,100 People Reached",
@@ -485,6 +486,8 @@ class HopeBridgeTestCase(unittest.TestCase):
         self.assertIn(b"9,999+", projects_after_impact.data)
         self.assertIn(b"Lives Renewed", projects_after_impact.data)
         self.assertIn(b"NGO Registration: TEST-001", projects_after_impact.data)
+        self.assertIn(b"Ghana", projects_after_impact.data)
+        self.assertIn(b"Rwanda", projects_after_impact.data)
         self.assertIn(b"2,000 Families Assisted", projects_after_impact.data)
         created_project = self.client.post(
             "/admin/project/new",
