@@ -16,6 +16,59 @@
                 <a class="btn btn-primary" href="{{ url_for('admin_partner_form') }}">New Partner</a>
             </div>
         </div>
+
+        <form class="panel-card editable-impact-form mb-4" method="post" action="{{ url_for('admin_update_impact_content') }}">
+            <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+                <div>
+                    <h3>Impact &amp; Trust Settings</h3>
+                    <p class="text-muted mb-0">Edit the public impact counters, trust notes, and project impact metric lines shown on the completed projects page.</p>
+                </div>
+                <button class="btn btn-primary" type="submit">Save Impact Content</button>
+            </div>
+            <h5 class="admin-subheading">Impact Summary</h5>
+            <div class="row g-3">
+                {% for item in editable_settings.impact_summary %}
+                <div class="col-md-6 col-xl-4">
+                    <div class="admin-edit-box">
+                        <label>Icon class</label>
+                        <input class="form-control" name="impact_icon_{{ loop.index0 }}" value="{{ item.icon }}">
+                        <label>Value</label>
+                        <input class="form-control" name="impact_value_{{ loop.index0 }}" value="{{ item.value }}">
+                        <label>Label</label>
+                        <input class="form-control" name="impact_label_{{ loop.index0 }}" value="{{ item.label }}">
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <h5 class="admin-subheading mt-4">Trust &amp; Compliance Notes</h5>
+            <div class="row g-3">
+                {% for item in editable_settings.trust_summary %}
+                <div class="col-md-6">
+                    <div class="admin-edit-box">
+                        <label>Icon class</label>
+                        <input class="form-control" name="trust_icon_{{ loop.index0 }}" value="{{ item.icon }}">
+                        <label>Heading</label>
+                        <input class="form-control" name="trust_title_{{ loop.index0 }}" value="{{ item.title }}">
+                        <label>Text</label>
+                        <textarea class="form-control" name="trust_text_{{ loop.index0 }}" rows="2">{{ item.text }}</textarea>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <h5 class="admin-subheading mt-4">Project Impact Metric Lines</h5>
+            <p class="text-muted">Each box represents one rotating metric set. Write one metric per line, for example: 1,250 Families Assisted.</p>
+            <div class="row g-3">
+                {% for metric_set in editable_settings.project_metrics %}
+                <div class="col-md-6 col-xl-4">
+                    <div class="admin-edit-box">
+                        <label>Metric set {{ loop.index }}</label>
+                        <textarea class="form-control" name="project_metrics_{{ loop.index0 }}" rows="4">{% for icon, metric in metric_set %}{{ metric }}{% if not loop.last %}
+{% endif %}{% endfor %}</textarea>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </form>
         <div class="admin-content-grid">
             <div class="panel-card">
                 <h3>Completed Projects</h3>

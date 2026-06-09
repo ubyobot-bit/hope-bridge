@@ -2674,3 +2674,31 @@ a {
     font-size: 1.1rem;
     font-weight: 950;
 }
+
+
+.editable-impact-form {
+    padding: 22px;
+}
+
+.admin-subheading {
+    color: var(--ink);
+    font-size: 1rem;
+    font-weight: 950;
+}
+
+.admin-edit-box {
+    display: grid;
+    gap: 8px;
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fff;
+}
+
+.admin-edit-box label {
+    margin: 0;
+    color: var(--muted);
+    font-size: .78rem;
+    font-weight: 900;
+    text-transform: uppercase;
+}

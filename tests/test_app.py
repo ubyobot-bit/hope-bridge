@@ -262,9 +262,11 @@ class HopeBridgeTestCase(unittest.TestCase):
         projects = self.client.get("/projects")
         self.assertIn(b"Previous Completed Projects", projects.data)
         self.assertIn(b"NGO Registration", projects.data)
-        self.assertIn(b"Donor Report", projects.data)
-        self.assertIn(b"Before &amp; After Photos", projects.data)
         self.assertIn(b"Completed:", projects.data)
+        self.assertIn(b"1,250 Families Assisted", projects.data)
+        self.assertNotIn(b"View Story", projects.data)
+        self.assertNotIn(b"Donor Report", projects.data)
+        self.assertNotIn(b"Before &amp; After Photos", projects.data)
         self.assertIn(b"Musa Emergency Surgery Bridge", projects.data)
         self.assertGreaterEqual(projects.data.count(b"project-card"), 60)
         testimonials = self.client.get("/testimonials")
@@ -438,6 +440,52 @@ class HopeBridgeTestCase(unittest.TestCase):
 
         content = self.client.get("/admin/content")
         self.assertIn(b"Manage Site Content", content.data)
+        self.assertIn(b"Impact &amp; Trust Settings", content.data)
+        updated_impact = self.client.post(
+            "/admin/content/impact",
+            data={
+                "impact_icon_0": "bi-heart-pulse",
+                "impact_value_0": "9,999+",
+                "impact_label_0": "Lives Renewed",
+                "impact_icon_1": "bi-cash-stack",
+                "impact_value_1": "$500,000+",
+                "impact_label_1": "Audited Giving",
+                "impact_icon_2": "bi-globe2",
+                "impact_value_2": "21",
+                "impact_label_2": "Countries Served",
+                "impact_icon_3": "bi-hospital",
+                "impact_value_3": "140+",
+                "impact_label_3": "Medical Cases Closed",
+                "impact_icon_4": "bi-people",
+                "impact_value_4": "5,400+",
+                "impact_label_4": "Donors And Partners",
+                "trust_icon_0": "bi-patch-check",
+                "trust_title_0": "Registered oversight",
+                "trust_text_0": "NGO Registration: TEST-001",
+                "trust_icon_1": "bi-geo-alt",
+                "trust_title_1": "Operations desk",
+                "trust_text_1": "Transparent support desk",
+                "trust_icon_2": "bi-shield-lock",
+                "trust_title_2": "Verification process",
+                "trust_text_2": "Reviewed before publication",
+                "trust_icon_3": "bi-file-earmark-text",
+                "trust_title_3": "Donor reporting",
+                "trust_text_3": "Reports are maintained",
+                "project_metrics_0": "2,000 Families Assisted\n22 Water Points Installed\n7,500 Relief Packs Delivered",
+                "project_metrics_1": "330 Patients Treated\n2,900 Medicines Supplied\n50 Follow-up Visits Covered",
+                "project_metrics_2": "150 Shelter Kits Delivered\n26 Transport Runs Funded\n1,100 People Reached",
+                "project_metrics_3": "30 Surgeries Completed\n100 Clinical Tests Covered\n100% Case Reviews Closed",
+                "project_metrics_4": "13,000 Meals Served\n800 Children Supported\n31 Days Emergency Feeding",
+                "project_metrics_5": "90 Medical Trips Covered\n21 Referral Cases Completed\n40 Mobility Supports Provided",
+            },
+            follow_redirects=True,
+        )
+        self.assertIn(b"Impact and trust content updated", updated_impact.data)
+        projects_after_impact = self.client.get("/projects")
+        self.assertIn(b"9,999+", projects_after_impact.data)
+        self.assertIn(b"Lives Renewed", projects_after_impact.data)
+        self.assertIn(b"NGO Registration: TEST-001", projects_after_impact.data)
+        self.assertIn(b"2,000 Families Assisted", projects_after_impact.data)
         created_project = self.client.post(
             "/admin/project/new",
             data={

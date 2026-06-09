@@ -1,5 +1,6 @@
 import os
 import csv
+import json
 import secrets
 import smtplib
 from functools import wraps
@@ -615,6 +616,9 @@ DEFAULT_SETTINGS = {
     "bank_name": BANK_ACCOUNT["bank_name"],
     "bank_account_name": BANK_ACCOUNT["account_name"],
     "bank_account_number": BANK_ACCOUNT["account_number"],
+    "impact_summary_json": "",
+    "trust_summary_json": "",
+    "project_metrics_json": "",
 }
 
 EXECUTIVES = [
@@ -1052,6 +1056,77 @@ def campaign_days_remaining(campaign):
     return max(1, 30 - (elapsed % 30))
 
 
+def parse_editable_json_setting(key, fallback):
+    raw = get_setting(key, "")
+    if not raw:
+        return fallback
+    try:
+        value = json.loads(raw)
+    except (TypeError, ValueError):
+        return fallback
+    return value if isinstance(value, list) and value else fallback
+
+
+def get_impact_summary():
+    return parse_editable_json_setting("impact_summary_json", IMPACT_SUMMARY)
+
+
+def get_trust_summary():
+    return parse_editable_json_setting("trust_summary_json", TRUST_SUMMARY)
+
+
+def get_project_metric_sets():
+    normalized = []
+    for metric_set in parse_editable_json_setting("project_metrics_json", PROJECT_METRIC_SETS):
+        cleaned = []
+        for item in metric_set:
+            if isinstance(item, (list, tuple)) and len(item) >= 2:
+                cleaned.append((item[0], item[1]))
+        if cleaned:
+            normalized.append(cleaned)
+    return normalized or PROJECT_METRIC_SETS
+
+
+def editable_content_settings():
+    return {
+        "impact_summary": get_impact_summary(),
+        "trust_summary": get_trust_summary(),
+        "project_metrics": get_project_metric_sets(),
+    }
+
+
+def save_editable_content_settings(form):
+    impact_items = []
+    for index, default in enumerate(IMPACT_SUMMARY):
+        impact_items.append({
+            "icon": form.get(f"impact_icon_{index}", default["icon"]).strip() or default["icon"],
+            "value": form.get(f"impact_value_{index}", default["value"]).strip() or default["value"],
+            "label": form.get(f"impact_label_{index}", default["label"]).strip() or default["label"],
+        })
+    trust_items = []
+    for index, default in enumerate(TRUST_SUMMARY):
+        trust_items.append({
+            "icon": form.get(f"trust_icon_{index}", default["icon"]).strip() or default["icon"],
+            "title": form.get(f"trust_title_{index}", default["title"]).strip() or default["title"],
+            "text": form.get(f"trust_text_{index}", default["text"]).strip() or default["text"],
+        })
+    metric_sets = []
+    for index, default_set in enumerate(PROJECT_METRIC_SETS):
+        raw_lines = form.get(f"project_metrics_{index}", "").splitlines()
+        metrics = []
+        for line_index, line in enumerate(raw_lines):
+            text_value = line.strip()
+            if text_value:
+                icon = default_set[line_index % len(default_set)][0] if default_set else "bi-check-circle"
+                metrics.append((icon, text_value))
+        if not metrics:
+            metrics = default_set
+        metric_sets.append(metrics)
+    set_setting("impact_summary_json", json.dumps(impact_items))
+    set_setting("trust_summary_json", json.dumps(trust_items))
+    set_setting("project_metrics_json", json.dumps(metric_sets))
+
+
 def project_impact(index):
     badge, icon, badge_class = PROJECT_BADGES[index % len(PROJECT_BADGES)]
     return {
@@ -1060,7 +1135,7 @@ def project_impact(index):
         "badge_class": badge_class,
         "country": PROJECT_COUNTRIES[index % len(PROJECT_COUNTRIES)],
         "date": PROJECT_DATES[index % len(PROJECT_DATES)],
-        "metrics": PROJECT_METRIC_SETS[index % len(PROJECT_METRIC_SETS)],
+        "metrics": get_project_metric_sets()[index % len(get_project_metric_sets())],
     }
 
 
@@ -1078,8 +1153,8 @@ def inject_template_globals():
         "is_admin_context": is_admin_user(),
         "site_settings": get_settings(),
         "support_chat_history": get_support_chat_history(),
-        "impact_summary": IMPACT_SUMMARY,
-        "trust_summary": TRUST_SUMMARY,
+        "impact_summary": get_impact_summary(),
+        "trust_summary": get_trust_summary(),
         "project_impact": project_impact,
         "campaign_days_remaining": campaign_days_remaining,
     }
@@ -1975,7 +2050,18 @@ def admin_content():
         projects=CompletedProject.query.order_by(CompletedProject.sort_order.asc(), CompletedProject.id.asc()).all(),
         testimonials=Testimonial.query.order_by(Testimonial.sort_order.asc(), Testimonial.id.asc()).all(),
         partners=Partner.query.order_by(Partner.sort_order.asc(), Partner.id.asc()).all(),
+        editable_settings=editable_content_settings(),
     )
+
+
+@app.route("/admin/content/impact", methods=["POST"])
+@login_required
+@admin_required
+def admin_update_impact_content():
+    save_editable_content_settings(request.form)
+    db.session.commit()
+    flash("Impact and trust content updated.", "success")
+    return redirect(url_for("admin_content"))
 
 
 @app.route("/admin/project/new", methods=["GET", "POST"])
@@ -2099,7 +2185,17 @@ def admin_delete_partner(partner_id):
 @admin_required
 def admin_settings():
     if request.method == "POST":
-        for key in DEFAULT_SETTINGS:
+        settings_fields = (
+            "support_phone",
+            "support_email",
+            "support_facebook",
+            "support_tiktok",
+            "support_whatsapp",
+            "bank_name",
+            "bank_account_name",
+            "bank_account_number",
+        )
+        for key in settings_fields:
             set_setting(key, request.form.get(key, "").strip())
         db.session.commit()
         flash("Site settings updated.", "success")
