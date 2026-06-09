@@ -103,6 +103,7 @@ class Campaign(db.Model):
     story = db.Column(db.Text, nullable=False)
     verified = db.Column(db.Boolean, default=False)
     completed = db.Column(db.Boolean, default=False)
+    sort_order = db.Column(db.Integer, default=0)
     owner_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     donations = db.relationship("Donation", backref="campaign", lazy=True)
@@ -146,8 +147,10 @@ class Donation(db.Model):
 class CompletedProject(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(180), nullable=False)
+    country = db.Column(db.String(120), nullable=True)
     amount = db.Column(db.String(40), nullable=False)
     summary = db.Column(db.Text, nullable=False)
+    metrics = db.Column(db.Text, nullable=True)
     image = db.Column(db.String(500), nullable=False)
     published = db.Column(db.Boolean, default=True)
     sort_order = db.Column(db.Integer, default=0)
@@ -1098,8 +1101,6 @@ def editable_content_settings():
     return {
         "impact_summary": get_impact_summary(),
         "trust_summary": get_trust_summary(),
-        "project_metrics": get_project_metric_sets(),
-        "project_countries": get_project_countries(),
     }
 
 
@@ -1118,36 +1119,58 @@ def save_editable_content_settings(form):
             "title": form.get(f"trust_title_{index}", default["title"]).strip() or default["title"],
             "text": form.get(f"trust_text_{index}", default["text"]).strip() or default["text"],
         })
-    country_lines = [line.strip() for line in form.get("project_countries", "").splitlines() if line.strip()]
-    if not country_lines:
-        country_lines = PROJECT_COUNTRIES
-    metric_sets = []
-    for index, default_set in enumerate(PROJECT_METRIC_SETS):
-        raw_lines = form.get(f"project_metrics_{index}", "").splitlines()
-        metrics = []
-        for line_index, line in enumerate(raw_lines):
-            text_value = line.strip()
-            if text_value:
-                icon = default_set[line_index % len(default_set)][0] if default_set else "bi-check-circle"
-                metrics.append((icon, text_value))
-        if not metrics:
-            metrics = default_set
-        metric_sets.append(metrics)
     set_setting("impact_summary_json", json.dumps(impact_items))
     set_setting("trust_summary_json", json.dumps(trust_items))
-    set_setting("project_countries_json", json.dumps(country_lines))
-    set_setting("project_metrics_json", json.dumps(metric_sets))
 
 
-def project_impact(index):
+def normalize_metric_lines(raw_metrics, fallback):
+    if not raw_metrics:
+        return fallback
+    try:
+        values = json.loads(raw_metrics)
+    except (TypeError, ValueError):
+        values = [line.strip() for line in str(raw_metrics).splitlines() if line.strip()]
+    cleaned = []
+    for index, item in enumerate(values if isinstance(values, list) else []):
+        if isinstance(item, (list, tuple)) and len(item) >= 2:
+            icon, text_value = item[0], item[1]
+        else:
+            icon = fallback[index % len(fallback)][0] if fallback else "bi-check-circle"
+            text_value = item
+        text_value = str(text_value).strip()
+        if text_value:
+            cleaned.append((str(icon).strip() or "bi-check-circle", text_value))
+    return cleaned or fallback
+
+
+def encode_project_metrics(lines, fallback):
+    cleaned_lines = [line.strip() for line in lines if line.strip()]
+    if not cleaned_lines:
+        return None
+    metrics = []
+    for index, line in enumerate(cleaned_lines):
+        icon = fallback[index % len(fallback)][0] if fallback else "bi-check-circle"
+        metrics.append((icon, line))
+    return json.dumps(metrics)
+
+
+def project_impact(index, project=None):
     badge, icon, badge_class = PROJECT_BADGES[index % len(PROJECT_BADGES)]
+    countries = get_project_countries()
+    metric_sets = get_project_metric_sets()
+    fallback_metrics = metric_sets[index % len(metric_sets)]
+    country = countries[index % len(countries)]
+    metrics = fallback_metrics
+    if project is not None:
+        country = (getattr(project, "country", None) or country).strip()
+        metrics = normalize_metric_lines(getattr(project, "metrics", None), fallback_metrics)
     return {
         "badge": badge,
         "icon": icon,
         "badge_class": badge_class,
-        "country": get_project_countries()[index % len(get_project_countries())],
+        "country": country,
         "date": PROJECT_DATES[index % len(PROJECT_DATES)],
-        "metrics": get_project_metric_sets()[index % len(get_project_metric_sets())],
+        "metrics": metrics,
     }
 
 
@@ -1173,7 +1196,7 @@ def inject_template_globals():
 
 
 def get_campaigns():
-    return Campaign.query.order_by(Campaign.created_at.asc()).all()
+    return Campaign.query.order_by(Campaign.sort_order.asc(), Campaign.created_at.asc(), Campaign.id.asc()).all()
 
 
 def get_completed_projects(limit=None):
@@ -1331,13 +1354,17 @@ def social_login(provider, email, full_name):
 
 
 def seed_campaigns():
-    for data in SEED_CAMPAIGNS:
+    for index, data in enumerate(SEED_CAMPAIGNS):
+        payload = dict(data)
+        payload["sort_order"] = index
         existing = Campaign.query.filter_by(title=data["title"]).first()
         if existing is None:
-            db.session.add(Campaign(**data))
+            db.session.add(Campaign(**payload))
         else:
             for field in ("category", "patient", "organizer", "location", "goal", "image", "summary", "story", "verified"):
                 setattr(existing, field, data[field])
+            if not existing.sort_order:
+                existing.sort_order = index
     db.session.commit()
 
 
@@ -1348,8 +1375,10 @@ def seed_site_content():
             db.session.add(
                 CompletedProject(
                     title=data["title"],
+                    country=PROJECT_COUNTRIES[index % len(PROJECT_COUNTRIES)],
                     amount=data["amount"],
                     summary=data["summary"],
+                    metrics=json.dumps(PROJECT_METRIC_SETS[index % len(PROJECT_METRIC_SETS)]),
                     image=data["image"],
                     sort_order=index,
                 )
@@ -1358,11 +1387,10 @@ def seed_site_content():
         for index, data in enumerate(COMPLETED_PROJECTS):
             if index < len(existing_projects):
                 project = existing_projects[index]
-                project.title = data["title"]
-                project.amount = data["amount"]
-                project.summary = data["summary"]
-                project.image = data["image"]
-                project.sort_order = index
+                if not project.country:
+                    project.country = PROJECT_COUNTRIES[index % len(PROJECT_COUNTRIES)]
+                if not project.metrics:
+                    project.metrics = json.dumps(PROJECT_METRIC_SETS[index % len(PROJECT_METRIC_SETS)])
             else:
                 db.session.add(
                     CompletedProject(
@@ -1443,6 +1471,19 @@ def ensure_schema():
     for name, definition in additions.items():
         if name not in columns:
             db.session.execute(text(f'ALTER TABLE "user" ADD COLUMN {name} {definition}'))
+    if "campaign" in table_names:
+        campaign_columns = {column["name"] for column in inspector.get_columns("campaign")}
+        if "sort_order" not in campaign_columns:
+            db.session.execute(text("ALTER TABLE campaign ADD COLUMN sort_order INTEGER DEFAULT 0"))
+    if "completed_project" in table_names:
+        project_columns = {column["name"] for column in inspector.get_columns("completed_project")}
+        project_additions = {
+            "country": "VARCHAR(120)",
+            "metrics": "TEXT",
+        }
+        for name, definition in project_additions.items():
+            if name not in project_columns:
+                db.session.execute(text(f"ALTER TABLE completed_project ADD COLUMN {name} {definition}"))
     if "support_message" in table_names:
         message_columns = {column["name"] for column in inspector.get_columns("support_message")}
         message_additions = {
@@ -1549,6 +1590,7 @@ def create_campaign():
             story=request.form.get("story", "").strip(),
             owner_id=current_user.id,
             verified=False,
+            sort_order=(Campaign.query.count() + 100),
         )
         if not campaign.title or not campaign.patient or not campaign.summary or not campaign.story:
             flash("Please complete all required campaign fields.", "danger")
@@ -1851,7 +1893,7 @@ def admin_dashboard():
         "messages": SupportMessage.query.filter_by(status="open").count(),
         "content_items": CompletedProject.query.count() + Testimonial.query.count() + Partner.query.count(),
     }
-    recent_campaigns = Campaign.query.order_by(Campaign.created_at.desc()).limit(5).all()
+    recent_campaigns = Campaign.query.order_by(Campaign.sort_order.asc(), Campaign.created_at.desc(), Campaign.id.asc()).limit(5).all()
     recent_donations = Donation.query.order_by(Donation.created_at.desc()).limit(5).all()
     return render_template(
         "admin_dashboard.html",
@@ -1865,7 +1907,7 @@ def admin_dashboard():
 @login_required
 @admin_required
 def admin_campaigns():
-    campaigns = Campaign.query.order_by(Campaign.created_at.desc()).all()
+    campaigns = Campaign.query.order_by(Campaign.sort_order.asc(), Campaign.created_at.desc(), Campaign.id.asc()).all()
     return render_template("admin_campaigns.html", campaigns=campaigns)
 
 
@@ -2025,6 +2067,7 @@ def admin_edit_campaign(campaign_id):
         campaign.organizer = request.form.get("organizer", "").strip() or campaign.organizer
         campaign.location = request.form.get("location", "").strip() or campaign.location
         campaign.goal = goal
+        campaign.sort_order = int(request.form.get("sort_order", campaign.sort_order or 0) or 0)
         campaign.summary = request.form.get("summary", "").strip() or campaign.summary
         campaign.story = request.form.get("story", "").strip() or campaign.story
         campaign.image = url_for("static", filename=f"uploads/{uploaded_image}") if uploaded_image else request.form.get("image", "").strip() or campaign.image
@@ -2087,11 +2130,14 @@ def admin_project_form(project_id=None):
     if request.method == "POST":
         uploaded_image = save_upload(request.files.get("image_file"))
         project.title = request.form.get("title", "").strip()
+        project.country = request.form.get("country", "").strip()
         project.amount = request.form.get("amount", "").strip()
         project.summary = request.form.get("summary", "").strip()
         project.image = url_for("static", filename=f"uploads/{uploaded_image}") if uploaded_image else request.form.get("image", "").strip() or project.image
         project.published = request.form.get("published") == "on"
         project.sort_order = int(request.form.get("sort_order", "0") or 0)
+        fallback_metrics = PROJECT_METRIC_SETS[project.sort_order % len(PROJECT_METRIC_SETS)]
+        project.metrics = encode_project_metrics(request.form.get("metrics", "").splitlines(), fallback_metrics)
         if not project.title or not project.amount or not project.summary or not project.image:
             flash("Please complete every project field.", "danger")
             return redirect(request.url)
@@ -2316,7 +2362,7 @@ def admin_export_donations():
 def admin_export_campaigns():
     rows = [
         [campaign.id, campaign.title, campaign.patient, campaign.category, campaign.organizer, campaign.location, campaign.goal, campaign.raised, campaign.verified, campaign.completed, campaign.created_at]
-        for campaign in Campaign.query.order_by(Campaign.created_at.desc()).all()
+        for campaign in Campaign.query.order_by(Campaign.sort_order.asc(), Campaign.created_at.desc(), Campaign.id.asc()).all()
     ]
     return csv_response("hopebridge-campaigns.csv", rows, ["id", "title", "patient", "category", "organizer", "location", "goal", "raised", "verified", "completed", "created_at"])
 

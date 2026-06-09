@@ -44,7 +44,7 @@
         </div>
         <div class="row g-4">
             {% for project in projects %}
-            {% set impact = project_impact(loop.index0) %}
+            {% set impact = project_impact(loop.index0, project) %}
             <div class="col-sm-6 col-lg-4 col-xl-3">
                 <article class="project-card project-card-pro h-100" id="project-{{ loop.index }}">
                     <div class="project-thumb">

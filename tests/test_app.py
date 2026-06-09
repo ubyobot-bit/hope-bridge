@@ -378,9 +378,35 @@ class HopeBridgeTestCase(unittest.TestCase):
 
         with app.app_context():
             campaign = db.session.get(Campaign, campaign_id)
+            campaign_payload = {
+                "title": campaign.title,
+                "patient": campaign.patient,
+                "category": campaign.category,
+                "organizer": campaign.organizer,
+                "location": campaign.location,
+                "goal": str(campaign.goal),
+                "sort_order": "42",
+                "image": campaign.image,
+                "summary": campaign.summary,
+                "story": campaign.story,
+                "verified": "on",
+                "completed": "on",
+            }
+
+        edited_campaign = self.client.post(
+            f"/admin/campaign/{campaign_id}/edit",
+            data=campaign_payload,
+            follow_redirects=True,
+        )
+        self.assertIn(b"Campaign updated", edited_campaign.data)
+        self.assertIn(b"42", edited_campaign.data)
+
+        with app.app_context():
+            campaign = db.session.get(Campaign, campaign_id)
             donation = db.session.get(Donation, donation_id)
             self.assertTrue(campaign.verified)
             self.assertTrue(campaign.completed)
+            self.assertEqual(campaign.sort_order, 42)
             self.assertEqual(donation.status, "confirmed")
 
     def make_admin(self):
@@ -471,13 +497,6 @@ class HopeBridgeTestCase(unittest.TestCase):
                 "trust_icon_3": "bi-file-earmark-text",
                 "trust_title_3": "Donor reporting",
                 "trust_text_3": "Reports are maintained",
-                "project_countries": "Ghana\nRwanda\nKenya",
-                "project_metrics_0": "2,000 Families Assisted\n22 Water Points Installed\n7,500 Relief Packs Delivered",
-                "project_metrics_1": "330 Patients Treated\n2,900 Medicines Supplied\n50 Follow-up Visits Covered",
-                "project_metrics_2": "150 Shelter Kits Delivered\n26 Transport Runs Funded\n1,100 People Reached",
-                "project_metrics_3": "30 Surgeries Completed\n100 Clinical Tests Covered\n100% Case Reviews Closed",
-                "project_metrics_4": "13,000 Meals Served\n800 Children Supported\n31 Days Emergency Feeding",
-                "project_metrics_5": "90 Medical Trips Covered\n21 Referral Cases Completed\n40 Mobility Supports Provided",
             },
             follow_redirects=True,
         )
@@ -486,15 +505,36 @@ class HopeBridgeTestCase(unittest.TestCase):
         self.assertIn(b"9,999+", projects_after_impact.data)
         self.assertIn(b"Lives Renewed", projects_after_impact.data)
         self.assertIn(b"NGO Registration: TEST-001", projects_after_impact.data)
-        self.assertIn(b"Ghana", projects_after_impact.data)
-        self.assertIn(b"Rwanda", projects_after_impact.data)
-        self.assertIn(b"2,000 Families Assisted", projects_after_impact.data)
+
+        with app.app_context():
+            project_id = CompletedProject.query.order_by(CompletedProject.id.asc()).first().id
+        edited_project = self.client.post(
+            f"/admin/project/{project_id}/edit",
+            data={
+                "title": "Gaza Family Clinic Relief",
+                "country": "Ghana",
+                "amount": "$64,850",
+                "summary": "Partner medics supplied wound care, medicine, clean water, and safe transport for displaced families.",
+                "metrics": "2,000 Families Assisted\n22 Water Points Installed\n7,500 Relief Packs Delivered",
+                "image": "/static/images/hopebridge/displaced-family-tent.jpg?project=1",
+                "sort_order": "0",
+                "published": "on",
+            },
+            follow_redirects=True,
+        )
+        self.assertIn(b"Completed project saved", edited_project.data)
+        projects_after_project_edit = self.client.get("/projects")
+        self.assertIn(b"Ghana", projects_after_project_edit.data)
+        self.assertIn(b"2,000 Families Assisted", projects_after_project_edit.data)
+
         created_project = self.client.post(
             "/admin/project/new",
             data={
                 "title": "Backend Test Project",
+                "country": "Rwanda",
                 "amount": "$5,000",
                 "summary": "A test project created from the admin backend.",
+                "metrics": "70 Families Assisted\n14 Care Kits Delivered",
                 "image": "https://example.com/project.jpg",
                 "sort_order": "99",
                 "published": "on",
@@ -543,8 +583,13 @@ class HopeBridgeTestCase(unittest.TestCase):
 
         with app.app_context():
             self.assertEqual(db.session.get(SiteSetting, "bank_name").value, "HopeBridge Test Bank")
-            self.assertIsNotNone(CompletedProject.query.filter_by(title="Backend Test Project").first())
-            self.assertIsNotNone(Testimonial.query.filter_by(name="Backend Witness").first())
+            project = CompletedProject.query.filter_by(title="Backend Test Project").first()
+            testimonial = Testimonial.query.filter_by(name="Backend Witness").first()
+            self.assertIsNotNone(project)
+            self.assertEqual(project.country, "Rwanda")
+            self.assertIn("70 Families Assisted", project.metrics)
+            self.assertIsNotNone(testimonial)
+            self.assertEqual(testimonial.sort_order, 99)
             self.assertIsNotNone(Partner.query.filter_by(name="Backend Partner").first())
 
 

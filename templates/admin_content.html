@@ -21,7 +21,7 @@
             <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
                 <div>
                     <h3>Impact &amp; Trust Settings</h3>
-                    <p class="text-muted mb-0">Edit the public impact counters, trust notes, and project impact metric lines shown on the completed projects page.</p>
+                    <p class="text-muted mb-0">Edit the public impact counters and trust notes shown on the homepage and completed projects page.</p>
                 </div>
                 <button class="btn btn-primary" type="submit">Save Impact Content</button>
             </div>
@@ -55,33 +55,13 @@
                 </div>
                 {% endfor %}
             </div>
-            <h5 class="admin-subheading mt-4">Project Country Labels</h5>
-            <p class="text-muted">Write one country or region per line. These labels rotate across completed project cards in order.</p>
-            <div class="admin-edit-box mb-3">
-                <label>Countries / Regions</label>
-                <textarea class="form-control" name="project_countries" rows="5">{% for country in editable_settings.project_countries %}{{ country }}{% if not loop.last %}
-{% endif %}{% endfor %}</textarea>
-            </div>
-            <h5 class="admin-subheading mt-4">Project Impact Metric Lines</h5>
-            <p class="text-muted">Each box represents one rotating metric set. Write one metric per line, for example: 1,250 Families Assisted.</p>
-            <div class="row g-3">
-                {% for metric_set in editable_settings.project_metrics %}
-                <div class="col-md-6 col-xl-4">
-                    <div class="admin-edit-box">
-                        <label>Metric set {{ loop.index }}</label>
-                        <textarea class="form-control" name="project_metrics_{{ loop.index0 }}" rows="4">{% for icon, metric in metric_set %}{{ metric }}{% if not loop.last %}
-{% endif %}{% endfor %}</textarea>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
         </form>
         <div class="admin-content-grid">
             <div class="panel-card">
                 <h3>Completed Projects</h3>
                 {% for project in projects %}
                 <div class="admin-list-row">
-                    <div><strong>{{ project.title }}</strong><span>{{ project.amount }} • {{ 'Published' if project.published else 'Hidden' }}</span></div>
+                    <div><strong>{{ project.title }}</strong><span>Sort #{{ project.sort_order or 0 }} • {{ project.country or 'No country' }} • {{ project.amount }} • {{ 'Published' if project.published else 'Hidden' }}</span></div>
                     <div class="admin-actions">
                         <a class="btn btn-sm btn-outline-primary" href="{{ url_for('admin_project_form', project_id=project.id) }}">Edit</a>
                         <form method="post" action="{{ url_for('admin_delete_project', project_id=project.id) }}"><button class="btn btn-sm btn-outline-danger" type="submit">Delete</button></form>
@@ -93,7 +73,7 @@
                 <h3>Testimonials</h3>
                 {% for testimonial in testimonials %}
                 <div class="admin-list-row">
-                    <div><strong>{{ testimonial.name }}</strong><span>{{ testimonial.role or 'No role' }} • {{ 'Published' if testimonial.published else 'Hidden' }}</span></div>
+                    <div><strong>{{ testimonial.name }}</strong><span>Sort #{{ testimonial.sort_order or 0 }} • {{ testimonial.role or 'No role' }} • {{ 'Published' if testimonial.published else 'Hidden' }}</span></div>
                     <div class="admin-actions">
                         <a class="btn btn-sm btn-outline-primary" href="{{ url_for('admin_testimonial_form', testimonial_id=testimonial.id) }}">Edit</a>
                         <form method="post" action="{{ url_for('admin_delete_testimonial', testimonial_id=testimonial.id) }}"><button class="btn btn-sm btn-outline-danger" type="submit">Delete</button></form>

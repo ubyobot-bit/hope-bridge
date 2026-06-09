@@ -19,7 +19,8 @@
                 <div class="col-md-6"><label>Category</label><input class="form-control" name="category" value="{{ campaign.category }}" required></div>
                 <div class="col-md-6"><label>Organizer</label><input class="form-control" name="organizer" value="{{ campaign.organizer }}" required></div>
                 <div class="col-md-6"><label>Location</label><input class="form-control" name="location" value="{{ campaign.location }}" required></div>
-                <div class="col-md-6"><label>Goal</label><input class="form-control" type="number" name="goal" value="{{ campaign.goal }}" min="1" required></div>
+                <div class="col-md-3"><label>Goal</label><input class="form-control" type="number" name="goal" value="{{ campaign.goal }}" min="1" required></div>
+                <div class="col-md-3"><label>Sort Number</label><input class="form-control" type="number" name="sort_order" value="{{ campaign.sort_order or 0 }}"></div>
                 <div class="col-12"><label>Image URL</label><input class="form-control" name="image" value="{{ campaign.image }}"></div>
                 <div class="col-12"><label>Upload New Image</label><input class="form-control" type="file" name="campaign_image" accept="image/*"></div>
                 <div class="col-12"><label>Summary</label><textarea class="form-control" name="summary" rows="3" required>{{ campaign.summary }}</textarea></div>

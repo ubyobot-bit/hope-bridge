@@ -19,6 +19,7 @@
             <table class="admin-table">
                 <thead>
                     <tr>
+                        <th>Sort #</th>
                         <th>Campaign</th>
                         <th>Patient</th>
                         <th>Goal</th>
@@ -30,6 +31,7 @@
                 <tbody>
                     {% for campaign in campaigns %}
                     <tr>
+                        <td>{{ campaign.sort_order or 0 }}</td>
                         <td><strong>{{ campaign.title }}</strong><span>{{ campaign.category }} • {{ campaign.location }}</span></td>
                         <td>{{ campaign.patient }}</td>
                         <td>{{ campaign.goal | money }}</td>
@@ -54,7 +56,7 @@
                         </td>
                     </tr>
                     {% else %}
-                    <tr><td colspan="6">No campaigns yet.</td></tr>
+                    <tr><td colspan="7">No campaigns yet.</td></tr>
                     {% endfor %}
                 </tbody>
             </table>

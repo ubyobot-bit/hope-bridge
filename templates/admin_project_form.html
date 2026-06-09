@@ -2,6 +2,7 @@
 {% block title %}Project Form - HopeBridge{% endblock %}
 
 {% block content %}
+{% set impact = project_impact(project.sort_order or 0, project) %}
 <section class="section-pad admin-page">
     <div class="container">
         <div class="section-heading"><div><p class="eyebrow">Admin Control</p><h1>{{ 'Edit' if project.id else 'New' }} Completed Project</h1></div><a class="btn btn-outline-primary" href="{{ url_for('admin_content') }}">Back</a></div>
@@ -9,10 +10,13 @@
             <div class="row g-3">
                 <div class="col-md-8"><label>Title</label><input class="form-control" name="title" value="{{ project.title or '' }}" required></div>
                 <div class="col-md-4"><label>Amount</label><input class="form-control" name="amount" value="{{ project.amount or '' }}" placeholder="$20,000" required></div>
-                <div class="col-md-8"><label>Image URL</label><input class="form-control" name="image" value="{{ project.image or '' }}"></div>
-                <div class="col-md-4"><label>Sort Order</label><input class="form-control" type="number" name="sort_order" value="{{ project.sort_order or 0 }}"></div>
+                <div class="col-md-8"><label>Country / Region</label><input class="form-control" name="country" value="{{ project.country or impact.country }}" placeholder="Gaza" required></div>
+                <div class="col-md-4"><label>Sort Number</label><input class="form-control" type="number" name="sort_order" value="{{ project.sort_order or 0 }}"></div>
+                <div class="col-12"><label>Image URL</label><input class="form-control" name="image" value="{{ project.image or '' }}"></div>
                 <div class="col-12"><label>Upload Image</label><input class="form-control" type="file" name="image_file" accept="image/*"></div>
                 <div class="col-12"><label>Summary</label><textarea class="form-control" name="summary" rows="4" required>{{ project.summary or '' }}</textarea></div>
+                <div class="col-12"><label>Project Metrics</label><textarea class="form-control" name="metrics" rows="4" required>{% for icon, metric in impact.metrics %}{{ metric }}{% if not loop.last %}
+{% endif %}{% endfor %}</textarea><small class="text-muted">Write one metric per line. Example: 1,250 Families Assisted.</small></div>
                 <div class="col-12"><label class="form-check"><input class="form-check-input" type="checkbox" name="published" {% if project.published or not project.id %}checked{% endif %}> Published</label></div>
             </div>
             <button class="btn btn-primary mt-4" type="submit">Save Project</button>
