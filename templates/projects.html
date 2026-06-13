@@ -45,10 +45,25 @@
         <div class="row g-4">
             {% for project in projects %}
             {% set impact = project_impact(loop.index0, project) %}
+            {% set gallery = project_gallery(project) %}
             <div class="col-sm-6 col-lg-4 col-xl-3">
                 <article class="project-card project-card-pro h-100" id="project-{{ loop.index }}">
                     <div class="project-thumb">
+                        {% if gallery|length > 1 %}
+                        <div id="projectGallery{{ project.id }}" class="carousel slide card-carousel">
+                            <div class="carousel-inner">
+                                {% for image in gallery %}
+                                <div class="carousel-item {% if loop.first %}active{% endif %}">
+                                    <img src="{{ image }}" alt="{{ project.title }} photo {{ loop.index }}">
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <button class="carousel-control-prev" type="button" data-bs-target="#projectGallery{{ project.id }}" data-bs-slide="prev" aria-label="Previous photo"><span class="carousel-control-prev-icon" aria-hidden="true"></span></button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#projectGallery{{ project.id }}" data-bs-slide="next" aria-label="Next photo"><span class="carousel-control-next-icon" aria-hidden="true"></span></button>
+                        </div>
+                        {% else %}
                         <img src="{{ project.image }}" alt="{{ project.title }}">
+                        {% endif %}
                         <span class="project-badge {{ impact.badge_class }}"><i class="bi {{ impact.icon }}"></i>{{ impact.badge }}</span>
                     </div>
                     <div class="project-body">

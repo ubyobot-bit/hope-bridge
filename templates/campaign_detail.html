@@ -3,39 +3,87 @@
 
 {% block content %}
 {% set percent = campaign.progress %}
+{% set gallery = campaign_gallery(campaign) %}
+{% set days_label = campaign_days_remaining(campaign) %}
+{% set share_message -%}
+{{ campaign.title }}
+
+{{ campaign.location }}
+
+Category: {{ campaign.category }}
+Status: {{ 'Completed' if campaign.completed else 'Active' }}
+
+Fundraising Goal: {{ campaign.goal | money }}
+Amount Raised: {{ campaign.raised | money }}
+Funding Progress: {{ percent }}%
+
+Campaign Summary
+{{ campaign.summary }}
+
+Recent Update
+{{ campaign_recent_update(campaign) }}
+
+Donate or share:
+{{ share_url }}
+{%- endset %}
 <section class="detail-page">
     <div class="container">
         <div class="breadcrumb-line">Home <i class="bi bi-chevron-right"></i> Campaigns <i class="bi bi-chevron-right"></i> {{ campaign.title }}</div>
         <div class="row g-4 align-items-start">
             <div class="col-lg-8">
                 <div class="detail-card">
+                    {% if gallery|length > 1 %}
+                    <div id="campaignGallery{{ campaign.id }}" class="carousel slide detail-carousel" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            {% for image in gallery %}
+                            <div class="carousel-item {% if loop.first %}active{% endif %}">
+                                <img class="detail-image" src="{{ image }}" alt="{{ campaign.title }} photo {{ loop.index }}">
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#campaignGallery{{ campaign.id }}" data-bs-slide="prev" aria-label="Previous photo">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#campaignGallery{{ campaign.id }}" data-bs-slide="next" aria-label="Next photo">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                    {% else %}
                     <img class="detail-image" src="{{ campaign.image }}" alt="{{ campaign.title }}">
+                    {% endif %}
                     <div class="detail-content">
                         <div class="d-flex flex-wrap justify-content-between gap-3">
                             <h1>{{ campaign.title }}</h1>
                             <span class="pill">{{ campaign.category }}</span>
                         </div>
-                        <p>{{ campaign.story }}</p>
+                        <p>{{ campaign.summary }}</p>
                         <div class="info-grid">
                             <div><small>Organizer</small><strong>{{ campaign.organizer }}</strong></div>
                             <div><small>Location</small><strong>{{ campaign.location }}</strong></div>
-                            <div><small>Category</small><strong>Medical</strong></div>
-                            <div><small>Verified</small><strong>Yes</strong></div>
+                            <div><small>Category</small><strong>{{ campaign.category }}</strong></div>
+                            <div><small>Verified</small><strong>{{ 'Yes' if campaign.verified else 'Pending' }}</strong></div>
                         </div>
                     </div>
                 </div>
                 <div class="story-block">
-                    <h4>Story</h4>
-                    <p>{{ campaign.story }} Donations will be used for treatment, hospital visits, medicine, nutrition, and family support during the recovery period.</p>
+                    <div class="update-card">
+                        <span class="section-label">Recent Update</span>
+                        <p>{{ campaign_recent_update(campaign) }}</p>
+                    </div>
                     <h4>Recent Donations</h4>
                     <div class="row g-3">
                         {% for donation in donations %}
                         <div class="col-md-4">
                             <div class="donation-mini">
-                                <strong>{{ donation.name }}</strong>
-                                <span>{{ donation.date }}</span>
+                                <strong>{{ donation.donor.full_name if donation.donor else 'Anonymous donor' }}</strong>
+                                <span>{{ donation.created_at.strftime('%b %d, %Y') if donation.created_at else 'Recently' }}</span>
                                 <b>{{ donation.amount | money }}</b>
+                                <small>{{ donation.status|title }}</small>
                             </div>
+                        </div>
+                        {% else %}
+                        <div class="col-12">
+                            <div class="donation-empty">No donations have been recorded yet. Be the first donor to support this campaign.</div>
                         </div>
                         {% endfor %}
                     </div>
@@ -47,8 +95,8 @@
                     <div class="progress mb-2"><div class="progress-bar" style="width: {{ percent }}%"></div></div>
                     <div class="text-end text-success fw-bold">{{ percent }}%</div>
                     <div class="donation-counts">
-                        <div><strong>45</strong><span>Donors</span></div>
-                        <div><strong>12</strong><span>Days Left</span></div>
+                        <div><strong>{{ donor_count }}</strong><span>Donors</span></div>
+                        <div><strong>{{ days_label.split(' ')[0] }}</strong><span>{{ days_label.split(' ', 1)[1] if ' ' in days_label else 'Days Left' }}</span></div>
                     </div>
                     <form action="{{ url_for('donate', campaign_id=campaign.id) }}" method="get">
                         <h5>Donate Now</h5>
@@ -66,10 +114,10 @@
                     </div>
                     <div class="campaign-share-box">
                         <small>Share this campaign</small>
-                        <code id="campaignShareUrl">{{ share_url }}</code>
+                        <pre id="campaignShareMessage">{{ share_message }}</pre>
                         <div class="d-flex gap-2 mt-2">
-                            <button class="btn btn-outline-primary btn-sm flex-fill" type="button" data-copy-target="#campaignShareUrl"><i class="bi bi-copy"></i> Copy</button>
-                            <button class="btn btn-primary btn-sm flex-fill" type="button" data-share-url="{{ share_url }}"><i class="bi bi-share-fill"></i> Share</button>
+                            <button class="btn btn-outline-primary btn-sm flex-fill" type="button" data-copy-target="#campaignShareMessage"><i class="bi bi-copy"></i> Copy</button>
+                            <button class="btn btn-primary btn-sm flex-fill" type="button" data-share-url="{{ share_url }}" data-share-target="#campaignShareMessage"><i class="bi bi-share-fill"></i> Share</button>
                         </div>
                     </div>
                 </aside>

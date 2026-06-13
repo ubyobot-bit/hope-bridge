@@ -21,9 +21,24 @@
             <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
                 <div>
                     <h3>Impact &amp; Trust Settings</h3>
-                    <p class="text-muted mb-0">Edit the public impact counters and trust notes shown on the homepage and completed projects page.</p>
+                    <p class="text-muted mb-0">Edit the public homepage counters, project impact counters, and trust notes.</p>
                 </div>
                 <button class="btn btn-primary" type="submit">Save Impact Content</button>
+            </div>
+            <h5 class="admin-subheading">Homepage Counters</h5>
+            <div class="row g-3">
+                {% for item in editable_settings.home_stats %}
+                <div class="col-md-6 col-xl-3">
+                    <div class="admin-edit-box">
+                        <label>Icon class</label>
+                        <input class="form-control" name="home_stat_icon_{{ loop.index0 }}" value="{{ item.icon }}">
+                        <label>Value</label>
+                        <input class="form-control" name="home_stat_value_{{ loop.index0 }}" value="{{ item.value }}">
+                        <label>Label</label>
+                        <input class="form-control" name="home_stat_label_{{ loop.index0 }}" value="{{ item.label }}">
+                    </div>
+                </div>
+                {% endfor %}
             </div>
             <h5 class="admin-subheading">Impact Summary</h5>
             <div class="row g-3">
