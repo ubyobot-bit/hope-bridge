@@ -17,16 +17,21 @@
                 <div class="col-md-4"><label>Status Badge Text</label><input class="form-control" name="badge_label" value="{{ project.badge_label or impact.badge }}" placeholder="Fully Funded"></div>
                 <div class="col-md-4"><label>Status Badge Icon</label><input class="form-control" name="badge_icon" value="{{ project.badge_icon or impact.icon }}" placeholder="bi-check2-circle"></div>
                 <div class="col-md-4"><label>Status Badge Style</label><input class="form-control" name="badge_class" value="{{ project.badge_class or impact.badge_class }}" placeholder="badge-funded"></div>
-                <div class="col-12"><label>Image URL</label><input class="form-control" name="image" value="{{ project.image or '' }}"></div>
+                <div class="col-12"><label>Image URL</label><input class="form-control" name="image" value="{{ project.image or '' }}" list="staticImageOptions"><small class="text-muted">Stable path: add images in VS Code under static/images, then use /static/images/folder/file.jpg.</small></div>
                 <div class="col-12"><label>Upload Image</label><input class="form-control" type="file" name="image_file" accept="image/*"></div>
                 <div class="col-12">
                     <label>Project Photo Carousel</label>
+                    <datalist id="staticImageOptions">
+                        {% for image in static_image_options %}
+                        <option value="{{ image }}"></option>
+                        {% endfor %}
+                    </datalist>
                     <div class="row g-3">
                         {% for index in range(5) %}
                         <div class="col-md-6">
                             <div class="admin-edit-box">
                                 <label>Photo {{ index + 1 }} URL</label>
-                                <input class="form-control" name="project_gallery_{{ index }}" value="{{ gallery[index] if index < gallery|length else '' }}">
+                                <input class="form-control" name="project_gallery_{{ index }}" value="{{ gallery[index] if index < gallery|length else '' }}" list="staticImageOptions">
                                 <label>Upload Photo {{ index + 1 }}</label>
                                 <input class="form-control" type="file" name="project_gallery_file_{{ index }}" accept="image/*">
                             </div>
@@ -35,8 +40,8 @@
                     </div>
                 </div>
                 <div class="col-12"><label>Summary</label><textarea class="form-control" name="summary" rows="4" required>{{ project.summary or '' }}</textarea></div>
-                <div class="col-12"><label>Project Metrics</label><textarea class="form-control" name="metrics" rows="4" required>{% for icon, metric in impact.metrics %}{{ metric }}{% if not loop.last %}
-{% endif %}{% endfor %}</textarea><small class="text-muted">Write one metric per line. Example: 1,250 Families Assisted.</small></div>
+                <div class="col-12"><label>Project Metrics</label><textarea class="form-control" name="metrics" rows="4" required>{% for icon, metric in impact.metrics %}{{ icon }} | {{ metric }}{% if not loop.last %}
+{% endif %}{% endfor %}</textarea><small class="text-muted">Write one metric per line. Use icon | text, for example: bi-people | 1,250 Families Assisted.</small></div>
                 <div class="col-12"><label class="form-check"><input class="form-check-input" type="checkbox" name="published" {% if project.published or not project.id %}checked{% endif %}> Published</label></div>
             </div>
             <button class="btn btn-primary mt-4" type="submit">Save Project</button>

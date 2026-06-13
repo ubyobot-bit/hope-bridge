@@ -1103,6 +1103,31 @@ def clean_phone(phone):
     return (phone or "").strip() or None
 
 
+def normalize_image_path(path):
+    path = (path or "").strip()
+    if not path:
+        return ""
+    if path.startswith(("http://", "https://", "data:", "/")):
+        return path
+    if path.startswith(("static/", "uploads/")):
+        return f"/{path}"
+    if path.startswith("images/"):
+        return f"/static/{path}"
+    return path
+
+
+def get_static_image_options(limit=220):
+    image_root = Path(app.static_folder) / "images"
+    if not image_root.exists():
+        return []
+    extensions = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
+    options = []
+    for path in sorted(image_root.rglob("*")):
+        if path.is_file() and path.suffix.lower() in extensions:
+            options.append(f"/static/{path.relative_to(app.static_folder).as_posix()}")
+    return options[:limit]
+
+
 def admin_emails():
     configured = os.environ.get("ADMIN_EMAILS", "")
     return {normalize_email(email) for email in configured.split(",") if normalize_email(email)}
@@ -1247,9 +1272,10 @@ def decode_image_list(raw_images, fallback_image=None):
 def encode_image_list(values, fallback_image=None):
     images = []
     for value in values:
-        value = (value or "").strip()
+        value = normalize_image_path(value)
         if value and value not in images:
             images.append(value)
+    fallback_image = normalize_image_path(fallback_image)
     if fallback_image and fallback_image not in images:
         images.insert(0, fallback_image)
     return json.dumps(images[:5]) if images else None
@@ -1269,7 +1295,7 @@ def collect_gallery_images(form, files, field_prefix, current_images=None):
         if uploaded_image:
             images.append(url_for("static", filename=f"uploads/{uploaded_image}"))
             continue
-        image_url = form.get(f"{field_prefix}_{index}", "").strip()
+        image_url = normalize_image_path(form.get(f"{field_prefix}_{index}", ""))
         if image_url:
             images.append(image_url)
     return images[:5]
@@ -1408,7 +1434,13 @@ def encode_project_metrics(lines, fallback):
     metrics = []
     for index, line in enumerate(cleaned_lines):
         icon = fallback[index % len(fallback)][0] if fallback else "bi-check-circle"
-        metrics.append((icon, line))
+        text_value = line
+        if "|" in line:
+            possible_icon, possible_text = [part.strip() for part in line.split("|", 1)]
+            if possible_icon and possible_text:
+                icon = possible_icon
+                text_value = possible_text
+        metrics.append((icon, text_value))
     return json.dumps(metrics)
 
 
@@ -1461,6 +1493,7 @@ def inject_template_globals():
         "campaign_recent_update": campaign_recent_update,
         "campaign_gallery": campaign_gallery,
         "project_gallery": project_gallery,
+        "static_image_options": get_static_image_options(),
     }
 
 
@@ -2402,7 +2435,7 @@ def admin_edit_campaign(campaign_id):
         campaign.image = (
             url_for("static", filename=f"uploads/{uploaded_image}")
             if uploaded_image
-            else (gallery_images[0] if gallery_images else request.form.get("image", "").strip() or campaign.image)
+            else (gallery_images[0] if gallery_images else normalize_image_path(request.form.get("image", "")) or campaign.image)
         )
         campaign.images = encode_image_list(gallery_images, campaign.image)
         campaign.verified = request.form.get("verified") == "on"
@@ -2472,7 +2505,7 @@ def admin_project_form(project_id=None):
         project.image = (
             url_for("static", filename=f"uploads/{uploaded_image}")
             if uploaded_image
-            else (gallery_images[0] if gallery_images else request.form.get("image", "").strip() or project.image)
+            else (gallery_images[0] if gallery_images else normalize_image_path(request.form.get("image", "")) or project.image)
         )
         project.images = encode_image_list(gallery_images, project.image)
         project.completion_label = request.form.get("completion_label", "").strip()

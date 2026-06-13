@@ -22,16 +22,21 @@
                 <div class="col-md-6"><label>Location</label><input class="form-control" name="location" value="{{ campaign.location }}" required></div>
                 <div class="col-md-3"><label>Goal</label><input class="form-control" type="number" name="goal" value="{{ campaign.goal }}" min="1" required></div>
                 <div class="col-md-3"><label>Sort Number</label><input class="form-control" type="number" name="sort_order" value="{{ campaign.sort_order or 0 }}"></div>
-                <div class="col-12"><label>Main Image URL</label><input class="form-control" name="image" value="{{ campaign.image }}"></div>
+                <div class="col-12"><label>Main Image URL</label><input class="form-control" name="image" value="{{ campaign.image }}" list="staticImageOptions"><small class="text-muted">Stable path: add images in VS Code under static/images, then use /static/images/folder/file.jpg.</small></div>
                 <div class="col-12"><label>Upload New Main Image</label><input class="form-control" type="file" name="campaign_image" accept="image/*"></div>
                 <div class="col-12">
                     <label>Campaign Photo Carousel</label>
+                    <datalist id="staticImageOptions">
+                        {% for image in static_image_options %}
+                        <option value="{{ image }}"></option>
+                        {% endfor %}
+                    </datalist>
                     <div class="row g-3">
                         {% for index in range(5) %}
                         <div class="col-md-6">
                             <div class="admin-edit-box">
                                 <label>Photo {{ index + 1 }} URL</label>
-                                <input class="form-control" name="campaign_gallery_{{ index }}" value="{{ gallery[index] if index < gallery|length else '' }}">
+                                <input class="form-control" name="campaign_gallery_{{ index }}" value="{{ gallery[index] if index < gallery|length else '' }}" list="staticImageOptions">
                                 <label>Upload Photo {{ index + 1 }}</label>
                                 <input class="form-control" type="file" name="campaign_gallery_file_{{ index }}" accept="image/*">
                             </div>
