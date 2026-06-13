@@ -249,8 +249,8 @@ class HopeBridgeTestCase(unittest.TestCase):
     def test_home_and_projects_sections(self):
         home = self.client.get("/")
         self.assertIn(b"Completed Projects", home.data)
-        self.assertNotIn(b"Our Impact So Far", home.data)
-        self.assertIn(b"Patients Helped", home.data)
+        self.assertIn(b"Our Impact", home.data)
+        self.assertIn(b"Lives Supported", home.data)
         self.assertIn(b"% Funded", home.data)
         self.assertIn(b"Testimonials", home.data)
         self.assertIn(b"WHO", home.data)

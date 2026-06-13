@@ -99,11 +99,8 @@ class Campaign(db.Model):
     location = db.Column(db.String(160), nullable=False)
     goal = db.Column(db.Integer, nullable=False)
     image = db.Column(db.String(500), nullable=False)
-    images = db.Column(db.Text, nullable=True)
     summary = db.Column(db.Text, nullable=False)
     story = db.Column(db.Text, nullable=False)
-    recent_update = db.Column(db.Text, nullable=True)
-    days_remaining_label = db.Column(db.String(80), nullable=True)
     verified = db.Column(db.Boolean, default=False)
     completed = db.Column(db.Boolean, default=False)
     sort_order = db.Column(db.Integer, default=0)
@@ -155,11 +152,6 @@ class CompletedProject(db.Model):
     summary = db.Column(db.Text, nullable=False)
     metrics = db.Column(db.Text, nullable=True)
     image = db.Column(db.String(500), nullable=False)
-    images = db.Column(db.Text, nullable=True)
-    completion_label = db.Column(db.String(80), nullable=True)
-    badge_label = db.Column(db.String(80), nullable=True)
-    badge_icon = db.Column(db.String(80), nullable=True)
-    badge_class = db.Column(db.String(80), nullable=True)
     published = db.Column(db.Boolean, default=True)
     sort_order = db.Column(db.Integer, default=0)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -628,7 +620,6 @@ DEFAULT_SETTINGS = {
     "bank_account_name": BANK_ACCOUNT["account_name"],
     "bank_account_number": BANK_ACCOUNT["account_number"],
     "impact_summary_json": "",
-    "home_stats_json": "",
     "trust_summary_json": "",
     "project_metrics_json": "",
     "project_countries_json": "",
@@ -1029,13 +1020,6 @@ IMPACT_SUMMARY = [
     {"icon": "bi-people", "value": "4,800+", "label": "Donors And Partners"},
 ]
 
-HOME_STATS = [
-    {"icon": "bi-person-hearts", "value": "1,250+", "label": "Patients Helped"},
-    {"icon": "bi-people", "value": "250+", "label": "Active Campaigns"},
-    {"icon": "bi-heart", "value": "18,750+", "label": "Donors Worldwide"},
-    {"icon": "bi-piggy-bank", "value": "$2.5M+", "label": "Raised for Treatment"},
-]
-
 TRUST_SUMMARY = [
     {"icon": "bi-patch-check", "title": "Registered oversight", "text": "NGO Registration: HB-NGO-2026-014"},
     {"icon": "bi-geo-alt", "title": "Operations desk", "text": "Lagos, Nigeria with international relief coordination"},
@@ -1071,69 +1055,9 @@ PROJECT_METRIC_SETS = [
 
 
 def campaign_days_remaining(campaign):
-    custom_label = (getattr(campaign, "days_remaining_label", None) or "").strip()
-    if custom_label:
-        return custom_label
     created_at = getattr(campaign, "created_at", None) or datetime.utcnow()
     elapsed = max(0, (datetime.utcnow() - created_at).days)
-    return f"{max(1, 30 - (elapsed % 30))} days remaining"
-
-
-def decode_image_list(raw_images, fallback_image=None):
-    images = []
-    if raw_images:
-        try:
-            values = json.loads(raw_images)
-        except (TypeError, ValueError):
-            values = [line.strip() for line in str(raw_images).splitlines()]
-        if isinstance(values, list):
-            images = [str(value).strip() for value in values if str(value).strip()]
-    if fallback_image and fallback_image not in images:
-        images.insert(0, fallback_image)
-    return images[:5]
-
-
-def encode_image_list(values, fallback_image=None):
-    cleaned = []
-    for value in values:
-        value = (value or "").strip()
-        if value and value not in cleaned:
-            cleaned.append(value)
-    if fallback_image and fallback_image not in cleaned:
-        cleaned.insert(0, fallback_image)
-    return json.dumps(cleaned[:5]) if cleaned else None
-
-
-def campaign_gallery(campaign):
-    return decode_image_list(getattr(campaign, "images", None), getattr(campaign, "image", None))
-
-
-def project_gallery(project):
-    return decode_image_list(getattr(project, "images", None), getattr(project, "image", None))
-
-
-def collect_gallery_images(form, files, field_prefix, current_images=None):
-    images = []
-    current_images = current_images or []
-    has_gallery_fields = any(f"{field_prefix}_{index}" in form or files.get(f"{field_prefix}_file_{index}") for index in range(5))
-    if not has_gallery_fields:
-        return current_images[:5]
-    for index in range(5):
-        uploaded_image = save_upload(files.get(f"{field_prefix}_file_{index}"))
-        if uploaded_image:
-            images.append(url_for("static", filename=f"uploads/{uploaded_image}"))
-            continue
-        form_value = form.get(f"{field_prefix}_{index}", "").strip()
-        if form_value:
-            images.append(form_value)
-    return images[:5]
-
-
-def campaign_recent_update(campaign):
-    update = (getattr(campaign, "recent_update", None) or "").strip()
-    if update:
-        return update
-    return "Donor update: this campaign is active and still receiving support. Contributions are being tracked for care costs, transport, medication, nutrition, and family support as the case progresses."
+    return max(1, 30 - (elapsed % 30))
 
 
 def parse_editable_json_setting(key, fallback):
@@ -1149,10 +1073,6 @@ def parse_editable_json_setting(key, fallback):
 
 def get_impact_summary():
     return parse_editable_json_setting("impact_summary_json", IMPACT_SUMMARY)
-
-
-def get_home_stats():
-    return parse_editable_json_setting("home_stats_json", HOME_STATS)
 
 
 def get_trust_summary():
@@ -1179,20 +1099,12 @@ def get_project_metric_sets():
 
 def editable_content_settings():
     return {
-        "home_stats": get_home_stats(),
         "impact_summary": get_impact_summary(),
         "trust_summary": get_trust_summary(),
     }
 
 
 def save_editable_content_settings(form):
-    home_stat_items = []
-    for index, default in enumerate(HOME_STATS):
-        home_stat_items.append({
-            "icon": form.get(f"home_stat_icon_{index}", default["icon"]).strip() or default["icon"],
-            "value": form.get(f"home_stat_value_{index}", default["value"]).strip() or default["value"],
-            "label": form.get(f"home_stat_label_{index}", default["label"]).strip() or default["label"],
-        })
     impact_items = []
     for index, default in enumerate(IMPACT_SUMMARY):
         impact_items.append({
@@ -1207,7 +1119,6 @@ def save_editable_content_settings(form):
             "title": form.get(f"trust_title_{index}", default["title"]).strip() or default["title"],
             "text": form.get(f"trust_text_{index}", default["text"]).strip() or default["text"],
         })
-    set_setting("home_stats_json", json.dumps(home_stat_items))
     set_setting("impact_summary_json", json.dumps(impact_items))
     set_setting("trust_summary_json", json.dumps(trust_items))
 
@@ -1253,18 +1164,12 @@ def project_impact(index, project=None):
     if project is not None:
         country = (getattr(project, "country", None) or country).strip()
         metrics = normalize_metric_lines(getattr(project, "metrics", None), fallback_metrics)
-        badge = (getattr(project, "badge_label", None) or badge).strip()
-        icon = (getattr(project, "badge_icon", None) or icon).strip()
-        badge_class = (getattr(project, "badge_class", None) or badge_class).strip()
-        date = (getattr(project, "completion_label", None) or PROJECT_DATES[index % len(PROJECT_DATES)]).strip()
-    else:
-        date = PROJECT_DATES[index % len(PROJECT_DATES)]
     return {
         "badge": badge,
         "icon": icon,
         "badge_class": badge_class,
         "country": country,
-        "date": date,
+        "date": PROJECT_DATES[index % len(PROJECT_DATES)],
         "metrics": metrics,
     }
 
@@ -1284,13 +1189,9 @@ def inject_template_globals():
         "site_settings": get_settings(),
         "support_chat_history": get_support_chat_history(),
         "impact_summary": get_impact_summary(),
-        "home_stats": get_home_stats(),
         "trust_summary": get_trust_summary(),
         "project_impact": project_impact,
         "campaign_days_remaining": campaign_days_remaining,
-        "campaign_recent_update": campaign_recent_update,
-        "campaign_gallery": campaign_gallery,
-        "project_gallery": project_gallery,
     }
 
 
@@ -1572,25 +1473,13 @@ def ensure_schema():
             db.session.execute(text(f'ALTER TABLE "user" ADD COLUMN {name} {definition}'))
     if "campaign" in table_names:
         campaign_columns = {column["name"] for column in inspector.get_columns("campaign")}
-        campaign_additions = {
-            "sort_order": "INTEGER DEFAULT 0",
-            "images": "TEXT",
-            "recent_update": "TEXT",
-            "days_remaining_label": "VARCHAR(80)",
-        }
-        for name, definition in campaign_additions.items():
-            if name not in campaign_columns:
-                db.session.execute(text(f"ALTER TABLE campaign ADD COLUMN {name} {definition}"))
+        if "sort_order" not in campaign_columns:
+            db.session.execute(text("ALTER TABLE campaign ADD COLUMN sort_order INTEGER DEFAULT 0"))
     if "completed_project" in table_names:
         project_columns = {column["name"] for column in inspector.get_columns("completed_project")}
         project_additions = {
             "country": "VARCHAR(120)",
             "metrics": "TEXT",
-            "images": "TEXT",
-            "completion_label": "VARCHAR(80)",
-            "badge_label": "VARCHAR(80)",
-            "badge_icon": "VARCHAR(80)",
-            "badge_class": "VARCHAR(80)",
         }
         for name, definition in project_additions.items():
             if name not in project_columns:
@@ -1697,11 +1586,8 @@ def create_campaign():
             location=request.form.get("location", "").strip(),
             goal=goal,
             image=image_url,
-            images=encode_image_list([image_url]),
             summary=request.form.get("summary", "").strip(),
             story=request.form.get("story", "").strip(),
-            recent_update=request.form.get("recent_update", "").strip(),
-            days_remaining_label=request.form.get("days_remaining_label", "").strip(),
             owner_id=current_user.id,
             verified=False,
             sort_order=(Campaign.query.count() + 100),
@@ -1722,17 +1608,7 @@ def campaign_detail(campaign_id):
     if campaign is None:
         return redirect(url_for("campaign_list"))
     donations = Donation.query.filter_by(campaign_id=campaign.id).order_by(Donation.created_at.desc()).limit(6).all()
-    donor_count = Donation.query.filter(
-        Donation.campaign_id == campaign.id,
-        Donation.status.in_(("pending", "confirmed")),
-    ).count()
-    return render_template(
-        "campaign_detail.html",
-        campaign=campaign,
-        donations=donations,
-        donor_count=donor_count,
-        share_url=external_url_for("campaign_detail", campaign_id=campaign.id),
-    )
+    return render_template("campaign_detail.html", campaign=campaign, donations=donations, share_url=external_url_for("campaign_detail", campaign_id=campaign.id))
 
 
 @app.route("/campaign/<int:campaign_id>/donate", methods=["GET", "POST"])
@@ -2185,8 +2061,6 @@ def admin_edit_campaign(campaign_id):
     if request.method == "POST":
         goal = int(request.form.get("goal", campaign.goal) or campaign.goal)
         uploaded_image = save_upload(request.files.get("campaign_image"))
-        current_gallery = campaign_gallery(campaign)
-        gallery_images = collect_gallery_images(request.form, request.files, "campaign_gallery", current_gallery)
         campaign.title = request.form.get("title", "").strip() or campaign.title
         campaign.patient = request.form.get("patient", "").strip() or campaign.patient
         campaign.category = request.form.get("category", "").strip() or campaign.category
@@ -2196,14 +2070,7 @@ def admin_edit_campaign(campaign_id):
         campaign.sort_order = int(request.form.get("sort_order", campaign.sort_order or 0) or 0)
         campaign.summary = request.form.get("summary", "").strip() or campaign.summary
         campaign.story = request.form.get("story", "").strip() or campaign.story
-        campaign.recent_update = request.form.get("recent_update", "").strip()
-        campaign.days_remaining_label = request.form.get("days_remaining_label", "").strip()
-        campaign.image = (
-            url_for("static", filename=f"uploads/{uploaded_image}")
-            if uploaded_image
-            else (gallery_images[0] if gallery_images else request.form.get("image", "").strip() or campaign.image)
-        )
-        campaign.images = encode_image_list(gallery_images, campaign.image)
+        campaign.image = url_for("static", filename=f"uploads/{uploaded_image}") if uploaded_image else request.form.get("image", "").strip() or campaign.image
         campaign.verified = request.form.get("verified") == "on"
         campaign.completed = request.form.get("completed") == "on"
         db.session.commit()
@@ -2262,22 +2129,11 @@ def admin_project_form(project_id=None):
         abort(404)
     if request.method == "POST":
         uploaded_image = save_upload(request.files.get("image_file"))
-        current_gallery = project_gallery(project)
-        gallery_images = collect_gallery_images(request.form, request.files, "project_gallery", current_gallery)
         project.title = request.form.get("title", "").strip()
         project.country = request.form.get("country", "").strip()
         project.amount = request.form.get("amount", "").strip()
         project.summary = request.form.get("summary", "").strip()
-        project.image = (
-            url_for("static", filename=f"uploads/{uploaded_image}")
-            if uploaded_image
-            else (gallery_images[0] if gallery_images else request.form.get("image", "").strip() or project.image)
-        )
-        project.images = encode_image_list(gallery_images, project.image)
-        project.completion_label = request.form.get("completion_label", "").strip()
-        project.badge_label = request.form.get("badge_label", "").strip()
-        project.badge_icon = request.form.get("badge_icon", "").strip()
-        project.badge_class = request.form.get("badge_class", "").strip()
+        project.image = url_for("static", filename=f"uploads/{uploaded_image}") if uploaded_image else request.form.get("image", "").strip() or project.image
         project.published = request.form.get("published") == "on"
         project.sort_order = int(request.form.get("sort_order", "0") or 0)
         fallback_metrics = PROJECT_METRIC_SETS[project.sort_order % len(PROJECT_METRIC_SETS)]

@@ -72,13 +72,11 @@ document.querySelectorAll("[data-copy-target]").forEach((button) => {
 document.querySelectorAll("[data-share-url]").forEach((button) => {
   button.addEventListener("click", async () => {
     const url = button.dataset.shareUrl;
-    const target = button.dataset.shareTarget ? document.querySelector(button.dataset.shareTarget) : null;
-    const text = target?.textContent?.trim() || "";
     if (navigator.share) {
-      await navigator.share({ title: "HopeBridge", text, url });
+      await navigator.share({ title: "HopeBridge", url });
     } else {
-      await navigator.clipboard.writeText(text || url);
-      showToast("Campaign message copied.");
+      await navigator.clipboard.writeText(url);
+      showToast("Share link copied.");
     }
   });
 });

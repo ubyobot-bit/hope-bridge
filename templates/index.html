@@ -29,8 +29,15 @@
             </div>
         </div>
         <div class="stats-ribbon">
-            {% for item in home_stats %}
-            <div>
+            <div><i class="bi bi-person-hearts"></i><strong>1,250+</strong><span>Patients Helped</span></div>
+            <div><i class="bi bi-people"></i><strong>250+</strong><span>Active Campaigns</span></div>
+            <div><i class="bi bi-heart"></i><strong>18,750+</strong><span>Donors Worldwide</span></div>
+            <div><i class="bi bi-piggy-bank"></i><strong>$2.5M+</strong><span>Raised for Treatment</span></div>
+        </div>
+        <div class="impact-kicker mt-4">Our Impact So Far</div>
+        <div class="impact-overview mt-3" aria-label="HopeBridge impact summary">
+            {% for item in impact_summary %}
+            <div class="impact-stat">
                 <i class="bi {{ item.icon }}"></i>
                 <strong>{{ item.value }}</strong>
                 <span>{{ item.label }}</span>
@@ -71,25 +78,10 @@
         <div class="row g-4">
             {% for project in completed_projects %}
             {% set impact = project_impact(loop.index0, project) %}
-            {% set gallery = project_gallery(project) %}
             <div class="col-sm-6 col-lg-4">
                 <article class="project-card project-card-pro h-100" id="project-{{ loop.index }}">
                     <div class="project-thumb">
-                        {% if gallery|length > 1 %}
-                        <div id="homeProjectGallery{{ project.id }}" class="carousel slide card-carousel">
-                            <div class="carousel-inner">
-                                {% for image in gallery %}
-                                <div class="carousel-item {% if loop.first %}active{% endif %}">
-                                    <img src="{{ image }}" alt="{{ project.title }} photo {{ loop.index }}">
-                                </div>
-                                {% endfor %}
-                            </div>
-                            <button class="carousel-control-prev" type="button" data-bs-target="#homeProjectGallery{{ project.id }}" data-bs-slide="prev" aria-label="Previous photo"><span class="carousel-control-prev-icon" aria-hidden="true"></span></button>
-                            <button class="carousel-control-next" type="button" data-bs-target="#homeProjectGallery{{ project.id }}" data-bs-slide="next" aria-label="Next photo"><span class="carousel-control-next-icon" aria-hidden="true"></span></button>
-                        </div>
-                        {% else %}
                         <img src="{{ project.image }}" alt="{{ project.title }}">
-                        {% endif %}
                         <span class="project-badge {{ impact.badge_class }}"><i class="bi {{ impact.icon }}"></i>{{ impact.badge }}</span>
                     </div>
                     <div class="project-body">

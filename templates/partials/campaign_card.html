@@ -1,22 +1,7 @@
 {% set percent = campaign.progress %}
-{% set gallery = campaign_gallery(campaign) %}
 <article class="campaign-card">
     <div class="campaign-image">
-        {% if gallery|length > 1 %}
-        <div id="campaignCardGallery{{ campaign.id }}" class="carousel slide card-carousel">
-            <div class="carousel-inner">
-                {% for image in gallery %}
-                <div class="carousel-item {% if loop.first %}active{% endif %}">
-                    <img src="{{ image }}" alt="{{ campaign.title }} photo {{ loop.index }}">
-                </div>
-                {% endfor %}
-            </div>
-            <button class="carousel-control-prev" type="button" data-bs-target="#campaignCardGallery{{ campaign.id }}" data-bs-slide="prev" aria-label="Previous photo"><span class="carousel-control-prev-icon" aria-hidden="true"></span></button>
-            <button class="carousel-control-next" type="button" data-bs-target="#campaignCardGallery{{ campaign.id }}" data-bs-slide="next" aria-label="Next photo"><span class="carousel-control-next-icon" aria-hidden="true"></span></button>
-        </div>
-        {% else %}
         <img src="{{ campaign.image }}" alt="{{ campaign.title }}">
-        {% endif %}
         <span>{{ campaign.category }}</span>
     </div>
     <div class="campaign-body">
@@ -25,7 +10,7 @@
         <div class="campaign-urgency">
             <div>
                 <strong>{{ percent }}% Funded</strong>
-                <span>{{ campaign_days_remaining(campaign) }}</span>
+                <span>{{ campaign_days_remaining(campaign) }} days remaining</span>
             </div>
             <small>{{ campaign.raised | money }} raised of {{ campaign.goal | money }} goal</small>
         </div>
