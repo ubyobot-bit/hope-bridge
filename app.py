@@ -99,8 +99,11 @@ class Campaign(db.Model):
     location = db.Column(db.String(160), nullable=False)
     goal = db.Column(db.Integer, nullable=False)
     image = db.Column(db.String(500), nullable=False)
+    images = db.Column(db.Text, nullable=True)
     summary = db.Column(db.Text, nullable=False)
     story = db.Column(db.Text, nullable=False)
+    recent_update = db.Column(db.Text, nullable=True)
+    days_remaining_label = db.Column(db.String(80), nullable=True)
     verified = db.Column(db.Boolean, default=False)
     completed = db.Column(db.Boolean, default=False)
     sort_order = db.Column(db.Integer, default=0)
@@ -152,6 +155,11 @@ class CompletedProject(db.Model):
     summary = db.Column(db.Text, nullable=False)
     metrics = db.Column(db.Text, nullable=True)
     image = db.Column(db.String(500), nullable=False)
+    images = db.Column(db.Text, nullable=True)
+    completion_label = db.Column(db.String(80), nullable=True)
+    badge_label = db.Column(db.String(80), nullable=True)
+    badge_icon = db.Column(db.String(80), nullable=True)
+    badge_class = db.Column(db.String(80), nullable=True)
     published = db.Column(db.Boolean, default=True)
     sort_order = db.Column(db.Integer, default=0)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -262,6 +270,151 @@ BANK_ACCOUNT = {
     "account_name": "HopeBridge Donations",
     "account_number": "0123456789",
 }
+
+CAMPAIGN_GALLERIES = {
+    "Gaza Emergency Medical Aid": [
+        "/static/images/hopebridge/gaza-family-shelter.jpg",
+        "/static/images/aid/gaza-family.jpg",
+        "/static/images/aid/gaza-children-1.jpg",
+        "/static/images/aid/gaza-shelter.jpg",
+        "/static/images/hopebridge/gaza-smoke-skyline.jpg",
+    ],
+    "Cancer Treatment for Grace": [
+        "/static/images/hopebridge/child-cancer-care.jpg",
+        "/static/images/hopebridge/breast-cancer-usa.jpg",
+        "/static/images/hopebridge/erin-salinas.jpg",
+        "/static/images/hopebridge/chloe.jpg",
+        "/static/images/hopebridge/maria-kenya.jpg",
+    ],
+    "Urgent Surgery Support for Musa": [
+        "/static/images/aid/surgery-operation.jpg",
+        "/static/images/hopebridge/musa-naija.jpg",
+        "/static/images/aid/surgery-emergency-1.jpg",
+        "/static/images/aid/surgery-emergency-2.jpg",
+        "/static/images/aid/clinical-surgery.jpg",
+    ],
+    "Kidney Transplant Bridge for Daniel": [
+        "/static/images/hopebridge/hospital-iv-patient.jpg",
+        "/static/images/hopebridge/kidney-transplant-usa.jpg",
+        "/static/images/hopebridge/kidney-transplant-france.jpg",
+        "/static/images/hopebridge/heart-nepal.jpg",
+        "/static/images/aid/qrt-dialysis-access.jpg",
+    ],
+    "Safe Housing for Displaced Children": [
+        "/static/images/hopebridge/relief-camp-tents.jpg",
+        "/static/images/aid/shelter-hosuing-gaza.jpg",
+        "/static/images/aid/emergency-housing-ukraine.jpg",
+        "/static/images/hopebridge/displaced-family-tent.jpg",
+        "/static/images/hopebridge/mother-baby-shelter.jpg",
+    ],
+    "Transport to Treatment Fund": [
+        "/static/images/aid/ambulance-rescue.jpg",
+        "/static/images/aid/ambulance-service.jpeg",
+        "/static/images/hopebridge/patient-portrait-hope.jpg",
+        "/static/images/hopebridge/community-support-10.jpg",
+        "/static/images/aid/healthcare-relief.jpg",
+    ],
+    "Disaster Relief Medical Kits": [
+        "/static/images/hopebridge/humanitarian-aid-trucks.jpg",
+        "/static/images/aid/flood-emergen.jpg",
+        "/static/images/aid/flood-victim.jpeg",
+        "/static/images/hopebridge/rubble-search-frame.jpg",
+        "/static/images/aid/trauma-recovery.jpg",
+    ],
+    "Feeding Aid for Recovery Families": [
+        "/static/images/hopebridge/food-queue-pots.jpg",
+        "/static/images/aid/child-feeding-sudan.jpg",
+        "/static/images/hopebridge/children-sharing-meal.jpg",
+        "/static/images/aid/gaza-food.jpg",
+        "/static/images/hopebridge/child-grapes.jpg",
+    ],
+    "Dental Surgery for Little Samuel": [
+        "/static/images/aid/dental-child.jpg",
+        "/static/images/aid/dental-care.jpg",
+        "/static/images/aid/dental-xray.jpg",
+    ],
+    "Mobility Support for Aisha": [
+        "/static/images/aid/disability-support.jpg",
+        "/static/images/aid/mobility-equipment.jpeg",
+        "/static/images/hopebridge/community-support-10.jpg",
+    ],
+    "Child Vaccination Outreach": [
+        "/static/images/aid/child-vaccine.jpg",
+        "/static/images/aid/child-fund-mali.jpg",
+        "/static/images/aid/child-fund-samailia.jpeg",
+        "/static/images/hopebridge/two-children-camp.jpg",
+    ],
+    "Emergency Ambulance Rescue Fund": [
+        "/static/images/hopebridge/crisis-street-smoke.jpg",
+        "/static/images/aid/ambulance-service.jpeg",
+        "/static/images/aid/healthcare-relief.jpg",
+        "/static/images/aid/burn-care.jpg",
+    ],
+    "Gaza Child Nutrition Relief": [
+        "/static/images/hopebridge/crying-child-cup.jpg",
+        "/static/images/aid/gaza-food.jpg",
+        "/static/images/aid/gaza-boy.jpg",
+        "/static/images/aid/gaza-children-2.jpg",
+    ],
+    "Dialysis Access for Chinedu": [
+        "/static/images/aid/hospital-bed.jpg",
+        "/static/images/aid/qrt-dialysis-access.jpg",
+        "/static/images/hopebridge/kidney-transplant-usa.jpg",
+    ],
+    "Maternal Surgery Aid for Esther": [
+        "/static/images/aid/clinical-surgery.jpg",
+        "/static/images/aid/esther-maternal-surgery-aid.jpeg",
+        "/static/images/hopebridge/mother-baby-shelter.jpg",
+    ],
+    "Hospital Bed Recovery Support": [
+        "/static/images/hopebridge/nurse-hand-care.jpg",
+        "/static/images/aid/recovery-bed.jpg",
+        "/static/images/hopebridge/recovery-appeal-sudan.jpg",
+    ],
+    "War-Affected Elder Care": [
+        "/static/images/aid/gaza-elder.jpg",
+        "/static/images/aid/war-affected-elder-care.jpg",
+        "/static/images/hopebridge/war-cloud-children.jpg",
+    ],
+    "Pediatric Surgery for Mariam": [
+        "/static/images/aid/operating-room.jpg",
+        "/static/images/aid/pediatric-surgery-fund.jpg",
+        "/static/images/hopebridge/child-heart-india.jpg",
+    ],
+    "Clinic Supplies for Disaster Response": [
+        "/static/images/hopebridge/rubble-search-frame.jpg",
+        "/static/images/aid/healthcare-relief.jpg",
+        "/static/images/aid/trauma-recovery.jpg",
+    ],
+    "Safe Transport for Cancer Patients": [
+        "/static/images/hopebridge/patient-portrait-hope.jpg",
+        "/static/images/aid/ambulance-service.jpeg",
+        "/static/images/hopebridge/erin-salinas.jpg",
+    ],
+}
+
+PROJECT_GALLERY_PHOTOS = [
+    "/static/images/hopebridge/gaza-family-clinic-relief.jpg",
+    "/static/images/hopebridge/relief-fund-syria.jpg",
+    "/static/images/hopebridge/yemen-food-relief.jpg",
+    "/static/images/hopebridge/second-chance-lebanon.jpg",
+    "/static/images/aid/ukraine-help.jpg",
+    "/static/images/aid/ukraine-child-fund.jpg",
+    "/static/images/aid/safe-home-turkiye.jpg",
+    "/static/images/aid/shelter-hosuing-gaza.jpg",
+    "/static/images/aid/child-feeding-sudan.jpg",
+    "/static/images/aid/child-fund-mali.jpg",
+    "/static/images/aid/child-fund-samailia.jpeg",
+    "/static/images/aid/community-scholar.jpg",
+    "/static/images/aid/education-for-all.jpg",
+    "/static/images/aid/stem-scholars.jpg",
+    "/static/images/aid/teaching-in-africa.jpg",
+    "/static/images/aid/empowering-women-in-india.jpg",
+    "/static/images/aid/skills-for-women.jpg",
+    "/static/images/aid/vocational.jpg",
+    "/static/images/hopebridge/scholarship.jpg",
+    "/static/images/hopebridge/women-dev.jpg",
+]
 
 SEED_CAMPAIGNS = [
     {
@@ -391,7 +544,7 @@ SEED_CAMPAIGNS = [
         "organizer": "HopeBridge Clinic Partners",
         "location": "Kwara, Nigeria",
         "goal": 20500,
-        "image": "/static/images/aid/child-injection.jpg",
+        "image": "/static/images/aid/child-vaccine.jpg",
         "summary": "Vaccination transport, clinic supplies, and follow-up for children in underserved communities.",
         "story": "This campaign helps clinic partners reach children whose families cannot afford transport or clinic-related costs for essential preventive care.",
         "verified": True,
@@ -619,6 +772,7 @@ DEFAULT_SETTINGS = {
     "bank_name": BANK_ACCOUNT["bank_name"],
     "bank_account_name": BANK_ACCOUNT["account_name"],
     "bank_account_number": BANK_ACCOUNT["account_number"],
+    "home_stats_json": "",
     "impact_summary_json": "",
     "trust_summary_json": "",
     "project_metrics_json": "",
@@ -1020,6 +1174,13 @@ IMPACT_SUMMARY = [
     {"icon": "bi-people", "value": "4,800+", "label": "Donors And Partners"},
 ]
 
+HOME_STATS = [
+    {"icon": "bi-person-hearts", "value": "1,250+", "label": "Patients Helped"},
+    {"icon": "bi-people", "value": "250+", "label": "Active Campaigns"},
+    {"icon": "bi-heart", "value": "18,750+", "label": "Donors Worldwide"},
+    {"icon": "bi-piggy-bank", "value": "$2.5M+", "label": "Raised for Treatment"},
+]
+
 TRUST_SUMMARY = [
     {"icon": "bi-patch-check", "title": "Registered oversight", "text": "NGO Registration: HB-NGO-2026-014"},
     {"icon": "bi-geo-alt", "title": "Operations desk", "text": "Lagos, Nigeria with international relief coordination"},
@@ -1055,9 +1216,93 @@ PROJECT_METRIC_SETS = [
 
 
 def campaign_days_remaining(campaign):
+    custom_label = (getattr(campaign, "days_remaining_label", None) or "").strip()
+    if custom_label:
+        return custom_label
     created_at = getattr(campaign, "created_at", None) or datetime.utcnow()
     elapsed = max(0, (datetime.utcnow() - created_at).days)
-    return max(1, 30 - (elapsed % 30))
+    return f"{max(1, 30 - (elapsed % 30))} days remaining"
+
+
+def campaign_days_parts(campaign):
+    label = campaign_days_remaining(campaign)
+    first, _, rest = label.partition(" ")
+    return first, rest or "Days Left"
+
+
+def decode_image_list(raw_images, fallback_image=None):
+    images = []
+    if raw_images:
+        try:
+            values = json.loads(raw_images)
+        except (TypeError, ValueError):
+            values = [line.strip() for line in str(raw_images).splitlines()]
+        if isinstance(values, list):
+            images = [str(value).strip() for value in values if str(value).strip()]
+    if fallback_image and fallback_image not in images:
+        images.insert(0, fallback_image)
+    return images[:5]
+
+
+def encode_image_list(values, fallback_image=None):
+    images = []
+    for value in values:
+        value = (value or "").strip()
+        if value and value not in images:
+            images.append(value)
+    if fallback_image and fallback_image not in images:
+        images.insert(0, fallback_image)
+    return json.dumps(images[:5]) if images else None
+
+
+def collect_gallery_images(form, files, field_prefix, current_images=None):
+    current_images = current_images or []
+    has_gallery_fields = any(
+        f"{field_prefix}_{index}" in form or files.get(f"{field_prefix}_file_{index}")
+        for index in range(5)
+    )
+    if not has_gallery_fields:
+        return current_images[:5]
+    images = []
+    for index in range(5):
+        uploaded_image = save_upload(files.get(f"{field_prefix}_file_{index}"))
+        if uploaded_image:
+            images.append(url_for("static", filename=f"uploads/{uploaded_image}"))
+            continue
+        image_url = form.get(f"{field_prefix}_{index}", "").strip()
+        if image_url:
+            images.append(image_url)
+    return images[:5]
+
+
+def campaign_default_gallery(campaign_or_title, image=None):
+    title = campaign_or_title if isinstance(campaign_or_title, str) else getattr(campaign_or_title, "title", "")
+    fallback_image = image if isinstance(campaign_or_title, str) else getattr(campaign_or_title, "image", image)
+    return decode_image_list(json.dumps(CAMPAIGN_GALLERIES.get(title, [])), fallback_image)
+
+
+def campaign_gallery(campaign):
+    return decode_image_list(getattr(campaign, "images", None), getattr(campaign, "image", None)) or campaign_default_gallery(campaign)
+
+
+def project_default_gallery(index, project=None):
+    start = (index * 3) % len(PROJECT_GALLERY_PHOTOS)
+    photos = [PROJECT_GALLERY_PHOTOS[(start + offset) % len(PROJECT_GALLERY_PHOTOS)] for offset in range(4)]
+    if project is not None and getattr(project, "image", None):
+        photos.insert(0, project.image)
+    return decode_image_list(json.dumps(photos), getattr(project, "image", None) if project is not None else None)
+
+
+def project_gallery(project):
+    index = getattr(project, "sort_order", 0) or 0
+    return decode_image_list(getattr(project, "images", None), getattr(project, "image", None)) or project_default_gallery(index, project)
+
+
+def campaign_recent_update(campaign):
+    update = (getattr(campaign, "recent_update", None) or "").strip()
+    if update:
+        return update
+    return "Donor update: this campaign is active and still receiving support. Contributions are being tracked for care costs, transport, medication, nutrition, and family support as the case progresses."
 
 
 def parse_editable_json_setting(key, fallback):
@@ -1073,6 +1318,10 @@ def parse_editable_json_setting(key, fallback):
 
 def get_impact_summary():
     return parse_editable_json_setting("impact_summary_json", IMPACT_SUMMARY)
+
+
+def get_home_stats():
+    return parse_editable_json_setting("home_stats_json", HOME_STATS)
 
 
 def get_trust_summary():
@@ -1099,12 +1348,20 @@ def get_project_metric_sets():
 
 def editable_content_settings():
     return {
+        "home_stats": get_home_stats(),
         "impact_summary": get_impact_summary(),
         "trust_summary": get_trust_summary(),
     }
 
 
 def save_editable_content_settings(form):
+    home_stat_items = []
+    for index, default in enumerate(HOME_STATS):
+        home_stat_items.append({
+            "icon": form.get(f"home_stat_icon_{index}", default["icon"]).strip() or default["icon"],
+            "value": form.get(f"home_stat_value_{index}", default["value"]).strip() or default["value"],
+            "label": form.get(f"home_stat_label_{index}", default["label"]).strip() or default["label"],
+        })
     impact_items = []
     for index, default in enumerate(IMPACT_SUMMARY):
         impact_items.append({
@@ -1119,6 +1376,7 @@ def save_editable_content_settings(form):
             "title": form.get(f"trust_title_{index}", default["title"]).strip() or default["title"],
             "text": form.get(f"trust_text_{index}", default["text"]).strip() or default["text"],
         })
+    set_setting("home_stats_json", json.dumps(home_stat_items))
     set_setting("impact_summary_json", json.dumps(impact_items))
     set_setting("trust_summary_json", json.dumps(trust_items))
 
@@ -1164,12 +1422,18 @@ def project_impact(index, project=None):
     if project is not None:
         country = (getattr(project, "country", None) or country).strip()
         metrics = normalize_metric_lines(getattr(project, "metrics", None), fallback_metrics)
+        badge = (getattr(project, "badge_label", None) or badge).strip()
+        icon = (getattr(project, "badge_icon", None) or icon).strip()
+        badge_class = (getattr(project, "badge_class", None) or badge_class).strip()
+        date = (getattr(project, "completion_label", None) or PROJECT_DATES[index % len(PROJECT_DATES)]).strip()
+    else:
+        date = PROJECT_DATES[index % len(PROJECT_DATES)]
     return {
         "badge": badge,
         "icon": icon,
         "badge_class": badge_class,
         "country": country,
-        "date": PROJECT_DATES[index % len(PROJECT_DATES)],
+        "date": date,
         "metrics": metrics,
     }
 
@@ -1188,10 +1452,15 @@ def inject_template_globals():
         "is_admin_context": is_admin_user(),
         "site_settings": get_settings(),
         "support_chat_history": get_support_chat_history(),
+        "home_stats": get_home_stats(),
         "impact_summary": get_impact_summary(),
         "trust_summary": get_trust_summary(),
         "project_impact": project_impact,
         "campaign_days_remaining": campaign_days_remaining,
+        "campaign_days_parts": campaign_days_parts,
+        "campaign_recent_update": campaign_recent_update,
+        "campaign_gallery": campaign_gallery,
+        "project_gallery": project_gallery,
     }
 
 
@@ -1357,12 +1626,23 @@ def seed_campaigns():
     for index, data in enumerate(SEED_CAMPAIGNS):
         payload = dict(data)
         payload["sort_order"] = index
+        payload["images"] = encode_image_list(CAMPAIGN_GALLERIES.get(data["title"], [data["image"]]), data["image"])
+        payload["recent_update"] = (
+            f"Recent update for donors: {data['summary']} Support is being tracked through HopeBridge so donors can follow progress, care needs, and confirmed funding activity."
+        )
+        payload["days_remaining_label"] = f"{max(1, 30 - (index % 18))} days remaining"
         existing = Campaign.query.filter_by(title=data["title"]).first()
         if existing is None:
             db.session.add(Campaign(**payload))
         else:
             for field in ("category", "patient", "organizer", "location", "goal", "image", "summary", "story", "verified"):
                 setattr(existing, field, data[field])
+            if not getattr(existing, "images", None):
+                existing.images = payload["images"]
+            if not getattr(existing, "recent_update", None):
+                existing.recent_update = payload["recent_update"]
+            if not getattr(existing, "days_remaining_label", None):
+                existing.days_remaining_label = payload["days_remaining_label"]
             if not existing.sort_order:
                 existing.sort_order = index
     db.session.commit()
@@ -1380,6 +1660,11 @@ def seed_site_content():
                     summary=data["summary"],
                     metrics=json.dumps(PROJECT_METRIC_SETS[index % len(PROJECT_METRIC_SETS)]),
                     image=data["image"],
+                    images=encode_image_list(project_default_gallery(index, type("ProjectSeed", (), {"image": data["image"]})())),
+                    completion_label=PROJECT_DATES[index % len(PROJECT_DATES)],
+                    badge_label=PROJECT_BADGES[index % len(PROJECT_BADGES)][0],
+                    badge_icon=PROJECT_BADGES[index % len(PROJECT_BADGES)][1],
+                    badge_class=PROJECT_BADGES[index % len(PROJECT_BADGES)][2],
                     sort_order=index,
                 )
             )
@@ -1391,6 +1676,16 @@ def seed_site_content():
                     project.country = PROJECT_COUNTRIES[index % len(PROJECT_COUNTRIES)]
                 if not project.metrics:
                     project.metrics = json.dumps(PROJECT_METRIC_SETS[index % len(PROJECT_METRIC_SETS)])
+                if not getattr(project, "images", None):
+                    project.images = encode_image_list(project_default_gallery(index, project), project.image)
+                if not getattr(project, "completion_label", None):
+                    project.completion_label = PROJECT_DATES[index % len(PROJECT_DATES)]
+                if not getattr(project, "badge_label", None):
+                    project.badge_label = PROJECT_BADGES[index % len(PROJECT_BADGES)][0]
+                if not getattr(project, "badge_icon", None):
+                    project.badge_icon = PROJECT_BADGES[index % len(PROJECT_BADGES)][1]
+                if not getattr(project, "badge_class", None):
+                    project.badge_class = PROJECT_BADGES[index % len(PROJECT_BADGES)][2]
             else:
                 db.session.add(
                     CompletedProject(
@@ -1398,6 +1693,11 @@ def seed_site_content():
                         amount=data["amount"],
                         summary=data["summary"],
                         image=data["image"],
+                        images=encode_image_list(project_default_gallery(index, type("ProjectSeed", (), {"image": data["image"]})())),
+                        completion_label=PROJECT_DATES[index % len(PROJECT_DATES)],
+                        badge_label=PROJECT_BADGES[index % len(PROJECT_BADGES)][0],
+                        badge_icon=PROJECT_BADGES[index % len(PROJECT_BADGES)][1],
+                        badge_class=PROJECT_BADGES[index % len(PROJECT_BADGES)][2],
                         sort_order=index,
                     )
                 )
@@ -1473,13 +1773,25 @@ def ensure_schema():
             db.session.execute(text(f'ALTER TABLE "user" ADD COLUMN {name} {definition}'))
     if "campaign" in table_names:
         campaign_columns = {column["name"] for column in inspector.get_columns("campaign")}
-        if "sort_order" not in campaign_columns:
-            db.session.execute(text("ALTER TABLE campaign ADD COLUMN sort_order INTEGER DEFAULT 0"))
+        campaign_additions = {
+            "sort_order": "INTEGER DEFAULT 0",
+            "images": "TEXT",
+            "recent_update": "TEXT",
+            "days_remaining_label": "VARCHAR(80)",
+        }
+        for name, definition in campaign_additions.items():
+            if name not in campaign_columns:
+                db.session.execute(text(f"ALTER TABLE campaign ADD COLUMN {name} {definition}"))
     if "completed_project" in table_names:
         project_columns = {column["name"] for column in inspector.get_columns("completed_project")}
         project_additions = {
             "country": "VARCHAR(120)",
             "metrics": "TEXT",
+            "images": "TEXT",
+            "completion_label": "VARCHAR(80)",
+            "badge_label": "VARCHAR(80)",
+            "badge_icon": "VARCHAR(80)",
+            "badge_class": "VARCHAR(80)",
         }
         for name, definition in project_additions.items():
             if name not in project_columns:
@@ -1586,8 +1898,11 @@ def create_campaign():
             location=request.form.get("location", "").strip(),
             goal=goal,
             image=image_url,
+            images=encode_image_list([image_url]),
             summary=request.form.get("summary", "").strip(),
             story=request.form.get("story", "").strip(),
+            recent_update=request.form.get("recent_update", "").strip(),
+            days_remaining_label=request.form.get("days_remaining_label", "").strip(),
             owner_id=current_user.id,
             verified=False,
             sort_order=(Campaign.query.count() + 100),
@@ -1608,7 +1923,17 @@ def campaign_detail(campaign_id):
     if campaign is None:
         return redirect(url_for("campaign_list"))
     donations = Donation.query.filter_by(campaign_id=campaign.id).order_by(Donation.created_at.desc()).limit(6).all()
-    return render_template("campaign_detail.html", campaign=campaign, donations=donations, share_url=external_url_for("campaign_detail", campaign_id=campaign.id))
+    donor_count = Donation.query.filter(
+        Donation.campaign_id == campaign.id,
+        Donation.status.in_(("pending", "confirmed")),
+    ).count()
+    return render_template(
+        "campaign_detail.html",
+        campaign=campaign,
+        donations=donations,
+        donor_count=donor_count,
+        share_url=external_url_for("campaign_detail", campaign_id=campaign.id),
+    )
 
 
 @app.route("/campaign/<int:campaign_id>/donate", methods=["GET", "POST"])
@@ -2061,6 +2386,8 @@ def admin_edit_campaign(campaign_id):
     if request.method == "POST":
         goal = int(request.form.get("goal", campaign.goal) or campaign.goal)
         uploaded_image = save_upload(request.files.get("campaign_image"))
+        current_gallery = campaign_gallery(campaign)
+        gallery_images = collect_gallery_images(request.form, request.files, "campaign_gallery", current_gallery)
         campaign.title = request.form.get("title", "").strip() or campaign.title
         campaign.patient = request.form.get("patient", "").strip() or campaign.patient
         campaign.category = request.form.get("category", "").strip() or campaign.category
@@ -2070,7 +2397,14 @@ def admin_edit_campaign(campaign_id):
         campaign.sort_order = int(request.form.get("sort_order", campaign.sort_order or 0) or 0)
         campaign.summary = request.form.get("summary", "").strip() or campaign.summary
         campaign.story = request.form.get("story", "").strip() or campaign.story
-        campaign.image = url_for("static", filename=f"uploads/{uploaded_image}") if uploaded_image else request.form.get("image", "").strip() or campaign.image
+        campaign.recent_update = request.form.get("recent_update", "").strip()
+        campaign.days_remaining_label = request.form.get("days_remaining_label", "").strip()
+        campaign.image = (
+            url_for("static", filename=f"uploads/{uploaded_image}")
+            if uploaded_image
+            else (gallery_images[0] if gallery_images else request.form.get("image", "").strip() or campaign.image)
+        )
+        campaign.images = encode_image_list(gallery_images, campaign.image)
         campaign.verified = request.form.get("verified") == "on"
         campaign.completed = request.form.get("completed") == "on"
         db.session.commit()
@@ -2129,11 +2463,22 @@ def admin_project_form(project_id=None):
         abort(404)
     if request.method == "POST":
         uploaded_image = save_upload(request.files.get("image_file"))
+        current_gallery = project_gallery(project)
+        gallery_images = collect_gallery_images(request.form, request.files, "project_gallery", current_gallery)
         project.title = request.form.get("title", "").strip()
         project.country = request.form.get("country", "").strip()
         project.amount = request.form.get("amount", "").strip()
         project.summary = request.form.get("summary", "").strip()
-        project.image = url_for("static", filename=f"uploads/{uploaded_image}") if uploaded_image else request.form.get("image", "").strip() or project.image
+        project.image = (
+            url_for("static", filename=f"uploads/{uploaded_image}")
+            if uploaded_image
+            else (gallery_images[0] if gallery_images else request.form.get("image", "").strip() or project.image)
+        )
+        project.images = encode_image_list(gallery_images, project.image)
+        project.completion_label = request.form.get("completion_label", "").strip()
+        project.badge_label = request.form.get("badge_label", "").strip()
+        project.badge_icon = request.form.get("badge_icon", "").strip()
+        project.badge_class = request.form.get("badge_class", "").strip()
         project.published = request.form.get("published") == "on"
         project.sort_order = int(request.form.get("sort_order", "0") or 0)
         fallback_metrics = PROJECT_METRIC_SETS[project.sort_order % len(PROJECT_METRIC_SETS)]

@@ -2,6 +2,7 @@
 {% block title %}Edit Campaign - HopeBridge{% endblock %}
 
 {% block content %}
+{% set gallery = campaign_gallery(campaign) %}
 <section class="section-pad admin-page">
     <div class="container">
         <div class="section-heading">
@@ -21,10 +22,27 @@
                 <div class="col-md-6"><label>Location</label><input class="form-control" name="location" value="{{ campaign.location }}" required></div>
                 <div class="col-md-3"><label>Goal</label><input class="form-control" type="number" name="goal" value="{{ campaign.goal }}" min="1" required></div>
                 <div class="col-md-3"><label>Sort Number</label><input class="form-control" type="number" name="sort_order" value="{{ campaign.sort_order or 0 }}"></div>
-                <div class="col-12"><label>Image URL</label><input class="form-control" name="image" value="{{ campaign.image }}"></div>
-                <div class="col-12"><label>Upload New Image</label><input class="form-control" type="file" name="campaign_image" accept="image/*"></div>
+                <div class="col-12"><label>Main Image URL</label><input class="form-control" name="image" value="{{ campaign.image }}"></div>
+                <div class="col-12"><label>Upload New Main Image</label><input class="form-control" type="file" name="campaign_image" accept="image/*"></div>
+                <div class="col-12">
+                    <label>Campaign Photo Carousel</label>
+                    <div class="row g-3">
+                        {% for index in range(5) %}
+                        <div class="col-md-6">
+                            <div class="admin-edit-box">
+                                <label>Photo {{ index + 1 }} URL</label>
+                                <input class="form-control" name="campaign_gallery_{{ index }}" value="{{ gallery[index] if index < gallery|length else '' }}">
+                                <label>Upload Photo {{ index + 1 }}</label>
+                                <input class="form-control" type="file" name="campaign_gallery_file_{{ index }}" accept="image/*">
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
                 <div class="col-12"><label>Summary</label><textarea class="form-control" name="summary" rows="3" required>{{ campaign.summary }}</textarea></div>
                 <div class="col-12"><label>Story</label><textarea class="form-control" name="story" rows="6" required>{{ campaign.story }}</textarea></div>
+                <div class="col-12"><label>Recent Update</label><textarea class="form-control" name="recent_update" rows="5" placeholder="Write the donor update shown on the campaign page.">{{ campaign.recent_update or '' }}</textarea></div>
+                <div class="col-md-6"><label>Days Remaining Text</label><input class="form-control" name="days_remaining_label" value="{{ campaign.days_remaining_label or campaign_days_remaining(campaign) }}" placeholder="12 Days Left"></div>
                 <div class="col-md-6"><label class="form-check"><input class="form-check-input" type="checkbox" name="verified" {% if campaign.verified %}checked{% endif %}> Verified</label></div>
                 <div class="col-md-6"><label class="form-check"><input class="form-check-input" type="checkbox" name="completed" {% if campaign.completed %}checked{% endif %}> Completed</label></div>
             </div>
